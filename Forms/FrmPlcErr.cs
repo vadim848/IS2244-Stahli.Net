@@ -201,7 +201,7 @@ namespace Stahli2Robots
         {
             AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.ResetErrors = true;  //19.10.14
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hResetErrors, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.ResetErrors); //19.10.14
-            RefreshLists();
+           // RefreshLists();
         }
     }
 }

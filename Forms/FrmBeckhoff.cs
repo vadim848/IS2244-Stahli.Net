@@ -217,8 +217,11 @@ namespace Stahli2Robots
                 GeneralControl_PLC.hTolLow = adsClient.CreateVariableHandle(".ar_MeasTolerance.fTolLow");
                 GeneralControl_PLC.hCorrLow1 = adsClient.CreateVariableHandle(".ar_MeasTolerance.fCorrLow1");
                 GeneralControl_PLC.hCorrLow2 = adsClient.CreateVariableHandle(".ar_MeasTolerance.fCorrLow2");
-                GeneralControl_PLC.hGeneralErrorCount = adsClient.CreateVariableHandle(".act_ErrorNum_General");  //qq
+                GeneralControl_PLC.hGeneralErrorCount = adsClient.CreateVariableHandle(".iActWarning");  // Japan 01.07.15
                 GeneralControl_PLC.hLastBatch = adsClient.CreateVariableHandle(".b_LastBatch"); //qq
+                GeneralControl_PLC.hStahliOutAutomationReady = adsClient.CreateVariableHandle(".db_Stahli.out_AutomationReady"); //  Japan 30.6.15
+                GeneralControl_PLC.hStahliInReadyForUnload = adsClient.CreateVariableHandle(".db_Stahli.in_ReadyForUnload"); //  Japan 30.6.15
+                GeneralControl_PLC.hGeneralWarningCount = adsClient.CreateVariableHandle(".iActMessages"); //  Japan 30.6.15
         
                 //--------Load conveyor:-----------
                 LoadConveyor_PLC.hOp_VB = adsClient.CreateVariableHandle(".op_Load_VB");
@@ -257,7 +260,8 @@ namespace Stahli2Robots
 			    }
                 for (int ii = 21; ii <= 26; ii++)  //Stahli
                 {
-                    IndexTable_PLC.hia_SliceStatus[ii] = adsClient.CreateVariableHandle(".Carr[" + ii + "]");
+                   // IndexTable_PLC.hia_SliceStatus[ii] = adsClient.CreateVariableHandle(".Carr[" + ii + "]");
+                    IndexTable_PLC.hia_SliceStatus[ii] = adsClient.CreateVariableHandle(".CarrStahli_StateHMI[" + ii + "]");  //Japan  30.6.15
                 }
                 for (int ii = 31; ii <= 42; ii++)  //Stacker
                 {
@@ -350,8 +354,16 @@ namespace Stahli2Robots
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".TSafeIn.ES_State", AdsTransMode.OnChange, 100, 0, ".TSafeIn.ES_State", typeof(bool)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".ResumeAll", AdsTransMode.OnChange, 100, 0, ".ResumeAll", typeof(bool)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx("prg_Messages.ResetErrors", AdsTransMode.OnChange, 100, 0, "prg_Messages.ResetErrors", typeof(bool)));
-                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".act_ErrorNum_General", AdsTransMode.OnChange, 100, 0, ".act_ErrorNum_General", typeof(short)));  //qq
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".iActWarning", AdsTransMode.OnChange, 100, 0, ".iActWarning", typeof(short)));  // Japan 01.07.15
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".b_LastBatch", AdsTransMode.OnChange, 100, 0, ".b_LastBatch", typeof(bool)));  //qq
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".b_LastBatch", AdsTransMode.OnChange, 100, 0, ".b_LastBatch", typeof(bool)));   //Japan 30.6.15
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".db_Stahli.out_AutomationReady", AdsTransMode.OnChange, 100, 0, ".db_Stahli.out_AutomationReady", typeof(bool)));   //Japan 30.6.15
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".db_Stahli.in_ReadyForUnload", AdsTransMode.OnChange, 100, 0, ".db_Stahli.in_ReadyForUnload", typeof(bool)));   //Japan 30.6.15
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".iActMessages", AdsTransMode.OnChange, 100, 0, ".iActMessages", typeof(short)));   //Japan 01.07.15
+                
+
+
+                
                 //--------Load conveyor:-----------
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".op_Load_VB", AdsTransMode.OnChange, 100, 0, ".op_Load_VB", typeof(short)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".m_Load_VB", AdsTransMode.OnChange, 100, 0, ".m_Load_VB", typeof(short)));
@@ -392,7 +404,8 @@ namespace Stahli2Robots
                 }
                 for (int ii = 21; ii <= 26; ii++)  //Stahli
                 {
-                    notificationHandles.Add(adsClient.AddDeviceNotificationEx(".Carr[" + ii + "]", AdsTransMode.OnChange, 100, 0, ".Carr[" + ii + "]", typeof(short)));
+                   // notificationHandles.Add(adsClient.AddDeviceNotificationEx(".Carr[" + ii + "]", AdsTransMode.OnChange, 100, 0, ".Carr[" + ii + "]", typeof(short)));
+                    notificationHandles.Add(adsClient.AddDeviceNotificationEx(".CarrStahli_StateHMI[" + ii + "]", AdsTransMode.OnChange, 100, 0, ".CarrStahli_StateHMI[" + ii + "]", typeof(short)));
                 }
                 for (int ii = 31; ii <= 42; ii++)  //Stacker
                 {
@@ -433,13 +446,17 @@ namespace Stahli2Robots
             if (!AppGen.Inst.MDImain.chkPlcON.Checked) return;      
             string name = e.UserData.ToString();
             Type type = e.Value.GetType();
-            
+
+   
             if (type == typeof(PlcErrMsg))
             {
                 if (name == ".act_Error_Load_HMI") LoadConv_PlcErrMsg = (PlcErrMsg)e.Value;
                 if (name == ".act_Error_Unload_HMI") UnloadConv_PlcErrMsg = (PlcErrMsg)e.Value;
                 if (name == ".act_Error_Table_HMI") IndexTable_PlcErrMsg = (PlcErrMsg)e.Value;
                 if (name == ".act_Error_General_HMI") General_PlcErrMsg = (PlcErrMsg)e.Value; //qq
+
+                if (AppGen.Inst.MDImain.frmPlcErr.Visible)      //Japan 30.6.15
+                    AppGen.Inst.MDImain.frmPlcErr.RefreshLists();
             }
             else
             {
@@ -524,8 +541,11 @@ namespace Stahli2Robots
                 if (name == ".ar_MeasTolerance.fTolLow") GeneralControl_PLC.TolLow = (float)e.Value;
                 if (name == ".ar_MeasTolerance.fCorrLow1") GeneralControl_PLC.CorrLow1 = (float)e.Value;
                 if (name == ".ar_MeasTolerance.fCorrLow2") GeneralControl_PLC.CorrLow2 = (float)e.Value;
-                if (name == ".act_ErrorNum_General") GeneralControl_PLC.GeneralErrorCount = (short)e.Value;  //qq
+                if (name == ".iActWarning") GeneralControl_PLC.GeneralErrorCount = (short)e.Value;  //qq
+                if (name == ".iActMessages") GeneralControl_PLC.GeneralWarningCount = (short)e.Value;  // Japan 01.07.15          
                 if (name == ".b_LastBatch") GeneralControl_PLC.LastBatch = (bool)e.Value; //qq
+                if (name == ".db_Stahli.out_AutomationReady") GeneralControl_PLC.StahliOutAutomationReady = (bool)e.Value; //Japan 30.6.15
+                if (name == ".db_Stahli.in_ReadyForUnload") GeneralControl_PLC.StahliInReadyForUnload = (bool)e.Value; //Japan 30.6.15
                 //--------Load conveyor:-----------
                 if (name == ".st_LoadReady") LoadConveyor_PLC.fl_ConvReady = (bool)e.Value;
                 if (name == ".op_Load_VB") LoadConveyor_PLC.Op_VB = (short)e.Value;
@@ -563,7 +583,8 @@ namespace Stahli2Robots
                 }
                 for (int ii = 21; ii <= 26; ii++)  //Stahli
                 {
-                    if (name == ".Carr[" + ii + "]") IndexTable_PLC.ia_SliceStatus[ii] = (short)e.Value;
+                   // if (name == ".Carr[" + ii + "]") IndexTable_PLC.ia_SliceStatus[ii] = (short)e.Value;
+                    if (name == ".CarrStahli_StateHMI[" + ii + "]") IndexTable_PLC.ia_SliceStatus[ii] = (short)e.Value;
                 }
                 for (int ii = 31; ii <= 42; ii++)  //Stacker
                 {
@@ -1446,7 +1467,9 @@ namespace Stahli2Robots
                 GeneralControl_PLC.CorrLow1 = (float)adsClient.ReadAny(GeneralControl_PLC.hCorrLow1, typeof(float));
                 GeneralControl_PLC.CorrLow2 = (float)adsClient.ReadAny(GeneralControl_PLC.hCorrLow2, typeof(float));
                 GeneralControl_PLC.GeneralErrorCount = (short)adsClient.ReadAny(GeneralControl_PLC.hGeneralErrorCount, typeof(short)); //qq
+                GeneralControl_PLC.GeneralWarningCount = (short)adsClient.ReadAny(GeneralControl_PLC.hGeneralWarningCount, typeof(short)); //  JApan 01.07.15
                 GeneralControl_PLC.LastBatch = (bool)adsClient.ReadAny(GeneralControl_PLC.hLastBatch, typeof(bool));
+               
 
                 //--------Load conveyor:-----------
                 LoadConveyor_PLC.Op_VB = (short)adsClient.ReadAny(LoadConveyor_PLC.hOp_VB, typeof(short));
@@ -2615,6 +2638,9 @@ namespace Stahli2Robots
         public float CorrLow2;
         public short GeneralErrorCount;
         public bool LastBatch;
+        public bool StahliOutAutomationReady;   //Japan 30.6.15
+        public bool StahliInReadyForUnload;     //Japan 30.6.15
+        public short GeneralWarningCount;   //Japan 01.07.15
 
         public int hTopLight;
         public int hBottomLight1;
@@ -2641,6 +2667,11 @@ namespace Stahli2Robots
         public int hCorrLow2;
         public int hGeneralErrorCount;
         public int hLastBatch;
+
+        public int hStahliOutAutomationReady;   //Japan 30.6.15
+        public int hStahliInReadyForUnload; //Japan 30.6.15
+        public int hGeneralWarningCount;    //Japan 01.07.15
+
     }
 
     

@@ -925,13 +925,13 @@ namespace Stahli2Robots
            //AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hOp_Main, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.MainMode);
        }
 
-       private void cmdLoadConvPlayStat_Click(object sender, EventArgs e)
+       public void cmdLoadConvPlayStat_Click(object sender, EventArgs e)
        {
            AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB = 2; 
            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB);
        }
 
-       private void cmdLoadConvPauseStat_Click(object sender, EventArgs e)
+       public void cmdLoadConvPauseStat_Click(object sender, EventArgs e)
        {
            AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB = 1; 
            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB);
@@ -943,7 +943,7 @@ namespace Stahli2Robots
            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.Op_VB);
        }
 
-       private void cmdUnloadConvPauseStat_Click(object sender, EventArgs e)
+       public void cmdUnloadConvPauseStat_Click(object sender, EventArgs e)
        {
            AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.Op_VB = 1;
            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.Op_VB);
@@ -955,7 +955,7 @@ namespace Stahli2Robots
            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.Op_VB);
        }
 
-       private void cmdTablePauseStat_Click(object sender, EventArgs e)
+       public void cmdTablePauseStat_Click(object sender, EventArgs e)
        {
            AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.Op_VB = 1;
            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.Op_VB);

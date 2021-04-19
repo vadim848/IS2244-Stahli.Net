@@ -62,7 +62,7 @@
             this.cmdRefreshAllErrors.Name = "cmdRefreshAllErrors";
             this.cmdRefreshAllErrors.Size = new System.Drawing.Size(185, 28);
             this.cmdRefreshAllErrors.TabIndex = 3;
-            this.cmdRefreshAllErrors.Text = "Refresh Error List";
+            this.cmdRefreshAllErrors.Text = "Reset errors";
             this.cmdRefreshAllErrors.UseVisualStyleBackColor = true;
             this.cmdRefreshAllErrors.Click += new System.EventHandler(this.cmdRefreshAllErrors_Click);
             // 

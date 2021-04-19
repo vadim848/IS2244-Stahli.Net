@@ -118,10 +118,15 @@ namespace Stahli2Robots
                         AppGen.Inst.LoadTray.IndexList[AppGen.Inst.LoadTray.CurrIndex].X_VisRes.ToString("f2") + "," +
                         AppGen.Inst.LoadTray.IndexList[AppGen.Inst.LoadTray.CurrIndex].Y_VisRes.ToString("f2") + "," +
                         AppGen.Inst.LoadTray.IndexList[AppGen.Inst.LoadTray.CurrIndex].Angle_VisRes.ToString("f2") + ",";     //Coord of pick from load tray
-
+                    //15.06.09
+                    var mAngle = AppGen.Inst.LoadCarrier.IndexList[AppGen.Inst.LoadCarrier.CurrIndex].Master.Angle;
+                    var updatedPlaceAngle = (360 - ((mAngle + AppGen.Inst.newRotation) % 360));
+                    // Updated
                     sInsertLoc += (AppGen.Inst.LoadCarrier.IndexList[AppGen.Inst.LoadCarrier.CurrIndex].Offset.X + AppGen.Inst.VisionParam.LoadCarrAddedX).ToString("f2") + "," + //Coord of place on load carrier
                         (AppGen.Inst.LoadCarrier.IndexList[AppGen.Inst.LoadCarrier.CurrIndex].Offset.Y + AppGen.Inst.VisionParam.LoadCarrAddedY).ToString("f2") + "," +
-                        ((double)(AppGen.Inst.LoadCarrier.IndexList[AppGen.Inst.LoadCarrier.CurrIndex].Offset.Angle) + AppGen.Inst.VisionParam.LoadAddedAngle).ToString("f2") + ",";
+                        ((double)(updatedPlaceAngle) +
+                        AppGen.Inst.VisionParam.LoadAddedAngle).ToString("f2") + ",";
+                    //
                     if (AppGen.Inst.LoadCarrier.CurrIndex < AppGen.Inst.LoadCarrier.IndexList.Count - 1)
                     {
                         sInsertLoc += "0";

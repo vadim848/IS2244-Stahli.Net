@@ -34,7 +34,9 @@ namespace Stahli2Robots
             appSetting.Init();
             orderParams.Init();
         }
-
+        //---- 15.06.09 ----
+        internal double newRotation;
+        //---- -------- ----
         public void OnInitApp()
         {
             mainCycle.OnInitApp();

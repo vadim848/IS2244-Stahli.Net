@@ -829,6 +829,13 @@ namespace Stahli2Robots
             }
             AppGen.Inst.AppSettings.Serialize();  //saveing all index and counters (in case of software crash)
 
+
+
+            AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.ResetErrors = true;          //Japan 30.6.15
+            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hResetErrors, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.ResetErrors);
+
+
+
             AppGen.Inst.LogFile("Operation pressed ResetAll", LogType.Production);
             AppGen.Inst.MDImain.frmTitle.setupResultGoodLed0.Visible = false;
             AppGen.Inst.MDImain.frmTitle.setupResultGoodLed1.Visible = false;

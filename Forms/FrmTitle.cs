@@ -905,7 +905,28 @@ namespace Stahli2Robots
                 else
                 {
                     SapeUnloadCarrierReady.BackgroundImage = Properties.Resources.circle_red5;
-                }                                    
+                } 
+ 
+                //japan  30.6.15
+                if (AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.StahliOutAutomationReady)
+                {
+                    sapeAutomationReady.BackgroundImage = Properties.Resources.circle_green4;
+                }
+                else
+                {
+                    sapeAutomationReady.BackgroundImage = Properties.Resources.circle_grey0;
+                }
+                if (AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.StahliInReadyForUnload)
+                {
+                    sapaStahliInReadyForUnload.BackgroundImage = Properties.Resources.circle_green4;
+                }
+                else
+                {
+                    sapaStahliInReadyForUnload.BackgroundImage = Properties.Resources.circle_grey0;
+                }
+
+                
+                  
             }
             UpdateSliceInterval += 1;
 
@@ -953,6 +974,33 @@ namespace Stahli2Robots
                 ____cmdUnloadRobot.Text = "Robot 2";
             }
 
+            //---------------------------------General Warning:---------------------------------------  Japan  01.07.15
+            short tmpGeneralWarning = 0;
+            if (AppGen.Inst.MainCycle.MainProccesState != ProcessStatus.Stop)
+            {
+                tmpGeneralWarning = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.GeneralWarningCount;
+            }
+            if ((tmpGeneralWarning > 0) && (AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.GreenLight))
+            {
+                //turn on Yellow and Green  lights
+                AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.YellowLight = true;
+                AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.GreenLight = true;
+                AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.RedLight = false;
+                AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hRedLight, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.RedLight);
+                AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hYellowLight, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.YellowLight);
+                AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hGreenLight, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.GreenLight);
+
+                if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
+                {
+                    Buzzer(true);
+                }
+            }
+            if ((tmpGeneralWarning == 0) && (AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.GreenLight) && (AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.YellowLight))
+            {
+                Ramzor(RamzorColor.Green);
+                Buzzer(false);
+            }
+
             //---------------------------------General Errors(New 18.02.15!):---------------------------------------  //qq
 
             //General_PlcErrMsg
@@ -970,6 +1018,7 @@ namespace Stahli2Robots
                 if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                 {
                     Buzzer(true);
+                    PauseAll(); //Japan 01.07.15
                 }
                 if (!AppGen.Inst.MainCycle.MainControl.ErrLoged)
                 {
@@ -986,6 +1035,7 @@ namespace Stahli2Robots
                     if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                     {
                         Buzzer(true);
+                        PauseAll(); //Japan 01.07.15
                     }
                 }
                 else
@@ -1013,6 +1063,7 @@ namespace Stahli2Robots
                 if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                 {
                     Buzzer(true);
+                    PauseAll(); //Japan 01.07.15
                 }
                 if (!AppGen.Inst.MainCycle.LoadCycleControl.ErrLoged)
                 {
@@ -1029,6 +1080,7 @@ namespace Stahli2Robots
                     if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                     {
                         Buzzer(true);
+                        PauseAll(); //Japan 01.07.15
                     }
                 }
                 else
@@ -1055,6 +1107,7 @@ namespace Stahli2Robots
                 if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                 {
                     Buzzer(true);
+                    PauseAll(); //Japan 01.07.15
                 }
                 if (!AppGen.Inst.MainCycle.UnloadCycleControl.ErrLoged)
                 {
@@ -1072,6 +1125,7 @@ namespace Stahli2Robots
                     if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                     {
                         Buzzer(true);
+                        PauseAll(); //Japan 01.07.15
                     }
                 }
                 else
@@ -1098,6 +1152,7 @@ namespace Stahli2Robots
                 if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                 {
                     Buzzer(true);
+                    PauseAll(); //Japan 01.07.15
                 }
                 if (!AppGen.Inst.MainCycle.IndexTableControl.ErrLoged)
                 {
@@ -1170,6 +1225,7 @@ namespace Stahli2Robots
                 if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                 {
                     Buzzer(true);
+                    PauseAll(); //Japan 01.07.15
                 }
                 AppGen.Inst.LogFile("Camera1  " + AppGen.Inst.ErrorDescription.ErrorDescriptionEng[AppGen.Inst.Cam1.iErrNo], LogType.GeneralErr, LogStation.Vision);
             }
@@ -1187,6 +1243,7 @@ namespace Stahli2Robots
                 if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                 {
                     Buzzer(true);
+                    PauseAll(); //Japan 01.07.15
                 }
                 AppGen.Inst.LogFile("Camera2  " + AppGen.Inst.ErrorDescription.ErrorDescriptionEng[AppGen.Inst.Cam2.iErrNo], LogType.GeneralErr, LogStation.Vision);
             }
@@ -1204,6 +1261,7 @@ namespace Stahli2Robots
                 if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
                 {
                     Buzzer(true);
+                    PauseAll(); //Japan 01.07.15
                 }
                 AppGen.Inst.LogFile("Camera3  " + AppGen.Inst.ErrorDescription.ErrorDescriptionEng[AppGen.Inst.Cam3.iErrNo], LogType.GeneralErr, LogStation.Vision);
             }
@@ -1940,6 +1998,14 @@ namespace Stahli2Robots
 	        }
             return Properties.Resources.SYSTEM_WINUPDATE;  //error
 
+        }
+
+        public void PauseAll()  //Japan 01.07.15
+        {
+            AppGen.Inst.MDImain.frmAssemblies.cmdLoadConvPauseStat_Click(null, null);
+            AppGen.Inst.MDImain.frmAssemblies.cmdTablePauseStat_Click(null, null);
+            AppGen.Inst.MDImain.frmAssemblies.cmdUnloadConvPauseStat_Click(null, null);
+            cmdPauseButton_Click(null, null);
         }
 
         private void cmdLoadCarrierReady_Click(object sender, EventArgs e)

@@ -901,8 +901,12 @@ namespace Stahli2Robots
                 //rotation = (rotation >= 0) ? rotation : rotation + 360;
                 tbxRotationAngle.Text = String.Format("{0:0.00}", rotation);
                 txtPatMaxScoreValue.Text = String.Format("{0:0.00}", cogPMAlignTool.Results.Count.ToString());
-
-
+                //---- 15.06.09 ----
+                if (rotation != null)
+                {
+                    AppGen.Inst.newRotation = (double)rotation;
+                }
+                //---- -------- ----
                 //asaf:
                 AppGen.Inst.LoadCarrier.SetRotate(AppGen.Inst.MDImain.frmVisionMain.FrmLoadCarrier.rotation);
                 AppGen.Inst.LoadCarrier.SetOffset(AppGen.Inst.MDImain.frmVisionMain.FrmLoadCarrier.midlePointX, AppGen.Inst.MDImain.frmVisionMain.FrmLoadCarrier.midlePointY);
