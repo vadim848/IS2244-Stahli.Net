@@ -84,6 +84,7 @@ namespace Stahli2Robots
         private MenuItem menuItem2;
         private IContainer components;
         #endregion
+
         #region Translation Variables
         ResourceManager rm;
         private MenuItem menuItem6;
@@ -351,8 +352,6 @@ namespace Stahli2Robots
             // chkErrLog
             // 
             this.chkErrLog.AutoSize = true;
-            this.chkErrLog.Checked = true;
-            this.chkErrLog.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkErrLog.Location = new System.Drawing.Point(241, 19);
             this.chkErrLog.Name = "chkErrLog";
             this.chkErrLog.Size = new System.Drawing.Size(88, 17);
@@ -887,6 +886,7 @@ namespace Stahli2Robots
         {
             AppGen.Inst.MDImain = this;
             WindowState = FormWindowState.Maximized;
+
 
             frmAssemblies = new FrmAssemblies();
             frmAssemblies.MdiParent = this;

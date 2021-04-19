@@ -133,7 +133,7 @@ namespace Stahli2Robots
             }
 
             loadOrderDataDelegate = new LoadOrderDataDelegate(LoadOrderDataDelegateFunc);
-            LoadPatternFromFile();
+            // LoadPatternFromFile();   //13.07.15 (Ziv)
         }
 
         public void InitVision()
@@ -616,7 +616,11 @@ namespace Stahli2Robots
                     CalibNPointTool = cogToolBlockEditV21.Subject.Tools["CogCalibNPointToNPointTool1"] as CogCalibNPointToNPointTool;
                     CalibNPointTool.Run();
                     cogPMAlignTool.Pattern.Train();
-                    SavePatternToFile();
+
+
+                    //SavePatternToFile();
+                    //save the teach pattern according to order name (ziv)
+                    AppGen.Inst.MDImain.frmVisionMain.savePattern("Camera3", AppGen.Inst.OrderParams.InsertCode, cogPMAlignTool.Pattern); 
                 }
                 catch (CogException cogex)
                 {
@@ -785,6 +789,7 @@ namespace Stahli2Robots
                 numericUpDown1.Value = Convert.ToDecimal(AppGen.Inst.OrderParams.Cam3_Score);
                 contrastUpDown.Value = Convert.ToDecimal(AppGen.Inst.OrderParams.Cam3_Contrast);
                 numericUpDown3.Value = Convert.ToDecimal(AppGen.Inst.OrderParams.Cam3_Angle);
+                LoadPatternFromFile();    //  13.07.15  (Ziv)
             }
             catch { }
         }
@@ -917,24 +922,31 @@ namespace Stahli2Robots
 
         void LoadPatternFromFile()
         {
-            try
+            // Ziv 14.07.15
+            cogPMAlignTool.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera3", AppGen.Inst.OrderParams.InsertCode);   //13.07.15 (Ziv)
+            if (cogPMAlignTool.Pattern == null)
             {
-                string path = System.IO.Directory.GetCurrentDirectory() + "\\CognexStahli\\PATTERN1.vpp";
-                if (string.IsNullOrEmpty(path)) return;
-
-                //path += "PMAlign.vpp";
-
-                if (System.IO.File.Exists(path))
-                {
-                    //CogPMAlignTool.InputImage = null;
-                    CogPMAlignPattern pattern = CogSerializer.LoadObjectFromFile(path) as Cognex.VisionPro.PMAlign.CogPMAlignPattern;
-                    if (pattern != null) cogPMAlignTool.Pattern = pattern;
-                }
+                cogPMAlignTool.Pattern = new CogPMAlignPattern();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+
+            ////try
+            ////{
+            ////    string path = System.IO.Directory.GetCurrentDirectory() + "\\CognexStahli\\PATTERN3.vpp";
+            ////    if (string.IsNullOrEmpty(path)) return;
+
+            ////    //path += "PMAlign.vpp";
+
+            ////    if (System.IO.File.Exists(path))
+            ////    {
+            ////        //CogPMAlignTool.InputImage = null;
+            ////        CogPMAlignPattern pattern = CogSerializer.LoadObjectFromFile(path) as Cognex.VisionPro.PMAlign.CogPMAlignPattern;
+            ////        if (pattern != null) cogPMAlignTool.Pattern = pattern;
+            ////    }
+            ////}
+            ////catch (Exception ex)
+            ////{
+            ////    MessageBox.Show(ex.Message);
+            ////}
         }
     }
 }

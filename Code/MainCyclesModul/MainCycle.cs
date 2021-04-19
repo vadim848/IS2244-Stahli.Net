@@ -96,6 +96,7 @@ namespace Stahli2Robots
                     switch (LoadCycleControl.iStep)
                     {
                         case 0: //finding orientation and location of empty new arrived Carrier
+
                             //if (RescanCarrier == true)   ///japan rescan!!!!!!
                             //{
                             //    if (AppGen.Inst.MDImain.frmBeckhoff.RobotDada.I_CycleDone == true)

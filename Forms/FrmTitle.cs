@@ -518,7 +518,13 @@ namespace Stahli2Robots
                                 AppGen.Inst.MainCycle.SetupDelays = 0;
 	                        }
 
-                            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + "," + AppGen.Inst.MainCycle.PickSensor.ToString() + "," + AppGen.Inst.MainCycle.SetupDelays.ToString());  // tbd: 0,0  is placeZero, PickSensor
+                            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + ","
+                                                                                                        + AppGen.Inst.MainCycle.PickSensor.ToString() + ","
+                                                                                                        + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
+                                                                                                        + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
+                                                                                                        + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
+                                                                                                        + AppGen.Inst.OrderParams.GripperCode.ToString());          //Ziv 15-07-15
+
                             AppGen.Inst.RobotConnection.stLoadRobotControl.bDone = true;
 
                             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -583,7 +589,10 @@ namespace Stahli2Robots
                                 AppGen.Inst.MainCycle.SetupDelays = 0;
                             }
 
-                            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString());
+                            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
+                                                                                                       + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
+                                                                                                       + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
+                                                                                                       + AppGen.Inst.OrderParams.GripperCode.ToString());          //Ziv 15-07-15
                             AppGen.Inst.RobotConnection.stUnloadRobotControl.bDone = true;
 
                             //boolean breakFlag = false;
@@ -1297,15 +1306,22 @@ namespace Stahli2Robots
                 AppGen.Inst.MDImain._tbr_OpenDoor.BackColor = System.Drawing.Color.WhiteSmoke;
             }
             //--------------------------------- S3 for PLC: ---------------------------------------
-            if (AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.S3)
+            try
             {
-                AppGen.Inst.MDImain.frmTitle.____S3_Led.Image = Image.FromFile(Directory.GetCurrentDirectory() + "\\icon\\green-on_24.ico"); 
-            }
-            else
-            {
-                AppGen.Inst.MDImain.frmTitle.____S3_Led.Image = Image.FromFile(Directory.GetCurrentDirectory() + "\\icon\\green-off_24.ico"); 
-            }
 
+                if (AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.S3)
+                {
+                    AppGen.Inst.MDImain.frmTitle.____S3_Led.Image = Image.FromFile(Directory.GetCurrentDirectory() + "\\icon\\green-on_24.ico");
+                }
+                else
+                {
+                    AppGen.Inst.MDImain.frmTitle.____S3_Led.Image = Image.FromFile(Directory.GetCurrentDirectory() + "\\icon\\green-off_24.ico");
+                }
+
+            }
+            catch 
+            {
+            }
             if ((tmpErrTable == 0) && (tmpErrLoad == 0) && (tmpErrUnload == 0))
 	        {
                 AppGen.Inst.MDImain.frmTitle.cmdErrForm.BackColor = System.Drawing.Color.WhiteSmoke;
@@ -2139,7 +2155,13 @@ namespace Stahli2Robots
         }
         private void cmdDebugLoadingCycle_Click(object sender, EventArgs e)
         {
-            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + "," + AppGen.Inst.MainCycle.PickSensor.ToString() + "," + AppGen.Inst.MainCycle.SetupDelays.ToString());  // tbd: 0,0  is placeZero, PickSensor
+            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + ","
+                                                                                    + AppGen.Inst.MainCycle.PickSensor.ToString() + ","
+                                                                                    + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
+                                                                                    + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
+                                                                                    + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
+                                                                                    + AppGen.Inst.OrderParams.GripperCode.ToString());          //Ziv 15-07-15
+            
             AppGen.Inst.RobotConnection.stLoadRobotControl.bDone = true;
 
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
@@ -2181,7 +2203,10 @@ namespace Stahli2Robots
         }
         private void cmdDebugUnloadingCycle_Click(object sender, EventArgs e)
         {
-            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString());
+            AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
+                                                                                                       + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
+                                                                                                       + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
+                                                                                                       + AppGen.Inst.OrderParams.GripperCode.ToString());          //Ziv 15-07-15
             AppGen.Inst.RobotConnection.stUnloadRobotControl.bDone = true;
 
             //boolean breakFlag = false;
@@ -2316,6 +2341,8 @@ namespace Stahli2Robots
         public StripLine stTolLow;
         public StripLine stCorrLow1;
         public StripLine stCorrLow2;
+
+
 
         
     }

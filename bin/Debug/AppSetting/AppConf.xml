@@ -98,7 +98,7 @@
       <A>0</A>
     </PointCoord>
   </AppSetUnloadCarrierCalibPt>
-  <CurrentInsertCode>D1504_CC</CurrentInsertCode>
+  <CurrentInsertCode>W0804_CC</CurrentInsertCode>
   <AppSetLangFl>Eng</AppSetLangFl>
   <AppSetLoadCarrAddedX>0</AppSetLoadCarrAddedX>
   <AppSetLoadCarrAddedY>0</AppSetLoadCarrAddedY>
@@ -112,8 +112,8 @@
   <AppSetInsQnt>0</AppSetInsQnt>
   <AppSetTotalUnloadMissedCount>0</AppSetTotalUnloadMissedCount>
   <AppSetMissPocketTotalCount>0</AppSetMissPocketTotalCount>
-  <AppSetUnloadCarrierSliceNo>4</AppSetUnloadCarrierSliceNo>
-  <AppSetLoadTrayCurrIndex>38</AppSetLoadTrayCurrIndex>
+  <AppSetUnloadCarrierSliceNo>1</AppSetUnloadCarrierSliceNo>
+  <AppSetLoadTrayCurrIndex>43</AppSetLoadTrayCurrIndex>
   <AppSetUnLoadTrayCurrIndex>69</AppSetUnLoadTrayCurrIndex>
   <AppSetLoadCarrierCurrIndex>0</AppSetLoadCarrierCurrIndex>
 </AppSettings>

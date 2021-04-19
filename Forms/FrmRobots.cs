@@ -112,6 +112,8 @@ namespace Stahli2Robots
         private Button cmdMasureOffset;
         private Label label12;
         private TextBox txtPlaceMaesureOffsetZ;
+        private Button btnTeachTableHeight2;
+        private Button btnTeachTableHeight;
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -242,6 +244,8 @@ namespace Stahli2Robots
             this.shapeContainer1 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
             this.SapeRobotInputState = new Microsoft.VisualBasic.PowerPacks.OvalShape();
             this.cmdChkInput = new System.Windows.Forms.Button();
+            this.btnTeachTableHeight2 = new System.Windows.Forms.Button();
+            this.btnTeachTableHeight = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabUnloadRobot.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -274,6 +278,7 @@ namespace Stahli2Robots
             // tabUnloadRobot
             // 
             this.tabUnloadRobot.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
+            this.tabUnloadRobot.Controls.Add(this.btnTeachTableHeight2);
             this.tabUnloadRobot.Controls.Add(this.groupBox3);
             this.tabUnloadRobot.Controls.Add(this.groupBox4);
             this.tabUnloadRobot.Controls.Add(this.panel2);
@@ -582,7 +587,7 @@ namespace Stahli2Robots
             this.label5.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.label5.Location = new System.Drawing.Point(116, 25);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(99, 16);
+            this.label5.Size = new System.Drawing.Size(100, 16);
             this.label5.TabIndex = 7;
             this.label5.Text = "CorrectionValue";
             // 
@@ -837,6 +842,7 @@ namespace Stahli2Robots
             // 
             // tabLoadRobot
             // 
+            this.tabLoadRobot.Controls.Add(this.btnTeachTableHeight);
             this.tabLoadRobot.Controls.Add(this.cmdReadCalibPoints);
             this.tabLoadRobot.Controls.Add(this.groupBox2);
             this.tabLoadRobot.Controls.Add(this.panel1);
@@ -1077,7 +1083,7 @@ namespace Stahli2Robots
             this.label2.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
             this.label2.Location = new System.Drawing.Point(116, 25);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(99, 16);
+            this.label2.Size = new System.Drawing.Size(100, 16);
             this.label2.TabIndex = 7;
             this.label2.Text = "CorrectionValue";
             // 
@@ -1342,6 +1348,28 @@ namespace Stahli2Robots
             this.cmdChkInput.UseVisualStyleBackColor = true;
             this.cmdChkInput.Click += new System.EventHandler(this.cmdExecBtn1_Click);
             // 
+            // btnTeachTableHeight2
+            // 
+            this.btnTeachTableHeight2.Font = new System.Drawing.Font("Arial", 12F);
+            this.btnTeachTableHeight2.Location = new System.Drawing.Point(130, 339);
+            this.btnTeachTableHeight2.Name = "btnTeachTableHeight2";
+            this.btnTeachTableHeight2.Size = new System.Drawing.Size(205, 34);
+            this.btnTeachTableHeight2.TabIndex = 43;
+            this.btnTeachTableHeight2.Text = "Teach table height";
+            this.btnTeachTableHeight2.UseVisualStyleBackColor = true;
+            this.btnTeachTableHeight2.Click += new System.EventHandler(this.cmdExecBtn2_Click);
+            // 
+            // btnTeachTableHeight
+            // 
+            this.btnTeachTableHeight.Font = new System.Drawing.Font("Arial", 12F);
+            this.btnTeachTableHeight.Location = new System.Drawing.Point(130, 339);
+            this.btnTeachTableHeight.Name = "btnTeachTableHeight";
+            this.btnTeachTableHeight.Size = new System.Drawing.Size(205, 34);
+            this.btnTeachTableHeight.TabIndex = 20;
+            this.btnTeachTableHeight.Text = "Teach table height";
+            this.btnTeachTableHeight.UseVisualStyleBackColor = true;
+            this.btnTeachTableHeight.Click += new System.EventHandler(this.cmdExecBtn1_Click);
+            // 
             // FrmRobots
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(7, 15);
@@ -1604,6 +1632,9 @@ namespace Stahli2Robots
                     //stopCycleTest = true;
                     //return;
                     break;
+                case "btnTeachTableHeight":
+                    AppGen.Inst.RobotConnection.RL.CmdMsg = "22,0";
+                    break;
             }           
             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, AppGen.Inst.RobotConnection.RL.CmdMsg);
         }
@@ -1667,6 +1698,9 @@ namespace Stahli2Robots
                      AppGen.Inst.RobotConnection.RU.CmdMsg = txtSendMsg2.Text;               
                     break;
                 case "cmdSingleCyc2":   //developing tool - single cycle by vision coord
+                    break;
+                case "btnTeachTableHeight2":
+                    AppGen.Inst.RobotConnection.RU.CmdMsg = "22,0";
                     break;
             }
             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, AppGen.Inst.RobotConnection.RU.CmdMsg);

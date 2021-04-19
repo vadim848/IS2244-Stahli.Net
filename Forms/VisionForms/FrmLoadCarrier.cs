@@ -165,7 +165,7 @@ namespace Stahli2Robots
             cogPMAlignToolCenter = cogToolBlockEditV21.Subject.Tools["CogPMAlignToolCenter"] as CogPMAlignTool;
             cogPMAlignToolFindOneInsert = cogToolBlockEditV21.Subject.Tools["CogPMAlignToolFindOneInsert"] as CogPMAlignTool;
 
-            LoadPatternFromFile();
+            // LoadPatternFromFile();   //13.07.15 (Ziv)
             loadOrderDataDelegate = new LoadOrderDataDelegate(LoadOrderDataDelegateFunc);
         }
 
@@ -185,10 +185,6 @@ namespace Stahli2Robots
             cogAcqTool = CogAcqFifoEdit1.Subject;
             cogAcqTool = cogToolBlockEditV21.Subject.Tools["CogAcqFifoTool1"] as CogAcqFifoTool;
             cogAcqTool.Run();
-
-
-
-
 
             //Operator will be Nothing if no Frame Grabber is available.  Disable the Frame Grabber
             //option on the "VisionPro Demo" tab if no frame grabber available.
@@ -276,11 +272,6 @@ namespace Stahli2Robots
             }
         }
 
-
-
-
-
-
         private void cmdImageAcquisitionLiveOrOpenCommand_Click(System.Object sender, System.EventArgs e)
         {
 
@@ -295,28 +286,7 @@ namespace Stahli2Robots
 
             ROIParams = myAcqFifo.OwnedROIParams;
 
-
-
-
-
             ROIParams.SetROIXYWidthHeight(StartXIndx, StartYIndx, MaxXWidth, MaxYWidth);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             //"Live Video"  & "Stop Live" button when Frame Grabber option is selected.
             //Using our EnableAll & DisableAll subroutine to force the user stop live
@@ -378,9 +348,6 @@ namespace Stahli2Robots
             cogRecordDisplay1.Fit(true);
 
         }
-
-
-
 
         private void cmdImageAcquisitionNewImageCommand_Click(System.Object sender, System.EventArgs e)
         {
@@ -638,6 +605,7 @@ namespace Stahli2Robots
                 brightnessUpDown.Value = Convert.ToDecimal(AppGen.Inst.OrderParams.Cam2_Brightness);
                 numericUpDown1.Value = Convert.ToDecimal(AppGen.Inst.OrderParams.Cam2_Score);
                 contrastUpDown.Value = Convert.ToDecimal(AppGen.Inst.OrderParams.Cam2_Contrast);
+                LoadPatternFromFile();    //  13.07.15  (Ziv)
 
             }
             catch { }
@@ -1121,16 +1089,6 @@ namespace Stahli2Robots
             CogSerializer.SaveObjectToFile(toolBlock, System.IO.Directory.GetCurrentDirectory() + "\\CognexStahli\\Camera2.vpp");
         }
 
-
-
-
-
-
-
-
-
-
-
         private void button3_Click(object sender, EventArgs e)
         {
             //CurrIndex++;
@@ -1463,7 +1421,12 @@ namespace Stahli2Robots
                     cogPMAlignToolFindOneInsert.Pattern.Train();
                     cogPMAlignToolFindOneInsert.Run();
                     cogRecordDisplay1.Record = cogPMAlignToolFindOneInsert.CreateLastRunRecord();
-                    SavePatternToFile();
+
+                    //SavePatternToFile();
+                    //save the teach pattern according to order name (ziv)
+                    AppGen.Inst.MDImain.frmVisionMain.savePattern("Camera2", AppGen.Inst.OrderParams.InsertCode, cogPMAlignTool.Pattern); 
+                  
+
                 }
                 catch (CogException cogex)
                 {
@@ -1661,26 +1624,32 @@ namespace Stahli2Robots
 
         void LoadPatternFromFile()
         {
-            try
+            // Ziv 14.07.15
+            cogPMAlignTool.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera2", AppGen.Inst.OrderParams.InsertCode);   //13.07.15 (Ziv)
+            if (cogPMAlignTool.Pattern == null)
             {
-                string path = System.IO.Directory.GetCurrentDirectory() + "\\CognexStahli\\PATTERN2.vpp";
-                if (string.IsNullOrEmpty(path)) return;
-
-                //path += "PMAlign.vpp";
-
-                if (System.IO.File.Exists(path))
-                {
-                    //CogPMAlignTool.InputImage = null;
-                    CogPMAlignPattern pattern = CogSerializer.LoadObjectFromFile(path) as Cognex.VisionPro.PMAlign.CogPMAlignPattern;
-                    if (pattern != null) cogPMAlignToolFindOneInsert.Pattern = pattern;
-                }
+                cogPMAlignTool.Pattern = new CogPMAlignPattern();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+
+            ////try
+            ////{
+            ////    string path = System.IO.Directory.GetCurrentDirectory() + "\\CognexStahli\\PATTERN3.vpp";
+            ////    if (string.IsNullOrEmpty(path)) return;
+
+            ////    //path += "PMAlign.vpp";
+
+            ////    if (System.IO.File.Exists(path))
+            ////    {
+            ////        //CogPMAlignTool.InputImage = null;
+            ////        CogPMAlignPattern pattern = CogSerializer.LoadObjectFromFile(path) as Cognex.VisionPro.PMAlign.CogPMAlignPattern;
+            ////        if (pattern != null) cogPMAlignTool.Pattern = pattern;
+            ////    }
+            ////}
+            ////catch (Exception ex)
+            ////{
+            ////    MessageBox.Show(ex.Message);
+            ////}
         }
-
 
     }
 }

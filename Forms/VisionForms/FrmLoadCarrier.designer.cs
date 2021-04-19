@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmLoadCarrier));
             this.label2 = new System.Windows.Forms.Label();
             this.frmPatMax = new System.Windows.Forms.GroupBox();
@@ -785,9 +784,9 @@
             this.groupBox2.Controls.Add(this.cmdSubmitCalibPoints);
             this.groupBox2.Controls.Add(this.button2);
             this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(758, 11);
+            this.groupBox2.Location = new System.Drawing.Point(767, 11);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(372, 711);
+            this.groupBox2.Size = new System.Drawing.Size(363, 711);
             this.groupBox2.TabIndex = 49;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Cognex Tools";

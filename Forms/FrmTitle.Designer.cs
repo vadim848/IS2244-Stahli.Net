@@ -35,6 +35,8 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
             this.grpDebug = new System.Windows.Forms.GroupBox();
             this.txtSnapFleg2 = new System.Windows.Forms.TextBox();
             this.txt_robotdataSnap2 = new System.Windows.Forms.TextBox();
@@ -73,6 +75,8 @@
             this.____cmdUnloadRobot = new System.Windows.Forms.Button();
             this.____cmdLoadRobot = new System.Windows.Forms.Button();
             this.shapeContainer5 = new Microsoft.VisualBasic.PowerPacks.ShapeContainer();
+            this.sapaStahliInReadyForUnload = new Microsoft.VisualBasic.PowerPacks.OvalShape();
+            this.sapeAutomationReady = new Microsoft.VisualBasic.PowerPacks.OvalShape();
             this.ShapeDoor3 = new Microsoft.VisualBasic.PowerPacks.RectangleShape();
             this.ShapeDoor1 = new Microsoft.VisualBasic.PowerPacks.RectangleShape();
             this.ShapeDoor2 = new Microsoft.VisualBasic.PowerPacks.RectangleShape();
@@ -355,10 +359,6 @@
             this.ImgStatusMsg1 = new System.Windows.Forms.PictureBox();
             this.lblMsg = new System.Windows.Forms.Label();
             this.tmrWaitResetAllDone = new System.Windows.Forms.Timer(this.components);
-            this.sapeAutomationReady = new Microsoft.VisualBasic.PowerPacks.OvalShape();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label21 = new System.Windows.Forms.Label();
-            this.sapaStahliInReadyForUnload = new Microsoft.VisualBasic.PowerPacks.OvalShape();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox12.SuspendLayout();
@@ -482,6 +482,24 @@
             this.groupBox12.Size = new System.Drawing.Size(567, 552);
             this.groupBox12.TabIndex = 96;
             this.groupBox12.TabStop = false;
+            // 
+            // label21
+            // 
+            this.label21.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label21.Location = new System.Drawing.Point(434, 311);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(100, 13);
+            this.label21.TabIndex = 126;
+            this.label21.Text = "Ready For Unload";
+            // 
+            // label20
+            // 
+            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label20.Location = new System.Drawing.Point(435, 289);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(100, 13);
+            this.label20.TabIndex = 125;
+            this.label20.Text = "Automation ready";
             // 
             // grpDebug
             // 
@@ -949,6 +967,22 @@
             this.shapeContainer5.Size = new System.Drawing.Size(561, 527);
             this.shapeContainer5.TabIndex = 1;
             this.shapeContainer5.TabStop = false;
+            // 
+            // sapaStahliInReadyForUnload
+            // 
+            this.sapaStahliInReadyForUnload.BackgroundImage = global::Stahli2Robots.Properties.Resources.circle_grey01;
+            this.sapaStahliInReadyForUnload.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.sapaStahliInReadyForUnload.Location = new System.Drawing.Point(532, 287);
+            this.sapaStahliInReadyForUnload.Name = "sapaStahliInReadyForUnload";
+            this.sapaStahliInReadyForUnload.Size = new System.Drawing.Size(16, 14);
+            // 
+            // sapeAutomationReady
+            // 
+            this.sapeAutomationReady.BackgroundImage = global::Stahli2Robots.Properties.Resources.circle_grey01;
+            this.sapeAutomationReady.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.sapeAutomationReady.Location = new System.Drawing.Point(532, 267);
+            this.sapeAutomationReady.Name = "sapeAutomationReady";
+            this.sapeAutomationReady.Size = new System.Drawing.Size(16, 14);
             // 
             // ShapeDoor3
             // 
@@ -3949,40 +3983,6 @@
             // 
             this.tmrWaitResetAllDone.Interval = 800;
             this.tmrWaitResetAllDone.Tick += new System.EventHandler(this.tmrWaitResetAllDone_Tick);
-            // 
-            // sapeAutomationReady
-            // 
-            this.sapeAutomationReady.BackgroundImage = global::Stahli2Robots.Properties.Resources.circle_grey01;
-            this.sapeAutomationReady.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.sapeAutomationReady.Location = new System.Drawing.Point(532, 267);
-            this.sapeAutomationReady.Name = "sapeAutomationReady";
-            this.sapeAutomationReady.Size = new System.Drawing.Size(16, 14);
-            // 
-            // label20
-            // 
-            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label20.Location = new System.Drawing.Point(435, 289);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(100, 13);
-            this.label20.TabIndex = 125;
-            this.label20.Text = "Automation ready";
-            // 
-            // label21
-            // 
-            this.label21.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label21.Location = new System.Drawing.Point(434, 311);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(100, 13);
-            this.label21.TabIndex = 126;
-            this.label21.Text = "Ready For Unload";
-            // 
-            // sapaStahliInReadyForUnload
-            // 
-            this.sapaStahliInReadyForUnload.BackgroundImage = global::Stahli2Robots.Properties.Resources.circle_grey01;
-            this.sapaStahliInReadyForUnload.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.sapaStahliInReadyForUnload.Location = new System.Drawing.Point(532, 287);
-            this.sapaStahliInReadyForUnload.Name = "sapaStahliInReadyForUnload";
-            this.sapaStahliInReadyForUnload.Size = new System.Drawing.Size(16, 14);
             // 
             // FrmTitle
             // 
