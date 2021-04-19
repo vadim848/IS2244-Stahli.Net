@@ -237,7 +237,7 @@ namespace Stahli2Robots
                                 {
                                     if (AppGen.Inst.MDImain.frmBeckhoff.RobotDada.I_DataReceived)
                                     {
-                                        AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.Robot1CycleTime, ((Robot1CycleTime.Elapsed.Milliseconds) / 1000).ToString());
+                                        AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.Robot1CycleTime, (((double)Robot1CycleTime.Elapsed.Milliseconds) / 1000).ToString());
                                         Robot1CycleTime.Restart();          //Start The StopWatch ...From 000                                
                                         AppGen.Inst.VisionParam.SNAP_req_fl1 = false;
                                         AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.Cam1ClearToSnap, "0");
@@ -491,7 +491,7 @@ namespace Stahli2Robots
                             }
                             AppGen.Inst.VisionParam.SNAP_req_fl3 = false;
                             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, AppGen.Inst.RobotConnection.BuildInsertCoordinates(CAMERA_NUMBER.cUnloadCarrierCAM), true);
-                            AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.Robot2CycleTime, ((Robot2CycleTime.ElapsedMilliseconds) / 1000).ToString());
+                            AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.Robot2CycleTime, (((double)Robot2CycleTime.ElapsedMilliseconds) / 1000).ToString());
                             Robot2CycleTime.Restart();          //Start The StopWatch ...From 000                           
                             UnloadedInsCounter += 1;
                             AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.UnloadedInsCounter, UnloadedInsCounter.ToString());
@@ -559,10 +559,7 @@ namespace Stahli2Robots
 
             //-----resuming robots in case door opend:--------
 
-            System.Threading.Tasks.Task.Factory.StartNew(() => { TurnOffResumBit(); });
-            //AppGen.Inst.MDImain.frmBeckhoff.RobotDada.q_ReqResumeCycle = true;
-            //AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.q_ReqResumeCycle = true;            
-            //AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
+            System.Threading.Tasks.Task.Factory.StartNew(() => { TurnOffResumBit(); });           
 
             //-----reseting all stations errors:--------------- fixed at 19.10.14
             //19.10.14 AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.ResetErrors = true;
@@ -721,19 +718,16 @@ namespace Stahli2Robots
             if (AppGen.Inst.MDImain.frmTitle.chkLoadRobotSetup.Checked)
             {
               AppGen.Inst.MDImain.frmBeckhoff.RobotDada.Q_ReqPauseCycle = false; 
-                //e   AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
-                //eeAppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada.H_q_ReqPauseCycle , false);
+                
 
             }
             if (AppGen.Inst.MDImain.frmTitle.chkUnloadRobotSetup.Checked)
             {
                    AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_ReqPauseCycle = false; 
-                //e   AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
-                //e AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.H_q_ReqPauseCycle , false);
+               
             }
 
-            //AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.MainMode = 2;
-            //AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hOp_Main, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.MainMode);
+            
             AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB = 2;
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB);
             AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.Op_VB = 2;
@@ -741,17 +735,11 @@ namespace Stahli2Robots
             AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.Op_VB = 2;
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.Op_VB);
 
-            //AppGen.Inst.MDImain.frmTitle.____cmdPauseButton.Enabled = true;
-            //AppGen.Inst.MDImain.frmTitle.____cmdStopButton.Enabled = true;
-            //AppGen.Inst.MDImain.frmTitle.____cmdCleanLineButton.Enabled = true;           
-
             UnloadCarrierSliceNo = 1;     //init for snap 1st slice
             AppGen.Inst.MDImain.frmVisionMain.FrmUnloadCarrier.flagFullTray = false;  //search only in one slice (for next new unload carrier)
             RescanCycle = false;
             RescanCarrier = false;
-            AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_CarrDone = false;
-            //e AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
-            //e AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.H_q_CarrDone , false);
+            AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_CarrDone = false;            
 
             AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblMsg, "Machine at Work");
             AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.ShowStatusImg, "1");
@@ -770,20 +758,17 @@ namespace Stahli2Robots
             if (AppGen.Inst.MDImain.frmTitle.chkLoadRobotSetup.Checked)
             {
                 AppGen.Inst.MDImain.frmBeckhoff.RobotDada.Q_ReqPauseCycle = true;
-                //e AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
-                //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada.H_q_ReqPauseCycle , true);
+                
                 AppGen.Inst.MainCycle.LoadCycleControl.bPause = true;
             }
             if (AppGen.Inst.MDImain.frmTitle.chkUnloadRobotSetup.Checked)
             {
                 AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_ReqPauseCycle = true;
-                //e AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
-                //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.H_q_ReqPauseCycle , true);
+               
                 AppGen.Inst.MainCycle.UnloadCycleControl.bPause = true;
             }
 
-            //AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.MainMode = 1;
-            //AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hOp_Main, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.MainMode);
+           
             AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB = 1;
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB);
             AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.Op_VB = 1;
@@ -795,10 +780,7 @@ namespace Stahli2Robots
             AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblMsg, "Machine Paused");
 
             AppGen.Inst.MDImain.frmTitle.Ramzor(RamzorColor.Yellow);
-            //---   enable robot operatiopn buttons
-            //tbd: uRobotOpButtons.enable (true)");
-
-
+            
         }
         public void StopAll()         //Stop All
         {
@@ -811,10 +793,7 @@ namespace Stahli2Robots
             AppGen.Inst.LogFile("Operation pressed STOP", LogType.Production);
             AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.ShowStatusImg, "0");
             AppGen.Inst.MDImain.frmBeckhoff.RobotDada.Q_StopCycleResetAll = true;
-            AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_StopCycleResetAll = true;
-            //e AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
-            //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada.H_q_StopCycleResetAll , true);
-            //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.H_q_StopCycleResetAll , true);
+            AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_StopCycleResetAll = true;           
             System.Threading.Thread.Sleep(500);
 
             AppGen.Inst.MainCycle.MainControl.bStart = false;
@@ -827,8 +806,6 @@ namespace Stahli2Robots
             AppGen.Inst.MDImain.frmTitle.tmrHiTimerSnap.Stop();
 
 
-            //AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.MainMode = 0;
-            //AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hOp_Main, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.MainMode);
             AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB = 0;
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.hOp_VB, AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.Op_VB);
             AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.Op_VB = 0;
@@ -838,10 +815,7 @@ namespace Stahli2Robots
 
             AppGen.Inst.MDImain.frmTitle.Ramzor(RamzorColor.Yellow);
 
-            //AppGen.Inst.MDImain.frmTitle.cmdSetupAll.Enabled = true;
-            //AppGen.Inst.MDImain.frmTitle.____cmdStartButton.Enabled = false;
-            //AppGen.Inst.MDImain.frmTitle.____cmdPauseButton.Enabled = false;
-
+         
             MainProccesState = ProcessStatus.Stop;
             AppGen.Inst.MDImain.AfterModeChanged();
             AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblMsg, "Machine Stoped");
@@ -883,13 +857,7 @@ namespace Stahli2Robots
             AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_CarrDone = false;
             AppGen.Inst.MDImain.frmBeckhoff.RobotDada.Q_StopCycleResetAll = false;
             AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.Q_StopCycleResetAll = false;
-            //e AppGen.Inst.MDImain.frmBeckhoff.UpdateRobotData();
-            //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada.H_q_FoundOrientation , false);
-            //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.H_q_CarrDone, false);
-            //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada.H_q_StopCycleResetAll, false);
-            //AppGen.Inst.MDImain.frmBeckhoff.WriteData(AppGen.Inst.MDImain.frmBeckhoff.RobotDada2.H_q_StopCycleResetAll, false);
-
-
+            
             //resuming all station errors:
             ResumGeneral();
             ResumLoadConv();
@@ -939,15 +907,12 @@ namespace Stahli2Robots
 
             MainProccesState = ProcessStatus.Stop;
             AppGen.Inst.MDImain.AfterModeChanged();
-            //Next6.visible = true
-
-            //tbd: fbUpDateSLiceStatuse     (table carrier and stahli carrier)
-
-
-
+            
         }
         public void CleanLine()       //Reset All
         {
+            AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.LastBatch = true;  //qq
+            AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hLastBatch, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.LastBatch);
             AppGen.Inst.LogFile("Operation pressed Clean-Line", LogType.Production);
             AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.ShowStatusImg, "3");
         }

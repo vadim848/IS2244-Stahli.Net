@@ -143,7 +143,7 @@ namespace Stahli2Robots
             AppGen.Inst.MainCycle.StopAll();
         }
         private void cmdResetAllButton_Click(object sender, EventArgs e)          //Reset;
-        {
+        {           
             AppGen.Inst.MainCycle.ResetAll();
         }
         private void cmdCleanLineButton_Click(object sender, EventArgs e)         //CleanLine
@@ -785,7 +785,6 @@ namespace Stahli2Robots
         int tmpTimeMinute = 0;
         public void tmrChkError_Tick(object sender, EventArgs e)
         {
-           //no need? System.Threading.Thread.Sleep(10);  //8.2.15 notrunning worker
      /////////////////debug flegs:///////////////////////////////////////////////////////////////
             if (AppGen.Inst.RobotConnection.RL.ConnBusy == true)
             {
@@ -954,6 +953,51 @@ namespace Stahli2Robots
                 ____cmdUnloadRobot.Text = "Robot 2";
             }
 
+            //---------------------------------General Errors(New 18.02.15!):---------------------------------------  //qq
+
+            //General_PlcErrMsg
+            short tmpErrGeneral = 0;
+            if (AppGen.Inst.MainCycle.MainProccesState != ProcessStatus.Stop)
+            {
+                tmpErrGeneral = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.GeneralErrorCount;     
+            }
+            if (tmpErrGeneral > 0)
+            {
+                AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblLoadConvMsg, AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg1);                
+                AppGen.Inst.MDImain.frmTitle.cmdErrForm.BackColor = System.Drawing.Color.OrangeRed;
+                tmrBlinkResume0.Start();
+                Ramzor(RamzorColor.Red);
+                if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
+                {
+                    Buzzer(true);
+                }
+                if (!AppGen.Inst.MainCycle.MainControl.ErrLoged)
+                {
+                    AppGen.Inst.LogFile(AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg1, LogType.GeneralErr, LogStation.General);
+                    AppGen.Inst.MainCycle.MainControl.ErrLoged = true;
+                }
+            }
+            else
+            {
+                if (AppGen.Inst.MainCycle.MainControl.bError)  //Dont delete messege, in case error present from Automation side
+                {
+                    tmrBlinkResume0.Start();
+                    Ramzor(RamzorColor.Red);
+                    if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
+                    {
+                        Buzzer(true);
+                    }
+                }
+                else
+                {
+                     tmrBlinkResume1.Stop();
+                    AppGen.Inst.MDImain.frmTitle.cmdResumeGeneral.BackColor = System.Drawing.Color.WhiteSmoke;
+                    AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblStahliMsg, "");  //(general label)
+                }
+            }
+           
+
+
             //---------------------------------Load Conveyor Errors:---------------------------------------
             short tmpErrLoad = 0;
             if (AppGen.Inst.MainCycle.MainProccesState != ProcessStatus.Stop)
@@ -962,8 +1006,7 @@ namespace Stahli2Robots
             }
             if (tmpErrLoad > 0)
             {
-                AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblLoadConvMsg, AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg1);
-                //AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.LoadConvErrMsg, AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg1);                
+                AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblLoadConvMsg, AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg1);                          
                 AppGen.Inst.MDImain.frmTitle.cmdErrForm.BackColor = System.Drawing.Color.OrangeRed;
                 tmrBlinkResume1.Start();
                 Ramzor(RamzorColor.Red);
@@ -993,7 +1036,6 @@ namespace Stahli2Robots
                     tmrBlinkResume1.Stop();
                     AppGen.Inst.MDImain.frmTitle.cmdResumeLoadConv.BackColor = System.Drawing.Color.WhiteSmoke;
                     AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblLoadConvMsg, "");
-                    //AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.LoadConvErrMsg, "");
                 }
             }
             AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.LoadConvErrMsg, AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg1);
@@ -1006,8 +1048,7 @@ namespace Stahli2Robots
             }
             if (tmpErrUnload > 0)
             {
-                AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblUnloadConvMsg, AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg1);
-                //AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.UnloadConvErrMsg, AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg1);               
+                AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblUnloadConvMsg, AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg1);             
                 AppGen.Inst.MDImain.frmTitle.cmdErrForm.BackColor = System.Drawing.Color.OrangeRed;
                 tmrBlinkResume3.Start();
                 Ramzor(RamzorColor.Red);  
@@ -1038,14 +1079,12 @@ namespace Stahli2Robots
                     tmrBlinkResume3.Stop();
                     AppGen.Inst.MDImain.frmTitle.cmdResumeUnloadConv.BackColor = System.Drawing.Color.WhiteSmoke;
                     AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblUnloadConvMsg, "");
-                    //AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.UnloadConvErrMsg, "");
                 }
             }
             AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.UnloadConvErrMsg, AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg1);
 
             //---------------------------------Index Table Errors:---------------------------------------
             short tmpErrTable = 0;
-            //if (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running)
             if (AppGen.Inst.MainCycle.MainProccesState != ProcessStatus.Stop)
             {
                 tmpErrTable = AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.TableConvErrorCount;
@@ -1053,7 +1092,6 @@ namespace Stahli2Robots
             if (tmpErrTable > 0)
             {
                 AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblIndexTableMsg, AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg1);
-                //AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.IndexTableErrMsg, AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg1);
                 AppGen.Inst.MDImain.frmTitle.cmdErrForm.BackColor = System.Drawing.Color.OrangeRed;
                 tmrBlinkResume2.Start();
                 Ramzor(RamzorColor.Red);
@@ -1074,7 +1112,6 @@ namespace Stahli2Robots
                     tmrBlinkResume2.Stop();
                     AppGen.Inst.MDImain.frmTitle.cmdResumeIndexTable.BackColor = System.Drawing.Color.WhiteSmoke;
                     AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblIndexTableMsg, "");
-                    //AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.IndexTableErrMsg, "");
                 }
             }
             AppGen.Inst.MDImain.frmAssemblies.UpdateFrmAssemblies(FrmAssembliesData.IndexTableErrMsg, AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg1);
@@ -1302,26 +1339,7 @@ namespace Stahli2Robots
         }
         public void tmrWaitResetAllDone_Tick(object sender, EventArgs e)
         {
-            System.Threading.Thread.Sleep(100);
-            //check Load conv setup done:
-            //if (AppGen.Inst.MainCycle.Unload / LoadCycleControlGeneral.bSetupDone)  //!!  general..  not cycle 1 or 2   tbd! new struct
-            //{
-            //    //tbd: //tbd errDesc , lblConvMsg   "Reset Done"
-            //}
-            //check Unload conv setup done:
-            //if (AppGen.Inst.MainCycle.Unload / LoadCycleControlGeneral.bSetupDone)  //!!  general..  not cycle 1 or 2   tbd! new struct
-            //{
-            //    //tbd: //tbd errDesc , lblConvMsg   "Reset Done"
-            //}
-            //check IndexTable setup done:
-            //if (AppGen.Inst.MainCycle.StIndexTableControl.bSetupDone)  //!!  general..  not cycle 1 or 2   tbd! new struct
-            //{
-            //    //tbd: //tbd errDesc , lblIndxTableMsg   "Reset Done"
-            //}
-
-
-            //System.Diagnostics.Stopwatch sw_TimeOut = new System.Diagnostics.Stopwatch();
-            //sw_TimeOut.Start();  // Start The StopWatch ...From 000
+            System.Threading.Thread.Sleep(100);           
             if ((AppGen.Inst.RobotConnection.stLoadRobotControl.bDone) && (AppGen.Inst.RobotConnection.stUnloadRobotControl.bDone))
 	        {
                 AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblRobotsMsg, "Reset Done");
@@ -1340,16 +1358,12 @@ namespace Stahli2Robots
                 AppGen.Inst.MainCycle.MainControl.bDone = AppGen.Inst.MainCycle.MainControl.bDone && AppGen.Inst.RobotConnection.stUnloadRobotControl.bDone;
             }
 
-
-
-            //System.Diagnostics.Stopwatch sw_TimeOut = new System.Diagnostics.Stopwatch();
-            //sw_TimeOut.Start();  // Start The StopWatch ...From 000           
+        
             if (AppGen.Inst.MainCycle.sw_TimeOut.Elapsed.Seconds > AppGen.Inst.MainCycle.MainControl.lTimeOutLimit)
             {                
                 AppGen.Inst.MDImain.frmTitle.cmdSetupAll.Enabled = true;
                 AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblMsg, "Reset All Faild");
                 AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.ShowStatusImg, "5");
-                //tbd: showStatusImag(ENUM_FOULT)
                 AppGen.Inst.MainCycle.sw_TimeOut.Stop();
                 AppGen.Inst.MainCycle.sw_TimeOut.Reset();
                 tmrWaitResetAllDone.Stop();   
@@ -1359,7 +1373,6 @@ namespace Stahli2Robots
                 AppGen.Inst.MDImain.frmTitle.cmdSetupAll.Enabled = true;
                 AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.lblMsg, "Reset All Done");
                 AppGen.Inst.MDImain.frmTitle.UpdateFrmTitle(FrmTitleData.ShowStatusImg, "6");
-                //tbd: showStatusImag(ENUM_OK)
                 AppGen.Inst.MainCycle.sw_TimeOut.Stop();
                 AppGen.Inst.MainCycle.sw_TimeOut.Reset();
                 tmrWaitResetAllDone.Stop(); 
@@ -1634,7 +1647,6 @@ namespace Stahli2Robots
                         break;
                     case FrmTitleData.measureResult:
                         txtMeasureCarr.Text = UpdatedValue;
-                         //series1.Points.Add(Convert.ToDouble(UpdatedValue));  
                         series1.Points.Add(Math.Round(Convert.ToDouble(UpdatedValue),3)); //changed in japan, need to check in Iscar (for showing thisformaton Schem Y axis)
                         chrtInsertMaesures.ChartAreas[0].AxisX.ScaleView.Zoom(series1.Points.Count - 10, series1.Points.Count + 3);
                         chrtInsertMaesures.Invalidate();
@@ -1651,8 +1663,6 @@ namespace Stahli2Robots
             try
             {
                 ____cmdNextTab.Enabled = (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.SetupSucces);
-
-               //____cmdStopButton.Enabled = (AppGen.Inst.MainCycle.MainProccesState != ProcessStatus.Stop);
                ____cmdPauseButton.Enabled = (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running);
                ____cmdStartButton.Enabled = (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Pause);
                ____cmdCleanLineButton.Enabled = (AppGen.Inst.MainCycle.MainProccesState == ProcessStatus.Running);

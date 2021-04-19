@@ -1,0 +1,3818 @@
+.PROGRAM a.asight()
+
+;* Copyright (c) 2008 by Adept Technology, Inc.
+
+; ************************************************************************
+; *                                                                      *
+; *     The information set forth in this document is the property       *
+; *     of Adept Technology, Inc. and is to be held in trust and         *
+; *     confidence.  Publication, duplication, disclosure, or use        *
+; *     for any purpose not expressly authorized by Adept Tech-          *
+; *     nology in writing is prohibited.                                 *
+; *                                                                      *
+; *     The information in this document is subject to change            *
+; *     without notice and should not be construed as a commitment       *
+; *     by Adept Technology.                                             *
+; *                                                                      *
+; *     Adept Technology makes no warranty as to the suitability         *
+; *     of this material for use by the recipient, and assumes no        *
+; *     responsibility for any consequences resulting from such use.     *
+; *                                                                      *
+; ************************************************************************
+; 
+; DESCRIPTION:
+;               Library implementing the controller side communnications for 
+;               the AdeptSight application module.
+;
+; AUTHOR:  JCN  (080808)
+;
+
+; General Programs
+; ----------------
+
+	MC module a.asight = a.adeptsight
+
+; Program for transmitting instance information
+; ---------------------------------------------
+
+	MC module a.asight = as.cmd.send
+
+; Application Queue Management Programs
+; -------------------------------------
+
+	MC module a.asight = getinstance
+	MC module a.asight = clear_queue
+	MC module a.asight = nzs2string
+	MC module a.asight = reset_seq
+	MC module a.asight = set_as_exec_mod
+	MC module a.asight = string2instance
+	MC module a.asight = check_tracking     
+
+; Application Utility Programs
+; ----------------------------
+
+	MC module a.asight = as.save.image
+	MC module a.asight = as.cam.over.pt
+	MC module a.asight = as.control
+
+; Save the module
+; ---------------
+
+	MC fdel d:\asight.bak
+	MC fcopy d:\asight.bak = asight.v2
+
+	MC fdel d:\asight.v2
+	MC storem d:\asight.v2 = a.asight
+
+.END
+
+.PROGRAM a.exammain_rob1()
+	rob1 = 1
+	DETACH (0)
+	SELECT ROBOT = rob1
+	ATTACH (0)
+	CALL pick(rob1)
+.END
+
+.PROGRAM a.exammain_rob2()
+	rob2 = 2
+	DETACH (0)
+	SELECT ROBOT = rob2
+	ATTACH (0)
+	CALL pick(rob2)
+.END
+
+.PROGRAM a.main_load()
+;----------------------------------------------------------------------------------
+;NAME: a.main_load
+;
+;VERSION: 1.0.1
+;
+;ABSTRACT: This is a STAHLI automation robot code - This task manages all robot
+;          operations & communication
+;
+;DATE CREATED:
+;
+;DATE UPDATED: 15/05/14
+;             
+;----------------------------------------------------------------------------------
+;* Copyright (c) 2009 by SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------------
+	GLOBAL rob1
+	GLOBAL load_fov_diag[]		; two diagonals discribing the load camera fov limits
+	GLOBAL unload_fov_diag[]    ; two diagonals discribing the unload camera fov limits
+	AUTO cmd, c, prev_cmd[1]
+	GLOBAL wait_loc[]
+	GLOBAL st_dif[]
+	GLOBAL fl_fov_clr[]
+	GLOBAL s.start.task.2
+	GLOBAL s.start.task.3
+
+	rob1 = 1
+	DETACH (0)
+	SELECT ROBOT = rob1
+	ATTACH (0)
+
+	CALL init_io()
+	CALL init_rob.range()
+	CALL init_cell(rob1)
+
+      ;;  WRITE (slun) "999,200"    ; notifying VB robot do
+
+      ;  IF TASK(1,10) <> 4 THEN
+      ;      EXECUTE 10 life.signal() ;life bit to PLC
+      ;  END
+
+
+
+	REACTE error.trap
+
+	CALL init_rs232(rob1)	     ;openning serial com. port
+
+	SPEED 10 ALWAYS
+
+	; activate door stop interrupt if door is currently open
+	IF SIG(i_door.close[rob1]) THEN
+	    REACTI -i_door.close[rob1], door_stop1
+	    WRITE (slun) "999,201" ; notitying VB door is closed at prg. start
+	ELSE
+	    CALL door_stop1()
+	END
+
+	WHILE TRUE DO
+	    WAIT
+
+
+	    ACCEL 150, 120
+	    REACTE error.trap
+	    ;REACTE error_hand
+
+	    $come_str[rob1,1] = ""
+	    c = -526
+
+	    WHILE (c <> 13) DO	      ; cerrage return
+		WAIT
+		;REACTE error_hand
+		IF fl_reset[rob1] == TRUE THEN
+		    CALL resetall(rob1)
+		    fl_reset[rob1] = FALSE
+		END
+		c = GETC(slun,1)
+		IF (IOSTAT(slun) <> -526) AND (c <> -526) THEN	       ;no characters in port
+		    ;TYPE "$chr(c)=", $CHR(c)
+		    $come_str[rob1,1] = $come_str[rob1,1]+$CHR(c)
+		END
+	    END
+	    TYPE $come_str[rob1,1]
+
+	    CALL break_string(rob1, $come_str[rob1,1])
+	    $cmd_str[rob1,1] = $MID($par_s[1],4,LEN($par_s[1])-3)
+	    cmd = VAL($cmd_str[rob1,1])
+
+	    CASE cmd OF
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 10:		;cmd10New!! Robot picks insert from source tray(vision) and places it in the rotation table
+		CALL par_s_to_r(rob1, 7)
+		CALL cmd10new(rob1, par_r[2], par_r[3], par_r[4], par_r[5], par_r[6], par_r[7])
+		WRITE (slun) "cmd10,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 11:				       ; get parameters (mutual param for two robots)
+		CALL par_s_to_r(rob1, 4)
+		CALL cmd11(par_r[2], par_r[3], par_r[4])
+		WRITE (slun) $par_s[1]+","+$return_val
+		TYPE $par_s[1]+","+$return_val
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 12:				       ;robot menu
+		CALL par_s_to_r(rob1, 2)
+		IGNORE i_door.close[rob1]
+		IGNORE i_door.close[rob2]
+		CALL cmd12(rob1)
+		REACTI -i_door.close[rob1], door_stop1
+		REACTI -i_door.close[rob2], door_stop2
+		WRITE (slun) "cmd12,1"
+		;-------------------------------------------------------------------------------------
+	      VALUE 13:				     ; robot speed
+		CALL par_s_to_r(rob1, 2)
+		CALL cmd13(rob1, par_r[2])
+		WRITE (slun) "cmd13,1"
+		;-------------------------------------------------------------------------------------
+	      VALUE 15:
+			;can be calld only from auto loop!!! (load.cycle())
+		;-------------------------------------------------------------------------------------
+	      VALUE 16:
+			;can be calld only from auto loop!!! (load.cycle())
+		;-------------------------------------------------------------------------------------
+	      VALUE 23:					  ; Show input
+		CALL par_s_to_r(rob1, 2)
+		CALL cmd23(par_r[2])
+			;value of input returned inside function
+		;-------------------------------------------------------------------------------------                                                  
+	      VALUE 27:		       ; output On/Off (no need to send rob1)
+		CALL par_s_to_r(rob1, 3)
+		CALL cmd27(par_r[2], par_r[3])
+		WRITE (slun) "cmd27,1"
+		;-------------------------------------------------------------------------------------
+	      VALUE 29:					  ; Open & Close robot gripper
+		CALL par_s_to_r(rob1, 2)
+		CALL cmd29(rob1, par_r[2])
+		WRITE (slun) "cmd29,1"
+		;-------------------------------------------------------------------------------------
+	   ;   VALUE 30:                                    ; Enter automatic mode
+	   ;     CALL par_s_to_r(2)
+	   ;     CALL cmd30()
+	   ;     WRITE (slun) "cmd30,1"
+		;-------------------------------------------------------------------------------------
+	   ;   VALUE 31:                                     ; Exit automatic mode
+	   ;     CALL par_s_to_r(2)
+	   ;     CALL cmd31()
+	   ;     WRITE (slun) "cmd31,1"
+		;-------------------------------------------------------------------------------------
+	    ;  VALUE 32:                                            ; retrieve points from robot  ;(now: all points from cmd41)
+		;       ;Send calib points to VB
+		;CALL par_s_to_r(2)
+		;IF par_r[2] == 0 THEN
+		;    CALL cmd32(rob1, 0)
+		;END
+		;IF par_r[2] == 1 THEN
+		;    CALL cmd32(rob1, 1)
+		;END
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 33:				   ; Replace gripper
+		IGNORE i_door.close[rob1]
+		IGNORE i_door.close[rob2]
+		WRITE (slun) "cmd33,1"
+		CALL par_s_to_r(rob1, 2)	;??what is the param (always "0" from C#)?
+		CALL cmd33(rob1)
+		REACTI -i_door.close[rob1], door_stop1
+		REACTI -i_door.close[rob2], door_stop2
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 34:				   ; query gripper number
+		WRITE (slun) "cmd34,1,", gr
+		TYPE "cmd34,1,", gr
+	    ;-------------------------------------------------------------------------------------                                                  
+	      VALUE 38:				   ; performing SAVE via VB
+	       ; WRITE (slun) "cmd38"
+		CALL cmd38()
+		WRITE (slun) "cmd38,1"
+	    ;-------------------------------------------------------------------------------------                                                  
+	    ;  VALUE 40:                                   ; retrieve service tray origin
+		;CALL cmd40(rob1)   (now: all points from load robot cmd41)  ; retrieve servic
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 41:					   ; retrieve robots(load and unload) points (tray,carrier,origen) by point Index (one by one)
+		CALL par_s_to_r(rob1, 2) ;
+		CALL cmd41(par_r[2])
+	    ;-------------------------------------------------------------------------------------              
+	      VALUE 50:				   ; change station height (Load robot-Tray or Carrier)
+		CALL par_s_to_r(rob1, 3)
+		CALL cmd50(rob1, par_r[2], par_r[3])
+		;WRITE (slun) "cmd50,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 51:				   ; retrieve station height
+		CALL par_s_to_r(rob1, 2)
+		CALL cmd51(rob1, par_r[2])
+	    ;-------------------------------------------------------------------------------------
+	    ;  VALUE 60:                            ; stretch robot's arm to free cams fov
+	    ;   CALL cmd60(rob1)
+	    ;   WRITE (slun) "cmd60,1"
+	    ;------------------------------------------------------------------
+	    ;  VALUE 61:               ; semiCycle
+	    ;   CALL par_s_to_r(2)
+	    ;    CALL semiloadcycle1(par_r[2])
+	    ;    WRITE (slun) "cmd61,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 70:		      ; auto cycle - (load cycle)
+		ABORT 2
+		WAIT TASK(1,2) <> 4
+
+		ABORT 3
+		WAIT TASK(1,3) <> 4
+
+		ABORT 10
+		WAIT TASK(1,10) <> 4
+
+		WRITE (slun) "cmd70,1"
+		CALL par_s_to_r(rob1, 4)
+		zero.angle.fl = par_r[2]
+		picked.sens.fl = par_r[3]
+		setup.delays = par_r[4]
+		CALL load.cycle()
+
+
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 98:
+		WRITE (slun) "cmd98,1"
+	    ;-----------------------------------------------
+	      VALUE 99:	       ; Check communication
+		IF wrong_robot_con[rob1] THEN
+		    WRITE (slun) "cmd99,0"
+
+		ELSE
+		    fl_reset[rob1] = TRUE
+		END
+	    ;-------------------------------------------------------------------------------------     
+	      ANY
+		TYPE "Unknown command"
+		WRITE (slun) "cmd97,1"
+	    END
+	    prev_cmd[rob1] = cmd
+	   ; TIMER (2) = 0
+	END
+.END
+
+.PROGRAM a.main_unload()
+;NAME: a.main_unload
+;
+;VERSION: 1.0.1
+;
+;ABSTRACT: This is a STAHLI automation robot code - This task manages all robot
+;          operations & communication
+;
+;DATE CREATED:
+;
+;DATE UPDATED: 23/03/10
+;     
+;      
+;      
+; 
+;----------------------------------------------------------------------------------
+;* Copyright (c) 2009 by SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------------
+
+	GLOBAL rob2
+	GLOBAL load_fov_diag[]		      ; two diagonals discribing the load camera fov limits
+	GLOBAL unload_fov_diag[]	      ; two diagonals discribing the unload camera fov limits
+	AUTO cmd, c, prev_cmd[2]
+	GLOBAL wait_loc
+	GLOBAL s.start.task.6
+
+	rob2 = 2
+	DETACH (0)
+	SELECT ROBOT = rob2
+	ATTACH (0)
+
+	CALL init_io()
+	CALL init_rob.range()
+	CALL init_cell(rob2)
+	REACTE error.trap
+
+	CALL init_rs232(rob2)		  ;openning serial com. port
+	SPEED 10 ALWAYS
+
+
+
+
+      ;for testing/    delete..  CALL door_stop2()
+	;tbd kill task 5 and 6 (in case still running from last time)
+
+	;activate door stop interrupt if door is currently open
+	IF SIG(i_door.close[rob2]) THEN
+	    REACTI -i_door.close[rob2], door_stop2
+	    WRITE (slun) "999,201" ; notitying VB door is closed at prg. start
+	ELSE
+	    CALL door_stop2()
+	END
+
+
+	c = GETC(slun,1)  ;first time have junk in buffer and program stop
+	c = -526
+
+	WHILE TRUE DO
+	    ACCEL 150, 120
+	    REACTE error.trap
+	    ;REACTE error_hand
+
+	    $come_str[rob2,1] = ""
+	    c = -526
+
+	    WHILE (c <> 13) DO		    ; cerrage return
+		WAIT
+		;REACTE error_hand
+		IF fl_reset[rob2] == TRUE THEN
+		    CALL resetall(rob2)
+		    fl_reset[rob2] = FALSE
+		END
+		c = GETC(slun,1)
+		IF (IOSTAT(slun) <> -526) AND (c <> -526) THEN		     ;no characters in port
+		    ;TYPE "$chr(c)=", $CHR(c)
+		    $come_str[rob2,1] = $come_str[rob2,1]+$CHR(c)
+		END
+	    END
+	    TYPE $come_str[rob2,1]
+
+	    CALL break_string(rob2, $come_str[rob2,1])
+	    $cmd_str[rob2,1] = $MID($par2_s[1],4,LEN($par2_s[1])-3)
+	    cmd = VAL($cmd_str[rob2,1])
+
+	    CASE cmd OF
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 10:		;cmd10New!! Robot picks insert from source tray(vision) and places it in the rotation table
+		CALL par_s_to_r(rob2, 7)
+		CALL cmd10new(rob2, par2_r[2], par2_r[3], par2_r[4], par2_r[5], par2_r[6], par2_r[7])
+		WRITE (slun) "cmd10,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 11:				      ; get parameters
+		CALL par_s_to_r(rob2, 4)
+		CALL cmd11(par2_r[2], par2_r[3], par2_r[4])
+		WRITE (slun) $par2_s[1]+","+$return_val
+		TYPE $par2_s[1]+","+$return_val
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 12:				      ;  robot menu
+		CALL par_s_to_r(rob2, 2)
+		IGNORE i_door.close[rob2]
+		IGNORE i_door.close[rob1]
+		CALL cmd12(rob2)
+		;CALL cmdtest(rob2)
+		REACTI -i_door.close[rob2], door_stop2
+		REACTI -i_door.close[rob1], door_stop1
+		WRITE (slun) "cmd12,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 13:				    ; robot speed
+		CALL par_s_to_r(rob2, 2)
+		CALL cmd13(rob2, par2_r[2])
+		WRITE (slun) "cmd13,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 15:
+		  ;not relevant.. can be calld only from auto loop!!! (Unload.cycle()) 
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 16:
+		  ;not relevant.. can be calld only from auto loop!!! (Unload.cycle())
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 23:					 ; Show input
+		CALL par_s_to_r(rob2, 2)
+		CALL cmd23(par2_r[2])
+			;value of input returned in function
+	    ;-------------------------------------------------------------------------------------                                                   
+	      VALUE 27:			   ; output On/Off (no need to send rob2)
+		CALL par_s_to_r(rob2, 3)
+		CALL cmd27(par2_r[2], par2_r[3])
+		WRITE (slun) "cmd27,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 29:					 ; Open & Close robot gripper
+		CALL par_s_to_r(rob2, 2)
+		CALL cmd29(rob2, par2_r[2])
+		WRITE (slun) "cmd29,1"
+	    ;-------------------------------------------------------------------------------------
+	    ;  VALUE 30:                                   ; Enter automatic mode
+	    ;    CALL par_s_to_r(2)
+	    ;    CALL cmd30()
+	    ;    WRITE (slun) "cmd30,1"
+	    ;-------------------------------------------------------------------------------------
+	    ;  VALUE 31:                                    ; Exit automatic mode
+	    ;    CALL par_s_to_r(2)
+	    ;    CALL cmd31()
+	    ;    WRITE (slun) "cmd31,1"
+	    ;-------------------------------------------------------------------------------------
+	    ;  VALUE 32:                                (now: all points from load robot cmd41)            ; retrieve points from robot
+		;       ;Send calib points to VB
+		;CALL par_s_to_r(2)
+		;IF par_r[2] == 0 THEN
+		;    CALL cmd32(rob2, 0)
+		;END
+		;IF par_r[2] == 1 THEN
+		;    CALL cmd32(rob2, 1)
+		;END
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 33:					  ; Replace gripper
+		IGNORE i_door.close[rob2]
+		IGNORE i_door.close[rob1]
+		WRITE (slun) "cmd33,1"
+		CALL par_s_to_r(rob2, 2)
+		CALL cmd33(rob2)
+		REACTI -i_door.close[rob2], door_stop2
+		REACTI -i_door.close[rob1], door_stop1
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 34:					  ; query gripper number
+		WRITE (slun) "cmd34,1,", gr
+		TYPE "cmd34,1,", gr
+	    ;-------------------------------------------------------------------------------------                                                   
+	      VALUE 38:					  ; performing SAVE via VB
+		CALL cmd38()
+		WRITE (slun) "cmd38,1"
+	    ;-------------------------------------------------------------------------------------                                                   
+	    ;  VALUE 40:                (now: all points from load robot cmd41)  ; retrieve service tray origin
+		;CALL cmd40(rob2)
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 50:					  ; change station height
+		CALL par_s_to_r(rob2, 3)
+		CALL cmd50(rob2, par2_r[2], par2_r[3])
+	       ; WRITE (slun) "cmd50,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 51:					  ; retrieve station height
+		CALL par_s_to_r(rob2, 2)
+		CALL cmd51(rob2, par2_r[2])
+	    ;-------------------------------------------------------------------------------------
+	    ;  VALUE 60:                                   ; stretch robot's arm to free cams fov
+	    ;    CALL cmd60(rob2)
+	    ;    WRITE (slun) "cmd60,1"
+	    ;------------------------------------------------------------------
+	    ;  VALUE 61:                      ; semiCycle
+	    ;    CALL par_s_to_r(2)
+	    ;    CALL semiloadcycle1(par_r[2])
+	    ;    WRITE (slun) "cmd61,1"
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 62:				      ; get parameters
+		CALL par_s_to_r(rob2, 5)
+		CALL cmd62(par2_r[2], par2_r[3], par2_r[4], par2_r[5])
+		WRITE (slun) "cmd62,1"
+	    ;---------------------------------------------------------------------
+	      VALUE 70:		; auto cycle - (Unload cycle)
+		WRITE (slun) "cmd70"
+		CALL par_s_to_r(rob2, 2)
+		setup.delays = par2_r[2]
+		CALL unload.cycle()
+	    ;-------------------------------------------------------------------------------------
+	      VALUE 98:
+		WRITE (slun) "cmd98,1"
+	    ;-----------------------------------------------
+	      VALUE 99:		      ; Check communication
+		IF wrong_robot_con[rob2] THEN
+		    WRITE (slun) "cmd99,0"
+
+		ELSE
+		    fl_reset[rob2] = TRUE
+		END
+	    ;-------------------------------------------------------------------------------------      
+	      ANY
+		TYPE "Unknown command"
+	    END
+	    prev_cmd[rob2] = cmd
+	   ; TIMER (2) = 0
+	END
+.END
+
+.PROGRAM a.robot_progs()
+; for defult name of folder for all the robots programs
+; ABSTRACT: 
+;
+; INPUTS:      
+;
+; OUTPUTS:     
+;
+; SIDE EFFECTS:
+;
+; DATA STRUCT: 
+;
+; MISC:  Program created in ACE version 3.3.3.11
+;
+;* Copyright (c) 2014 by {company name}
+
+.END
+
+.PROGRAM a.startup()
+
+.END
+
+.PROGRAM as.cmd.send(handle, ptr)
+
+; ABSTRACT:  Method called to send instances to a robot queue.
+;
+; SYNTAX:  This program is a standard command server routine. 
+;
+;       The input structure is:
+;
+;       Type        Description
+;       ----        -----------
+;       short       Queue index
+;       short       base head index
+;       short       Number of items to add to the queue
+;       boolean     Is a soft signal to be turned on?
+;       short       Soft signal number
+;
+;         for each item
+;
+;       string      The encoded data
+;
+;       The output structure is:
+;
+;       Type        Description
+;       ----        -----------
+;       short       Head index after the update
+;               
+; INPUTS:       handle      Index of the message the program is 
+;                               associated with
+;               ptr         Current position in the message
+;
+; OUTPUTS:      None
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2008 by Adept Technology, Inc.
+
+	AUTO REAL queue_index, base_head, instance_count, use_soft_sig, soft_sig_num
+	AUTO REAL i
+	LOCAL $string_instance[,]
+
+; Read the static input parameters
+
+	CALL sv.read_short(handle, ptr, queue_index)
+	CALL sv.read_short(handle, ptr, base_head)
+	CALL sv.read_short(handle, ptr, instance_count)
+	CALL sv.read_bool(handle, ptr, use_soft_sig)
+	CALL sv.read_short(handle, ptr, soft_sig_num)
+
+; Extract all the items to push to the queue
+
+	FOR i = 0 TO instance_count-1
+	    CALL sv.read_string(handle, ptr, $string_instance[TASK(),i])
+	END
+
+	CALL sv.write_hdr(handle, ptr)
+
+; Write all items to the queue. If they fail, abort and
+; record the total number that was written to the queue.
+
+	FOR i = 0 TO instance_count-1
+	    instance_index = (base_head+i) MOD is_queue_size[queue_index]
+	    $is_nzs[queue_index,instance_index] = $string_instance[TASK(),i]
+	END
+
+; Update the queue head
+
+	is_head[queue_index] = (base_head+instance_count) MOD is_queue_size[queue_index]
+
+	CALL sv.write_short(is_head[queue_index], handle, ptr)
+
+; Send the soft signal if required
+
+	IF (use_soft_sig) THEN
+	    SIGNAL (soft_sig_num)
+	END
+
+	CALL sv.write(handle, ptr)
+
+	RETURN
+.END
+
+.PROGRAM as.control(handle, ptr)
+
+; ABSTRACT:  Indicate a change in AdeptSight control state. 
+;       This is called by the PC to indicate that AdeptSight wants
+;       to acquire exclusive access to the robots -or- release
+;       access to the robots.
+;
+;       In this method, a custom program is checked. If the
+;       program is defined, it will be called to see if the request 
+;       is allowed.
+;
+;       The method signature of this program is:
+;
+;          .PROGRAM cu.control(acquire, status)
+;
+;       where 
+;
+;          acquire = TRUE/FALSE is this an acquire (TRUE) or 
+;              release (FALSE) request.
+;          status = output status code. If the custom program returns 
+;              a status code less than 0 for an acquire request, 
+;              the operation will be halted.
+;
+; SYNTAX:  This program is a standard command server routine. 
+;
+;       The input structure is:
+;
+;       Type        Description
+;       ----        -----------
+;       bool        Attach (TRUE) or detach (FALSE) request
+;       
+;       The output structure is:
+;
+;       Type        Description
+;       ----        -----------
+;       None
+;
+; INPUTS:       handle      Index of the message the program is 
+;                               associated with
+;               ptr         Current position in the message
+;
+; OUTPUTS:      None
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2007-2008 by Adept Technology, Inc.
+
+	AUTO REAL acquire, stt
+	AUTO $prog
+
+	$prog = "cu.control"
+	stt = 0
+
+	CALL sv.read_bool(handle, ptr, acquire)
+
+	IF STATUS($prog) <> -2 THEN
+	    CALLS $prog(acquire, stt)
+	    IF stt < 0 THEN
+		CALL sv.set_err(stt)
+	    END
+	END
+
+	CALL sv.write_hdr(handle, ptr)
+	CALL sv.write(handle, ptr)
+
+	RETURN
+.END
+
+.PROGRAM as.save.image($filename, $ip, seq.idx, tool.idx, status)
+
+; ABSTRACT:  Save the image associated with the vision tool
+;       into a file. 
+;
+; INPUTS:       $filename   The name of the file to save into
+;               $ip         The IP address of the PC
+;               seq.idx     The index of the sequence
+;               tool.idx    The index of the virtual camera 
+;;                              or other image tool
+;
+; OUTPUTS:      status      Status code. 0 = success
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2008, 2010 by Adept Technology
+
+	AUTO REAL old_timeout
+	AUTO REAL file_index
+	AUTO REAL value
+
+	status = 0
+
+ ; Update the timeout parameter 
+
+	old_timeout = PARAMETER(VTIMEOUT)
+	PARAMETER VTIMEOUT = 10*old_timeout
+
+ ; Store the name of the file into the global variable
+
+	file_index = 0
+	$as.filename[file_index] = $filename
+
+; Issue the command
+
+	VPARAMETER(seq.idx, tool.idx, 10327) $ip = file_index
+
+; Wait for the command to complete
+
+	WHILE TRUE DO
+	    value = VPARAMETER($ip, seq.idx, tool.idx, 10327)
+	    IF (value == 3) THEN
+		EXIT
+	    END
+	    IF (value == 4) THEN
+		status = -7000
+		EXIT
+	    END
+	    WAIT
+	END
+
+; Restore the timeout parameter   
+
+	PARAMETER VTIMEOUT = old_timeout
+
+	RETURN
+.END
+
+.PROGRAM auto()
+
+;tbd:  calib and pwoer 2 robots
+
+	MC enable power
+	MC calibrat
+	MC load robot.pg
+	MC load robot.lc
+	MC load robot.re
+	MC load robot.st
+       ; MC speed 100
+	MC cycle.end
+	;MC execute 6 a.startup
+	MC ex 0 a.main_load
+	MC ex 4  a.main_unload
+       ; MC ex 10  life.signal
+.END
+
+.PROGRAM backup()
+	LOCAL dlun
+
+	ATTACH (dlun, 4) "DISK"
+	FDELETE (dlun) "BACKUP.PG"
+	FDELETE (dlun) "BACKUP.LC"
+	FDELETE (dlun) "BACKUP.RE"
+	FDELETE (dlun) "BACKUP.ST"
+	DETACH (dlun)
+	MCS "STOREP BACKUP.PG"
+	MCS "STOREL BACKUP.LC"
+	MCS "STORER BACKUP.RE"
+	MCS "STORES BACKUP.ST"
+.END
+
+.PROGRAM break_string(cur_rob, $some_string)
+
+	AUTO i, j, k
+
+	AUTO $res_str
+	AUTO $par[20]  ; -- list of breaked parameters
+	AUTO comma[20]	; -- places of commas in string
+	ATTACH (0)
+	DETACH (1)
+    ;TYPE "source= ", $some_string
+	res_str = ''
+	j = 2	  ; -- index of comma in string
+	comma[1] = LEN($some_string)+1
+	FOR i = LEN($some_string) TO 1 STEP -1
+	    IF (($MID($some_string,i,1) == ",") OR (i == 1)) THEN
+		comma[j] = i
+			;TYPE "comma", j, "=", comma[j], " i=", i
+		$res_str = ""
+		IF (i <> 1) THEN
+		    $res_str = $MID($some_string,i+1,(comma[j-1]-comma[j]-1))
+		ELSE
+		    $res_str = $MID($some_string,1,(comma[j-1]-comma[j]))
+		END
+		$par[j] = ""
+		$par[j-1] = $res_str
+		j = j+1
+	    END
+	END
+	k = 0
+	IF cur_rob == rob1 THEN
+	    FOR i = j-2 TO 1 STEP -1
+		k = k+1
+		$par_s[k] = $par[i]
+	    ;TYPE "par_s", k, "=", $par_s[k]
+	    END
+	END
+	IF cur_rob == rob2 THEN
+	    FOR i = j-2 TO 1 STEP -1
+		k = k+1
+		$par2_s[k] = $par[i]
+	    ;TYPE "par2_s", k, "=", $par_s[k]
+	    END
+	END
+
+.END
+
+.PROGRAM check_tracking(tracking_ok)
+
+; ABSTRACT:  This function is used to check if the robot is successfully tracking the belt 
+;
+; INPUTS:       None
+;
+; OUTPUTS:      tracking_ok     If true, the robot is tracking the belt successfully;
+;                               otherwise an error occured while tracking the belt
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2006, 2008 by Adept Technology
+
+	AUTO REAL bstat
+
+; Check the status of the belt tracking
+
+	bstat = BSTATUS
+
+; Based on the PARAMETER BELT.MODE (8) if bstat is
+; greater or equal to 4, there was an error while tracking the belt
+
+	IF (bstat >= 4) THEN
+	    tracking_ok = FALSE
+	ELSE
+	    tracking_ok = TRUE
+	END
+
+	RETURN
+.END
+
+.PROGRAM clear_queue(queue_index)
+
+; ABSTRACT:  This function is the main function called to retrieve the instance. 
+;
+; INPUTS:       queue_index     The queue index in which we want to clear
+;
+; OUTPUTS:      None
+;
+; SIDE EFFECTS: None
+;
+; DATA STRUCT:  See 'getinstance' for queue data structures. 
+;
+;* Copyright (c) 2008 by Adept Technology
+
+	IF DEFINED(is_adv_tail[queue_index]) AND DEFINED(is_head[queue_index]) AND DEFINED(is_queue_size[queue_index]) THEN
+	    is_adv_tail[queue_index] = is_head[queue_index]
+	END
+
+	RETURN
+.END
+
+.PROGRAM cmd10new(cur_rob, x_vision, y_vision, r_vision, x_pos, y_pos, a_pos)
+; Robot picks insert from sorce tray and places it in the rotation table -NAMUALY MODE
+
+	LOCAL dest_pt, dest_pt2, inv_pt, pass.thr_pt
+	LOCAL garb.pt[], garb.pt2[]
+	LOCAL i
+	LOCAL gen_height
+
+	SPEED 10 ALWAYS
+
+	CASE gr_group[gr] OF		       ; picking height according to which group gripper belongs
+	  VALUE 1:				 ;---pins gripper----------
+	    IF ins_height <= 4 THEN
+		gen_height = z_source[cur_rob,gr]
+	    ELSE
+		gen_height = z_source[cur_rob,gr]+ins_height-4
+	    END
+	  VALUE 2:				;---magnet gripper---------
+	    gen_height = z_source[cur_rob,gr]+ins_height
+	    gen_height = z_source[cur_rob,gr]+ins_height
+	END
+	TOOL f_o_g[cur_rob,gr] ; set tool to finger
+	SET dest_pt = TRANS(x_vision,y_vision,gen_height,0,180,r_vision)
+	APPROS dest_pt, z_clear[cur_rob,gr]-DZ(dest_pt)
+	MOVE dest_pt
+	BREAK
+	TIMER (1) = 0
+	WAIT TIMER(1) > del_b_pick[gr] ; delay before picking insert
+	SIGNAL o_fin[cur_rob,1]			       ; open finger(pick insert)
+	SIGNAL o_fin[cur_rob,2]
+	TIMER (1) = 0
+	WAIT TIMER(1) > del_af_pick[cur_rob,gr]		      ; delay after picking insert
+	APPROS dest_pt, z_clear[cur_rob,gr]-DZ(dest_pt)
+;--------------------------------- END OF PICK ---------------------------------------------
+    20	
+	SET dest_pt2 = TRANS(x_pos,y_pos,z_unl[cur_rob,gr]+ins_height,0,180,a_pos)
+	DECOMPOSE garb.pt2[] = dest_pt2
+	APPRO dest_pt2, z_clear[cur_rob,gr]-DZ(dest_pt)
+	MOVE dest_pt2
+;-------------------------------------------------
+	BREAK
+	SIGNAL -o_fin[cur_rob,1]	  ;release insert
+	SIGNAL -o_fin[cur_rob,2]
+	TIMER (1) = 0
+	WAIT TIMER(1) > del_af_rel[cur_rob,gr]
+;------------------------------------------------------------------
+	APPRO dest_pt2, z_clear[cur_rob,gr]-DZ(dest_pt)
+   999	
+	SPEED robot_speed[cur_rob] ALWAYS
+.END
+
+.PROGRAM cmd11(ins_h_p, ins_symtry, gr_code_p)
+   ; Robot parameters (mutual param for two robots)
+   ;cmd11 (robot setup) take the robot to auto mode - reset all takes robot out of auto mode
+	auto_mode = 1
+
+	IF ins_h_p < 0 THEN
+	    ins_h_p = 0
+	END
+	ins_height = ins_h_p		 ; insert height
+	gr = gr_code_p			     ; gripper number
+	ins_symmetry = ins_symtry ; insert symmetry
+	CALL set_gripper()
+
+	;------------------------------
+	; setting the symmetry angle
+	CASE ins_symmetry OF
+	  VALUE 0:		    ; square
+	    sym_ang = 90
+	  VALUE 1:		    ; triangle
+	    sym_ang = 120
+	  VALUE 2:		    ; rectengle
+	    sym_ang = 180
+	  VALUE 3:		    ; dimond
+	    sym_ang = 180
+	  ANY			  ; no symmetry
+	    sym_ang = 0
+	END
+
+
+	IF gr <> gr_code_p THEN
+	    $err_code = "1"
+	    $return_val = "0,"+$err_code
+	    TYPE "Order's Gripper [", gr_code_p, "] doesn't match to internal code[", gr, "]"
+	ELSE
+	    $err_code = "1"
+	    $return_val = "1"
+	END
+
+.END
+
+.PROGRAM cmd12(cur_rob)
+	LOCAL $clear.display
+	LOCAL exit_loop1, exit_loop2, exit_loop3
+
+	$clear.display = $CHR(12)+$CHR(7)
+
+	auto_mode = 0
+	man_mode = 1   ; Enter manual mode
+
+
+	ATTACH (1)
+	IF cur_rob == 1 THEN
+	    ;load robot
+	    IF STATE(8) == 2 THEN
+		ATTACH (1)
+		WRITE (1) /C1, $clear.display, " T.P WRONG ROBOT CONTROL!! ", /S
+		WRITE (1) /C1, "   OK", /S
+		WRITE (1) $CHR(30), $CHR(5), /S
+		WAIT PENDANT(5)
+		ATTACH (0)
+		DELAY 4
+	    END
+	ELSE
+	    ;Unload robot
+	    IF STATE(8) == 1 THEN
+		ATTACH (1)
+		WRITE (1) /C1, $clear.display, " T.P WRONG ROBOT CONTROL!! ", /S
+		WRITE (1) /C1, "   OK", /S
+		WRITE (1) $CHR(30), $CHR(5), /S
+		WAIT PENDANT(5)
+		ATTACH (0)
+		DELAY 4
+	    END
+	END
+
+
+
+	exit_loop1 = 0
+	exit_loop2 = 0
+	exit_loop3 = 0
+
+   100	
+	ATTACH (1)
+	exit_loop2 = 0
+	exit_loop3 = 0
+
+	WRITE (1) $clear.display, /S
+	WRITE (1) "|TEACH-LOC|     |FINGERS|        |EXIT|", /S
+	WRITE (1) $CHR(30), $CHR(1), /S
+	WRITE (1) $CHR(30), $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(5), /S
+
+	DO     ;            -----------     WHILE NOT exit_loop1 DO
+	    DO	   ;        -----------     WHILE NOT exit_loop2 DO
+		IF PENDANT(1) THEN
+		    exit_loop1 = 1
+		    exit_loop2 = 1
+		    exit_loop3 = 0
+
+		END
+
+		IF PENDANT(3) THEN
+		    exit_loop2 = 1
+		    CALL teachfin(cur_rob)
+		    exit_loop1 = 0
+		    DELAY 2
+		    WRITE (1) /C2, /S
+		    DELAY 1
+		    GOTO 100
+		END
+
+		IF PENDANT(5) THEN
+		    exit_loop2 = 1
+		    CALL teach_locations(cur_rob)
+		    exit_loop1 = 0
+		    DELAY 2
+		    WRITE (1) /C2, /S
+		    DELAY 2
+		    GOTO 100
+		END
+	    UNTIL exit_loop2
+	UNTIL exit_loop1
+
+	DETACH (1)
+	ATTACH (1)
+
+	WRITE (1) /C1, $clear.display, "***** DO YOU WANT TO SAVE CHANGES?***** ", /S
+	WRITE (1) "           YES              NO", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(4), /S
+	WRITE (1) $CHR(30), $CHR(2), /S
+		    ;      WRITE (1) /C1, "          YES              NO ", /S
+	exit_loop3 = 0
+	DO						   ;        ------  WHILE NOT exit_loop3 DO
+	    IF PENDANT(4) THEN
+		exit_loop3 = 1
+
+		ATTACH (dlun, 4) "DISK"
+		FDELETE (dlun) "ROBOT.LC"
+		FDELETE (dlun) "ROBOT.RE"
+		FDELETE (dlun) "ROBOT.ST"
+		DETACH (dlun)
+
+		MCS "STOREL ROBOT.LC"
+		MCS "STORER ROBOT.RE"
+		MCS "STORES ROBOT.ST"
+		ATTACH (1)
+		WRITE (1) /C2, /S
+		WRITE (1) /C1, " ***  CHANGES HAS BEEN SAVED !! ***", /S
+		DELAY 2
+	    END
+	    IF PENDANT(2) THEN
+		exit_loop3 = 1
+		DELAY 2
+		WRITE (1) /C2, /S
+		WRITE (1) /C1, " ***  CHANGES HASN'T BEEN SAVED !! ***", /S
+		DELAY 1
+	    END
+	UNTIL exit_loop3
+
+	DELAY 2
+	WRITE (1) /C1, " ROBOT IS CONTROLED FROM COM. ", /S
+	DELAY 2
+	DETACH (1)
+
+.END
+
+.PROGRAM cmd13(cur_rob, rob_speed_p)
+;-----------Set Robot speed----------------
+	IF (cur_rob == rob1) THEN
+	    robot_speed[cur_rob] = rob_speed_p*1.2
+	ELSE
+	    robot_speed[cur_rob] = rob_speed_p
+	END
+	       ;120% from C# Value
+	SPEED robot_speed[cur_rob] ALWAYS
+.END
+
+.PROGRAM cmd23(in_par)
+;----------------Show input-----------
+	LOCAL $str
+	WRITE (slun) "cmd23,1,"+$ENCODE(SIG(in_par))
+	TYPE "cmd23,1,", SIG(in_par)
+.END
+
+.PROGRAM cmd27(out_p, state_p)
+;--------------- Set outut -------------------------
+	IF state_p == 1 THEN
+	    SIGNAL out_p
+	ELSE
+	    IF state_p == 0 THEN
+		SIGNAL -out_p
+	    END
+	END
+.END
+
+.PROGRAM cmd29(cur_rob, close_griper)
+;----------------- Open/Close gripper --------------
+	IF close_griper THEN
+	    IF cur_rob == rob1 THEN
+		SIGNAL o_fin[1,1]
+		SIGNAL o_fin[1,2]
+	    ELSE
+		SIGNAL o_fin[2,1]
+		SIGNAL o_fin[2,2]
+	    END
+	ELSE
+	    IF cur_rob == rob1 THEN
+		SIGNAL -o_fin[1,1]
+		SIGNAL -o_fin[1,2]
+	    ELSE
+		SIGNAL -o_fin[2,1]
+		SIGNAL -o_fin[2,2]
+	    END
+	END
+.END
+
+.PROGRAM cmd30()
+; ------------- Enter automatic mode --------------
+	auto_mode = 1
+	man_mode = 0
+.END
+
+.PROGRAM cmd31()
+; ------------- Exit automatic mode --------------
+	auto_mode = 0
+	man_mode = 1
+
+.END
+
+.PROGRAM cmd32(cur_rob, is_carrier_tray)       ; retrieve calibratoin pts. from robot
+;----------------------------------------------------------------------------------
+;NAME:  CMD32
+;
+;ABSTRACT: this task sends calibration points back to the VB upon VB request
+;         different points are sent according to the PVD load/unload mode
+;ARGUMENTS: is_carrier_tray - determines what request was issued: to retrieve service tray points or carrier tray points
+;
+;DATE UPDATED:
+; Mon Jan 19 15:56:19 2009
+
+;* Copyright (c) 2009 by SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------------
+
+	LOCAL $calib_str1, $calib_str2
+	LOCAL $simble
+	LOCAL garb.pt[]
+	LOCAL i
+	$calib_str1 = ""
+	$calib_str2 = ""
+
+	IF is_carrier_tray == 0 THEN   ;IN CASE SERVICE TRAY IS CALIBRATED
+	    FOR i = 0 TO 3
+		DECOMPOSE garb.pt[] = tray_calib.p[cur_rob,i]
+		$calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])+","
+	    END
+	    TYPE "cmd32,1,", $calib_str1
+	    WRITE (slun) "cmd32,1,", $calib_str1
+	ELSE				    ;IN CASE CARRIER TRAY IS CALIBRATED
+	    FOR i = 0 TO 3
+		DECOMPOSE garb.pt[] = carrier_calib.p[cur_rob,i]
+		$calib_str2 = $calib_str2+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])+","
+	    END
+	    TYPE "cmd32,1,", $calib_str2
+	    WRITE (slun) "cmd32,1,", $calib_str2
+	END
+.END
+
+.PROGRAM cmd33(cur_rob)	 ;replace gripper
+	LOCAL $clear.display
+	$clear.display = $CHR(12)+$CHR(7)
+	DETACH (1)
+	ATTACH (0)
+
+	; taking robot to gripper replace location
+	SPEED 10 ALWAYS
+	APPROS HERE, z_clear[cur_rob,gr]-DZ(HERE)
+	APPROS tray_calib.p[cur_rob,0], z_clear[cur_rob,gr]-DZ(tray_calib.p[cur_rob,0])
+
+	; change all relevent outputs for gripper replace operation
+	SPEED 5 ALWAYS
+	BREAK
+	fl_replacegr = TRUE		  ; replace gripper flag
+	SIGNAL -o_fin[cur_rob,1]
+	SIGNAL -o_fin[cur_rob,2]
+	SIGNAL o_release_gr[cur_rob]
+
+	ATTACH (1)
+	DETACH (0)
+	BREAK
+	WRITE (1) $clear.display, /S
+	WRITE (1) " Done Replace Gripper? ", /S
+
+	WRITE (1) "                   YES   ", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(5), /S
+	WAIT (PENDANT(5))
+	; stop LED blinking
+	WRITE (1) $CHR(28), $CHR(5), /S
+	ATTACH (0)
+	DETACH (1)
+	BREAK
+	SIGNAL -o_release_gr[cur_rob]
+	SPEED robot_speed[cur_rob] ALWAYS
+
+.END
+
+.PROGRAM cmd38()
+;saving all robot changes through the VB HMI
+	CALL save()
+.END
+
+.PROGRAM cmd41(index)	; Sending robot's poinsts to HMI (from robots to HMI)
+
+	LOCAL $calib_str1
+	LOCAL garb.pt[]		  ;temp array of locations arguments (x,y)
+	$calib_str1 = ""
+	CASE index OF
+	  VALUE 0:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,0]					 ;[robot-1,pointNo-0] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,0,", $calib_str1
+	    WRITE (slun) "cmd41,1,0,", $calib_str1
+	  VALUE 1:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,1]					 ;[robot-1,pointNo-1] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,1,", $calib_str1
+	    WRITE (slun) "cmd41,1,1,", $calib_str1
+	  VALUE 2:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,2]					 ;[robot-1,pointNo-2] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,2,", $calib_str1
+	    WRITE (slun) "cmd41,1,2,", $calib_str1
+	  VALUE 3:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,3]					 ;[robot-1,pointNo-3] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,3,", $calib_str1
+	    WRITE (slun) "cmd41,1,3,", $calib_str1
+	  VALUE 4:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,0]					 ;[robot-1,pointNo-0] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,4,", $calib_str1
+	    WRITE (slun) "cmd41,1,4,", $calib_str1
+	  VALUE 5:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,1]					 ;[robot-1,pointNo-1] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,5,", $calib_str1
+	    WRITE (slun) "cmd41,1,5,", $calib_str1
+	  VALUE 6:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,2]					 ;[robot-1,pointNo-2] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,6,", $calib_str1
+	    WRITE (slun) "cmd41,1,6,", $calib_str1
+	  VALUE 7:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,3]					 ;[robot-1,pointNo-3] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,7,", $calib_str1
+	    WRITE (slun) "cmd41,1,7,", $calib_str1
+	  VALUE 8:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,0]					 ;[robot-2,pointNo-0] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,8,", $calib_str1
+	    WRITE (slun) "cmd41,1,8,", $calib_str1
+	  VALUE 9:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,1]					 ;[robot-2,pointNo-1] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,9,", $calib_str1
+	    WRITE (slun) "cmd41,1,9,", $calib_str1
+	  VALUE 10:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,2]					 ;[robot-2,pointNo-2] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,10,", $calib_str1
+	    WRITE (slun) "cmd41,1,10,", $calib_str1
+	  VALUE 11:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,3]					 ;[robot-2,pointNo-3] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,11,", $calib_str1
+	    WRITE (slun) "cmd41,1,11,", $calib_str1
+	  VALUE 12:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,0]					 ;[robot-2,pointNo-0] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,12,", $calib_str1
+	    WRITE (slun) "cmd41,1,12,", $calib_str1
+	  VALUE 13:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,1]					 ;[robot-2,pointNo-1] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,13,", $calib_str1
+	    WRITE (slun) "cmd41,1,13,", $calib_str1
+	  VALUE 14:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,2]					 ;[robot-2,pointNo-2] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,14,", $calib_str1
+	    WRITE (slun) "cmd41,1,14,", $calib_str1
+	  VALUE 15:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,3]					 ;[robot-2,pointNo-3] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,15,", $calib_str1
+	    WRITE (slun) "cmd41,1,15,", $calib_str1
+	  VALUE 16:									 ;service tray origin of LOAD robot    
+	    WRITE (slun) "cmd41,1,16,", $ENCODE(DX(srv_tray_origin[1]))+","+$ENCODE(DY(srv_tray_origin[1]))
+	    TYPE "cmd41,1,16,", $ENCODE(DX(srv_tray_origin[1]))+","+$ENCODE(DY(srv_tray_origin[1]))
+	  VALUE 17:									 ;service tray origin of LOAD robot 
+	    WRITE (slun) "cmd41,1,17,", $ENCODE(DX(srv_tray_origin[2]))+","+$ENCODE(DY(srv_tray_origin[2]))
+	    TYPE "cmd41,1,17,", $ENCODE(DX(srv_tray_origin[2]))+","+$ENCODE(DY(srv_tray_origin[2]))
+	END
+
+
+.END
+
+.PROGRAM cmd50(cur_rob, st_num, height_change)
+;       (WRITE)this program changes the unload or load insert tray table and
+;       stations height due to operator manual changes (revolver twist) by the operator
+;
+;       st_num -  1-load robot(tray);2-load robot(carrier);3-unload robot(carrier);4-unload robot(tray)
+;       height_change - the requested change
+;----------------------------------------------------------------------------  
+	LOCAL $height
+	TYPE "st_num = ", st_num
+	TYPE "height_change = ", height_change
+	CASE st_num OF
+	  VALUE 1:
+	    z_source[cur_rob,gr] = z_source[cur_rob,gr]+height_change
+	    ;IF (z_source[cur_rob,gr] < 310) THEN
+	    ;    z_source[cur_rob,gr] = 310            ; Load Tray min height
+	    ;END
+	    IF (z_source[cur_rob,gr] < min.height[1]) THEN
+		z_source[cur_rob,gr] = min.height[1]	    ; Load Tray min height
+	    END
+	    TYPE "z_source[cur_rob,gr] = ", z_source[cur_rob,gr]
+	    $height = $ENCODE(z_source[cur_rob,gr])
+	  VALUE 2:
+	    z_unl[cur_rob,gr] = z_unl[cur_rob,gr]+height_change
+	   ;IF (z_unl[cur_rob,gr] < 315) THEN
+	   ;     z_unl[cur_rob,gr] = 315        ; Load Carrier min height
+	   ;END
+	    IF (z_unl[cur_rob,gr] < min.height[2]) THEN
+		z_unl[cur_rob,gr] = min.height[2]	 ; Load Carrier min height
+	    END
+	    TYPE "z_unl[cur_rob,gr] = ", z_unl[cur_rob,gr]
+	    $height = $ENCODE(z_unl[cur_rob,gr])
+	  VALUE 3:
+	    z_source[cur_rob,gr] = z_source[cur_rob,gr]+height_change
+	    ;IF (z_source[cur_rob,gr] < 310) THEN
+	    ;     z_source[cur_rob,gr] = 310        ; unload carrier min height
+	    ;END
+	    IF (z_source[cur_rob,gr] < min.height[3]) THEN
+		z_source[cur_rob,gr] = min.height[3]	     ; unload carrier min height
+	    END
+	    TYPE "z_source[cur_rob,gr] = ", z_source[cur_rob,gr]
+	    $height = $ENCODE(z_source[cur_rob,gr])
+	  VALUE 4:
+	    z_unl[cur_rob,gr] = z_unl[cur_rob,gr]+height_change
+	   ; IF (z_unl[cur_rob,gr] < 320) THEN
+	   ;     z_unl[cur_rob,gr] = 320        ; unload Tray min height
+	   ;END
+	    IF (z_unl[cur_rob,gr] < min.height[4]) THEN
+		z_unl[cur_rob,gr] = min.height[4]	 ; unload Tray min height
+	    END
+
+	    TYPE "z_unl[cur_rob,gr] = ", z_unl[cur_rob,gr]
+	    $height = $ENCODE(z_unl[cur_rob,gr])
+	END
+	WRITE (slun) "cmd50,1,", $height
+.END
+
+.PROGRAM cmd51(cur_rob, st_num)
+;----------------------------------------------------------------------------
+;NAME : CMD51
+;
+;ABSTRACT: (READ)this prg. returnes the height of the requested station
+;st_num -  1-load robot(tray);2-load robot(carrier);3-unload robot(carrier);4-unload robot(tray)
+;
+;DATE UPDATED: 15/05/2014
+;             
+;* Copyright (c) of SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------
+	LOCAL $height
+	CASE st_num OF
+	  VALUE 1:
+	    $height = $ENCODE(z_source[cur_rob,gr])
+	    TYPE "z_source[gr]= ", z_source[cur_rob,gr]
+	  VALUE 2:
+	    TYPE "z_unl[gr]= ", z_unl[cur_rob,gr]
+	    $height = $ENCODE(z_unl[cur_rob,gr])
+	  VALUE 3:
+	    $height = $ENCODE(z_source[cur_rob,gr])
+	    TYPE "z_source[gr]= ", z_source[cur_rob,gr]
+	  VALUE 4:
+	    TYPE "z_unl[gr]= ", z_unl[cur_rob,gr]
+	    $height = $ENCODE(z_unl[cur_rob,gr])
+	END
+	WRITE (slun) "cmd51,1,", $height
+	TYPE "Station Height Retrieved"
+.END
+
+.PROGRAM cmd60(cur_rob)
+;----------------------------------------------------------------------------
+;NAME : CMD60
+;
+;ABSTRACT: this prg. stretched the robot's arm so that cameras 1,2,3 will have
+;          a clear FOV to aquire an image propely
+;
+;DATE UPDATED: 19/3/09
+;
+;* Copyright (c) of SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------
+
+	LOCAL stretch.pt
+	APPROS HERE, z_clear[cur_rob,gr]-DZ(HERE)
+	BREAK
+	SET stretch.pt = TRANS(799,0,z_clear[cur_rob,gr],0,180,150)
+
+	TYPE "ROBOT CLEARS CAMERAS FOV"
+	MOVES stretch.pt
+
+.END
+
+.PROGRAM cmd62(offset.x, offset.y, offset.z, offset.a)
+
+	measureoffsetx = offset.x
+	measureoffsety = offset.y
+	measureoffsetz = offset.z
+	measureoffseta = offset.a
+.END
+
+.PROGRAM cmdtest(cur_rob)
+
+	ATTACH (1)
+	DETACH (0)
+       ; WRITE (1) $clear.display, " MOVE GRIPPER TO CENTER PT."
+       ; WRITE (1) /X17, "RECORD", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(3), /S
+	WAIT PENDANT(3)
+       ; HERE p01[cur_rob,gr]
+	ATTACH (0)
+	DETACH (1)
+
+
+
+.END
+
+.PROGRAM door_stop1()
+;=====================================================================
+; ABSTRACT :
+;       the prg. stopps robot immediatly at door open
+;       resumes move uppon PLC's resume pulse
+;
+; INPUTS :
+;       i_door_closed[1] - 1073   -> the door interlock - ON when door closed
+;       i_req.resume = 1068  -> ON pulse of 1 sec. to resume robot move
+;
+;=====================================================================
+;
+	BRAKE		  ; stopping robot move immediatly
+	TYPE "DOOR 1 OPEN INTERRUPT ACTIVATED"
+	WRITE (slun) "999,200" ;, $CHR(10)  ; notifying VB robot door was opened
+	TYPE "999,200" ;, $CHR(10)
+	WAIT (SIG(i_door.close[rob1]) AND SIG(i_req.resume[rob1]))
+	WRITE (slun) "999,201" ;, $CHR(10) ; notifying VB robot door was closed
+	TYPE "999,201" ;, $CHR(10)
+	BREAK
+	TYPE "DOOR-1 CLOSED AND RESUME REQUESTED - ROBOT MOVE RESUMES"
+	MOVES DEST
+	REACTI -i_door.close[rob1], door_stop1
+.END
+
+.PROGRAM door_stop2()
+;=====================================================================
+; ABSTRACT :
+;       the prg. stopps robot immediatly at door open
+;       resumes move uppon PLC's resume pulse
+;
+; INPUTS :
+;       i_door_closed[1] - 1079   -> the door interlock - ON when door closed
+;       i_req.resume = 1068  -> ON pulse of 1 sec. to resume robot move
+;
+;=====================================================================
+;
+	BRAKE		  ; stopping robot move immediatly
+	TYPE "DOOR 2 OPEN INTERRUPT ACTIVATED"
+	WRITE (slun) "999,200" ; , $CHR(10) ; notifying VB robot door was opened
+	TYPE "999,200" ; , $CHR(10)
+	WAIT (SIG(i_door.close[rob2]) AND SIG(i_req.resume[rob2]))
+	WRITE (slun) "999,201" ; , $CHR(10) ; notifying VB robot door was closed
+	TYPE "999,201" ; , $CHR(10)
+	BREAK
+	TYPE "DOOR-2 CLOSED AND RESUME REQUESTED - ROBOT MOVE RESUMES"
+	MOVES DEST
+	REACTI -i_door.close[rob2], door_stop2
+.END
+
+.PROGRAM error.trap()
+;--------------------------------------------------------------------------
+;NAME: ERROR.TRAP
+;
+;ABSTRACT: traps errors uppon accurance
+;
+;INPUT PARAMS:
+;       err_num - the last error number associated with the current robot (INTEGER)
+;OUTPUT PARAMS:
+;       $err_msg - the error string associated with the last error occured
+;
+;DATE CREATED: 15/3/09
+;
+;DATE UPDATED:
+;
+;* Copyright (c) 2009 by SHAFIR PRODUCTION SYSTEMS
+;-------------------------------------------------------------------------
+	AUTO err_num
+	LOCAL $err_msg
+
+	;resetting program run output
+     ;   SIGNAL -o_prg_running
+
+	err_num = ERROR(0)	    ; checking what error had occured
+
+	$err_msg = ""			  ;assume no error
+	IF err_num < 0 THEN	      ;if an error occured
+	    $err_msg = $ERROR(err_num)		    ; get base massage string
+	    TYPE $err_msg
+	END
+
+	TYPE "Error Accured, Err Number - ", err_num
+	WRITE (slun) "999,", err_num, $err_msg ; sending the error to VB  through RS232
+	TYPE "999,", err_num ; typing the error that was just sent to rs232
+
+	RETURN
+
+   999	
+	STOP
+
+.END
+
+.PROGRAM error_hand()
+	$err_message = $ENCODE(ERROR(0))
+	TYPE $err_message
+	TYPE ERROR(0)
+	TYPE $ERROR(0)
+	CASE ERROR(0) OF
+	  VALUE -909:
+	    TYPE "Emergency pressed"
+	  VALUE -603:
+	    TYPE "Exit from 'COMP' mode"
+	  ANY
+	    TYPE "General error"
+	END
+	REACTE error_hand
+	SIGNAL -o_prg_running
+
+	GOTO 999
+
+	ATTACH (1)
+	WRITE (1) $CHR(30), $CHR(3), /S
+	WRITE (1) "               Continue"
+	WAIT PENDANT(3)
+	SIGNAL -o_err[1]
+	DETACH (1)
+	ATTACH (0)
+	REACTE error_hand
+	ATTACH (0)
+	RETURN
+   999	
+	STOP
+.END
+
+.PROGRAM fingers(cur_rob)   ;---- cal the dis between fingers to 0 0 --
+	SET finger_offset[cur_rob,1] = TRANS(tb[cur_rob,0],tb[cur_rob,1],0,0,0,0)
+	SET f_o_g[cur_rob,gr] = finger_offset[cur_rob,1]
+.END
+
+.PROGRAM fov_clear_load()
+
+;----------------------------------------------------------------------------------
+;NAME:      fov_clear_load
+;
+;ABSTRACT: this program sets/resets the fov_clear (Field Of View) signals
+;          and checks if field of view is clear to snap a frame
+;
+;DATE CREATED: 15/07/14
+;
+;DATE UPDATED:
+;
+;* Copyright (c) 2009 by SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------------
+
+	LOCAL tray_radius1	   ;   the restricted radius blocking the tray vision's field of view
+	LOCAL carrier_radius1	   ;   the restricted radius blocking the carrier vision's field of view
+	LOCAL carrier_dist1	 ;   the current distance from the carrier center
+	LOCAL tray_dist1	 ;   the current distance from the service tray  center
+
+	carrier_radius1 = 245/2+55
+	tray_radius1 = 340/2+80
+
+	rob1 = 1
+	SELECT ROBOT = rob1
+
+	WHILE TRUE DO
+	    WAIT
+	    carrier_dist1 = DISTANCE(HERE,carrier_cntr.p[1])	;calculating the carrier center distance
+	    tray_dist1 = DISTANCE(HERE,tray_cntr.p[1])		; calculating the service tray center distance
+
+	    IF (tray_dist1 > tray_radius1) THEN	;checking if robot1 is within the Tray FOV
+
+		fl_fov_clr[1] = 1
+				;will turn on SIGNAL o_fov_clr[1] at snap.req subroutine
+	    ELSE
+		fl_fov_clr[1] = 0
+				;will PREVENT turning on of SIGNAL o_fov_clr[1] at snap.req subroutine
+	    END
+	    IF (carrier_dist1 > carrier_radius1) THEN	     ;checking if robot1 is within the Carrier FOV
+		fl_fov_clr[2] = 1
+				 ;will turn on SIGNAL o_fov_clr[2] at snap.req subroutine
+	    ELSE
+		fl_fov_clr[2] = 0
+				;will PREVENT turning on of SIGNAL o_fov_clr[2] at snap.req subroutine
+	    END
+	END
+
+.END
+
+.PROGRAM fov_clear_sig()
+
+;----------------------------------------------------------------------------------
+;NAME:      fov_clear_sig
+;
+;ABSTRACT: this program sets/resets the fov_clear (Field Of View) signals
+;          and checks if field of view is clear to snap a frame
+;
+;DATE CREATED: 17/11/09
+;
+;DATE UPDATED:
+;
+;* Copyright (c) 2009 by SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------------
+
+	LOCAL tray_radius		       ;   the restricted radius blocking the tray vision's field of view
+	LOCAL carrier_radius		       ;   the restricted radius blocking the carrier vision's field of view
+	LOCAL carrier_dist1, carrier_dist2     ;   the current distance from the carrier center
+	LOCAL tray_dist1, tray_dist2	       ;   the current distance from the service tray  center
+
+	carrier_radius = 245/2+55
+	tray_radius = 340/2+80
+
+
+	WHILE TRUE DO
+	    ;
+	    carrier_dist1 = DISTANCE(HERE,carrier_cntr.p[1])	;calculating the carrier center distance
+	    tray_dist1 = DISTANCE(HERE,tray_cntr.p[1])		; calculating the service tray center distance
+
+	    carrier_dist2 = DISTANCE(HERE,carrier_cntr.p[2])	;calculating the carrier center distance
+	    tray_dist2 = DISTANCE(HERE,tray_cntr.p[2])		; calculating the service tray center distance
+
+	    ;checking if the corrent robot location (distance from center) is bigger
+	    ;then the restricted length
+	    ;meaning if current location is beyond the FOV border line or not
+
+	    ;checking if robot is within the load FOV
+	    IF load_unload_fl == 0 THEN				;Loading robot:
+		IF (tray_dist > tray_radius) THEN
+				;SIGNAL o_fov_clr[1]
+		    fl_fov_clr[1] = 1
+		ELSE
+				;SIGNAL -o_fov_clr[1]
+		    fl_fov_clr[1] = 0
+		END
+			;checking if robot is within the unload FOV
+		IF (carrier_dist > carrier_radius) THEN
+				;SIGNAL o_fov_clr[2]
+		    fl_fov_clr[2] = 1
+		ELSE
+				;SIGNAL -o_fov_clr[2]
+		    fl_fov_clr[2] = 0
+		END
+	    ELSE						 ;Unloading robot:
+		IF (tray_dist > tray_radius) THEN
+				;SIGNAL o_fov_clr[2]
+		    fl_fov_clr[2] = 1
+		ELSE
+				;SIGNAL -o_fov_clr[2]
+		    fl_fov_clr[2] = 0
+		END
+
+			;checking if robot is within the unload FOV
+		IF (carrier_dist > carrier_radius) THEN
+				;SIGNAL o_fov_clr[1]
+		    fl_fov_clr[1] = 1
+		ELSE
+				;SIGNAL -o_fov_clr[1]
+		    fl_fov_clr[1] = 0
+		END
+	    END
+	END
+.END
+
+.PROGRAM fov_clear_unloa()
+
+;----------------------------------------------------------------------------------
+;NAME:      fov_clear_Unload
+;
+;ABSTRACT: this program sets/resets the fov_clear (Field Of View) signals
+;          and checks if field of view is clear to snap a frame
+;
+;DATE CREATED: 15/07/14
+;
+;DATE UPDATED:
+;
+;* Copyright (c) 2009 by SHAFIR PRODUCTION SYSTEMS
+;----------------------------------------------------------------------------------
+
+	LOCAL carrier_radius2	   ;   the restricted radius blocking the carrier vision's field of view
+	LOCAL carrier_dist2	 ;   the current distance from the carrier center
+
+	carrier_radius2 = 245/2+55
+	tray_radius2 = 340/2+80
+
+	rob2 = 2
+	SELECT ROBOT = rob2
+
+	WHILE TRUE DO
+	    WAIT
+	    carrier_dist2 = DISTANCE(HERE,carrier_cntr.p[2])	 ;calculating the carrier center distance
+
+	    IF (carrier_dist2 > carrier_radius2) THEN ;checking if robot2 is within the Carrier FOV
+		fl_fov_clr[3] = 1
+				 ;will turn on SIGNAL o_fov_clr[3] at snap.req subroutine
+	    ELSE
+		fl_fov_clr[3] = 0
+				 ;will PREVENT turning on of SIGNAL -o_fov_clr[3] at snap.req subroutine
+	    END
+	END
+.END
+
+.PROGRAM from.mesure(cur_rob, angle)
+
+	AUTO LOC tmp.measure
+	AUTO REAL tmp.pt
+
+
+	DECOMPOSE tmp.pt[] = measure.p[cur_rob]
+
+
+	SIGNAL -o_fin[cur_rob,1]	   ; open finger(pick insert)
+	SIGNAL -o_fin[cur_rob,2]
+
+	TOOL f_o_g[cur_rob,gr] ; set tool to finger  ;change command to inverse(f_o_g[]) by fabien
+;**************************************************
+       ; SET tmp.measure = TRANS(tmp.pt[0]+measureoffsetx,tmp.pt[1]+measureoffsety,tmp.pt[2],0,180,angle)
+	SET tmp.measure = TRANS(tmp.pt[0]+measureoffsetx,tmp.pt[1]+measureoffsety,tmp.pt[2]+measureoffsetz,0,180,90+measureoffseta)
+
+
+	APPROS tmp.measure, z_clear[cur_rob,gr]-DZ(tmp.measure)
+;**************************************************
+	WAIT SIG(i_caliber.ready[rob2])
+	ACCEL (1) 80, 200
+	SPEED 10
+	MOVE tmp.measure
+	BREAK
+;**************************************************
+	WAIT.EVENT , del_b_pick[cur_rob,gr]+setup.delays    ;in this syntex, not alow to be zero!!
+	SIGNAL o_fin[cur_rob,1]			 ; open finger(pick insert)
+	SIGNAL o_fin[cur_rob,2]
+	WAIT.EVENT , del_af_pick[cur_rob,gr]+setup.delays
+;**************************************************
+	ACCEL (1) 200, 80
+	; the robot will depart from where it stands and not from a certain position
+	SPEED 10
+	DEPARTS z_clear[cur_rob,gr]-DZ(tmp.measure)
+	SPEED (robot_speed[rob2]*0.4)
+	BREAK
+	SIGNAL (-o_measure.place[rob2])
+
+	SIGNAL s.start.task.6
+	WRITE (slun) "cmd15,1"
+
+.END
+
+.PROGRAM getinstance(queue_index, flags, location, model, encoder, visionx, visiony, visionrot)
+
+; ABSTRACT:  This function is the main function called to retrieve the instance. 
+;
+; INPUTS:       queue_index     This is the queue index in which we want to retrieve the instance
+;               flags           Flag bits to control operation of the
+;                               routine:
+;                                   Bit 1:  If set, routine waits for
+;                                           queue element to be defined;
+;                                           otherwise, "fail" if the
+;                                           element is not defined
+;                                   Bit 2:  If set, do not remove the
+;                                           instance from the queue;
+;                                           otherwise, remove the instance
+;                                           from the queue.
+;                                   Bit 3:  If set, we are sure there is an instance
+;                                           in the queue. When using this bit, the
+;                                           calling program is responsible for checking
+;                                           if an instance is ready in the queue;
+;                                           otherwise, getinstance will check if there is an
+;                                           instance before retrieving it from the queue.
+;
+; OUTPUTS:      location        Location of the part found by iSight. The location can be relative
+;                               to the belt reference frame or the robot reference frame depending
+;                               on the option selected in the communication tool on iSight side.
+;               model           Model Index
+;                                 (-1 if there was an error)
+;               encoder         Contains the encoder value when the instance was found.
+;               visionx         Countains the part X position in the vision coordinates reference frame
+;               visiony         Countains the part Y position in the vision coordinates reference frame
+;               visionrot       Countains the part Rotation in the vision coordinates reference frame
+;
+; SIDE EFFECTS: None
+;
+; DATA STRUCT:  is_queue_size[i]  Contains the queue size of the i queue
+;               is_adv_tail[i]    Contains the tail position of the i queue
+;               is_head[i]        Contains the head position of the i queue
+;               is_tail[i]        Contains the tail position of the i queue
+;               $is_nzs[i,j]      Contains the j instance encoded information of the i queue
+;
+;* Copyright (c) 2006, 2008 by Adept Technology
+
+	AUTO REAL blocking
+	AUTO REAL peek
+	AUTO REAL tail
+	AUTO REAL qi
+	AUTO REAL check_avail_flg
+	AUTO $tmp
+
+	qi = queue_index
+
+	blocking = flags BAND 1
+	peek = flags BAND 2
+	check_avail_flg = flags BAND 4
+
+; Check for the data being available.
+
+	IF blocking THEN		;The routine "blocks"
+
+	    WHILE TRUE DO
+
+		; Are the queue data defined?
+
+		IF DEFINED(is_adv_tail[qi]) AND DEFINED(is_head[qi]) AND DEFINED(is_queue_size[qi]) THEN
+
+		    ; Is the queue empty?
+
+		    IF (check_avail_flg == 1) THEN
+			EXIT
+		    END
+
+		    IF (is_adv_tail[qi] == is_head[qi]) OR (is_queue_size[qi] == 0) THEN
+			WAIT.EVENT , 0.016	       ;Yes, wait for the element
+		    ELSE
+			EXIT		;No, okay to continue
+		    END
+		ELSE
+		    WAIT		;Yes, wait for the element
+		END
+	    END
+	ELSE				;The routine does NOT "block"
+
+	    ; Are the queue data defined?
+
+	    IF DEFINED(is_adv_tail[qi]) AND DEFINED(is_head[qi]) AND DEFINED(is_queue_size[qi]) THEN
+
+		; Is the queue empty?
+
+		IF (is_adv_tail[qi] == is_head[qi]) OR (is_queue_size[qi] == 0) THEN
+		    model = -1		;Yes, signal failure return
+		    GOTO 100
+		END
+	    ELSE			;The data are not defined!
+		model = -1		;Signal failure return
+		GOTO 100
+	    END
+	END
+
+; Process the queue element.
+
+	tail = is_adv_tail[qi]		;Pointer to the tail
+
+; Transform the data string.
+
+	CALL nzs2string($is_nzs[qi,tail], $tmp)
+
+
+; Extract the data items.
+
+	CALL string2instance($tmp, location, model, encoder, visionx, visiony, visionrot)
+
+	IF NOT peek THEN      ;If not "peeking", ...
+	    is_tail[qi] = tail
+	    is_adv_tail[qi] = (tail+1) MOD is_queue_size[qi]
+	END
+
+   100	RETURN
+.END
+
+.PROGRAM get_queue_size(queue_index, size)
+
+; ABSTRACT:  This function returns the number of instances in the queue
+;
+; INPUTS:       queue_index     This is the queue index in which we want to retrieve the instance
+;
+; OUTPUTS:      size            Number of instances in the queue
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2011 by Adept Technology
+
+	AUTO REAL qi, adv, head, tail, q.size
+
+	qi = queue_index
+	size = 0
+
+	IF DEFINED(is_adv_tail[qi]) AND DEFINED(is_head[qi]) AND DEFINED(is_queue_size[qi]) THEN
+
+	    adv = is_adv_tail[qi]
+	    head = is_head[qi]
+	    tail = is_adv_tail[qi]
+	    q.size = is_queue_size[qi]
+
+	    IF (adv <> head) AND (q.size <> 0) THEN
+		IF (head < tail) THEN
+		    size = q.size-tail+head
+		ELSE
+		    size = head-tail
+		END
+	    END
+	END
+
+   100	RETURN
+.END
+
+.PROGRAM hmi.comm()
+	WHILE TRUE DO	;hand shake robot recievd what hmi sent (coordiants)
+	    WAIT
+	    IF SIG(-i_data.to.rob[rob1]) THEN
+		SIGNAL -o_dat.recive[rob1]
+	    END
+	END
+.END
+
+.PROGRAM init_cell(cur_rob)
+
+    ;----------------FLAGS----------------------------------
+	ATTACH (0)
+	DETACH (1)
+	auto_mode = 0
+	man_mode = 0
+	fl_reset[cur_rob] = FALSE
+	fl_replacegr = TRUE    ;in "main" will call "set_gripper" function
+	prev_cmd[cur_rob] = -1	; reset last command value
+	fl_fov_clr[1] = 1
+	fl_fov_clr[2] = 1
+	fl_fov_clr[3] = 1
+    ;-------------------------------------------------------
+	SIGNAL -o_fin[cur_rob,1]	    ;close gripper of current robot
+	SIGNAL -o_fin[cur_rob,2]	    ;close gripper of current robot
+	SIGNAL -o_rob.safe.pos[cur_rob]
+	SIGNAL -o_ins.place[cur_rob]
+       ;SIGNAL o_prg_running[cur_rob]           ;robot running indicator
+       ;SIGNAL o_ins_picked[cur_rob]                ;reset done to load st.
+       ;SIGNAL o_ins_placed[cur_rob]                ;reset done to unload st.
+	SIGNAL -o_release_gr[cur_rob]		;reset release gripper output
+	SIGNAL (-o_measure.place[rob2])
+
+	;added to identify robot wrong configuration upon main prg. startup
+	;(rob1 should be righty ;rob2 should be Lefty)
+	IF cur_rob == rob1 THEN
+	    IF CONFIG() == 1 THEN ;righty if config()==1
+		wrong_robot_con[rob1] = FALSE
+	    ELSE
+		wrong_robot_con[rob1] = TRUE  ;wrong! config
+	    END
+	ELSE
+	    IF CONFIG() == 1 THEN ;righty if config()==1
+		wrong_robot_con[rob2] = TRUE  ;wrong! config
+	    ELSE
+		wrong_robot_con[rob2] = FALSE
+	    END
+
+	END
+.END
+
+.PROGRAM init_io()
+
+;///////////////////// inputs discription  (ADS: 1065-1080, NORMAL :rob1:1097-1108, rob2:1145-1156 )//////////////////////////     
+  ;ROBOT-1(LOADING)
+	i_door.close[rob1] = 1001 ;inputs from 1001 to 1012 with the REACTI pinstruction
+	i_req.pause[rob1] = 1065
+	i_stop.reset[rob1] = 1066
+	i_req.resume[rob1] = 1067
+	i_carr.ready[rob1] = 1068
+	i_tray.ready[rob1] = 1069
+	i_orient.done[rob1] = 1070
+	i_data.to.rob[rob1] = 1071    ;signal robot recieve data(coordinates) from HMI
+	; i_ins_picked[rob1] = 1097
+  ;ROBOT-2(UNLOADING)
+	i_door.close[rob2] = 1002 ;inputs from 1001 to 1012 with the REACTI pinstruction
+	i_req.pause[rob2] = 1073
+	i_stop.reset[rob2] = 1074
+	i_req.resume[rob2] = 1075
+	i_carr.ready[rob2] = 1076
+	i_tray.ready[rob2] = 1077
+	i_insfound.done = 1078	   ;only for unload.cycle logic (rob2)
+	i_caliber.ready[rob2] = 1079
+	i_carr.done = 1080
+	; i_ins_placed[rob2] = 1145
+;////////////////////// outputs discription (ADS: 65-80, NORMAL:97-112,137-144) //////////////////////////
+  ;ROBOT-1(LOADING):
+	o_snap.requset[1] = 65	 ; output stating that tray load camera fov is now clear for snap
+	o_snap.requset[2] = 66	 ; output stating that carrier load camera fov is now clear for snap
+	o_cycle.done[rob1] = 67
+	o_rob.safe.pos[rob1] = 68
+	o_ins.place[rob1] = 69
+	life_bit[rob1] = 70
+	o_dat.recive[rob1] = 71
+	;spare[rob1] = 72
+	o_fin[rob1,1] = 97	 ;open fingers
+	o_fin[rob1,2] = 98	 ;open fingers
+	o_release_gr[rob1] = 99	 ;release gripper
+  ;ROBOT-2(UNLOADING):
+	o_air.puff[rob2] = 73 ; air puff at insert and measuring station
+	o_snap.requset[3] = 74 ;output stating that carrier Unload camera fov is now clear for snap
+	o_cycle.done[rob2] = 75
+	o_rob.safe.pos[rob2] = 76
+	o_ins.place[rob2] = 77
+	o_measure.place[rob2] = 78
+	o_dat.recive[rob2] = 79
+	;spare[rob2] = 80
+	o_fin[rob2,1] = 137	  ;open fingers
+	o_fin[rob2,2] = 138	  ;open fingers
+	o_release_gr[rob2] = 139  ;release gripper
+;-------------------------------------------------------------------------------------
+.END
+
+.PROGRAM init_rob.range()
+;-------------robot1------------------------
+; - pick:
+	maxlimitst1x[rob1] = 540
+	minlimitst1x[rob1] = 160
+	maxlimitst1y[rob1] = 605
+	minlimitst1y[rob1] = 260
+; - place:
+	maxlimitst2x[rob1] = 575
+	minlimitst2x[rob1] = 356
+	maxlimitst2y[rob1] = 15
+	minlimitst2y[rob1] = -260
+;--------------robot2------------------------
+; - pick:
+	maxlimitst1x[rob2] = 0
+	minlimitst1x[rob2] = -225
+	maxlimitst1y[rob2] = -266
+	minlimitst1y[rob2] = -480
+; - place:
+	maxlimitst2x[rob2] = 600
+	minlimitst2x[rob2] = 245
+	maxlimitst2y[rob2] = -180
+	minlimitst2y[rob2] = -555
+;--------------------------------------------
+.END
+
+.PROGRAM init_rs232(cur_rob)
+	GLOBAL slun
+	IF cur_rob == rob1 THEN		 ;LOAD ROBOT
+	    ATTACH (slun, 4) "SERIAL:1"
+	    TYPE "RS232 Opened (ROBOT 1)"
+	    IF IOSTAT(slun) <> 0 THEN
+		TYPE IOSTAT(slun), " ", $ERROR(IOSTAT(slun))
+	    END
+	END
+	IF cur_rob == rob2 THEN		 ;UNLOAD ROBOT
+	    ATTACH (slun, 4) "SERIAL:2"
+	    TYPE "RS232 Opened (ROBOT 2)"
+	    IF IOSTAT(slun) <> 0 THEN
+		TYPE IOSTAT(slun), " ", $ERROR(IOSTAT(slun))
+	    END
+	END
+	RETURN
+.END
+
+.PROGRAM intr_reset(cur_rob)
+	TYPE "Enter to interrupt routine"
+	$err_code = "0"
+	fl_reset[cur_rob] = TRUE
+	REACT i_reset, intr_reset
+.END
+
+.PROGRAM life.signal()
+
+	DO
+	    WAIT 1
+	    SIGNAL life_bit[rob1]
+	    WAIT 1
+	    SIGNAL (-life_bit[rob1])
+	UNTIL FALSE
+.END
+
+.PROGRAM load.cycle() ;robot # 1
+	AUTO cmd2, d
+	ACCEL (1) 150, 120
+	FINE 500 ALWAYS
+
+	IF TASK(1,10) <> 4 THEN
+	    EXECUTE 10 hmi.comm()  ;activating field of view clear sensing
+	END
+
+	s.start.task.2 = 2102
+	SIGNAL -s.start.task.2
+	WAIT
+	IF TASK(1,2) <> 4 THEN
+	    EXECUTE 2 snap.req.cam1()
+	END
+
+	s.start.task.3 = 2103
+	SIGNAL -s.start.task.3
+	WAIT
+	IF TASK(1,3) <> 4 THEN
+	    EXECUTE 3 snap.req.cam2()
+	END
+
+
+
+	IF TASK(1,1) <> 4 THEN
+	    EXECUTE 1 fov_clear_load() ;activating field of view clear sensing
+	END
+       ; IF robot_speed[rob1] > 100 THEN
+       ; SPEED robot_speed[rob1]*0.7
+       ; END
+	BREAK
+	DEPART z_safe[rob1]-DZ(HERE)
+	BREAK
+	SPEED robot_speed[rob1]*0.7
+	MOVE midpt[rob1]
+	BREAK
+	SIGNAL o_rob.safe.pos[rob1]
+	SIGNAL (-o_cycle.done[rob1])
+   111	
+
+	IF SIG(-i_carr.ready[rob1]) OR SIG(-i_tray.ready[rob1]) THEN
+	    WAIT.EVENT , 0.1
+	    IF SIG(i_stop.reset[rob1]) THEN
+		BREAK
+		DEPART z_safe[rob1]-DZ(HERE)
+		BREAK
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		WRITE (slun) "cmd15,1"
+		SIGNAL o_rob.safe.pos[rob1]
+		RETURN
+	    END
+	    GOTO 111
+	END
+
+	SIGNAL s.start.task.3 ;run task 6 once
+       ; EXECUTE 3 snap.req(2)             ; rase dout(2) when possible to snap
+	WHILE NOT SIG(i_orient.done[rob1]) DO
+	    ;WAIT.EVENT , 0.1
+	    IF SIG(i_stop.reset[rob1]) THEN
+		BREAK
+		DEPART z_safe[rob1]-DZ(HERE)
+		BREAK
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		WRITE (slun) "cmd15,1"
+		SIGNAL o_rob.safe.pos[rob1]
+		RETURN
+	    END
+	END
+	SIGNAL -o_snap.requset[2]
+
+
+   555	
+	SIGNAL -o_rob.safe.pos[rob1]
+	;;;;qq     SIGNAL o_rob.safe.pos[rob1]
+	TYPE "Start Load Cycle :", TIMER(14)
+	TIMER (14) = 0
+
+	IF SIG(-i_carr.ready[rob1]) OR SIG(-i_tray.ready[rob1]) THEN
+	    WAIT.EVENT , 1
+	    IF SIG(i_stop.reset[rob1]) THEN
+		BREAK
+		DEPART z_safe[rob1]-DZ(HERE)
+		BREAK
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		WRITE (slun) "cmd15,1"
+		SIGNAL o_rob.safe.pos[rob1]
+		;WAIT 1
+		;WRITE (slun) "999,203"
+		RETURN
+	    END
+	    GOTO 555
+	END
+
+
+
+;        IF TASK(1,2) <> 4 THEN
+;            EXECUTE 2 snap.req(1) ;will wait and ask for snap only when FOV is clear
+;        END
+	SIGNAL s.start.task.2 ;run task 2 once
+	BREAK
+	DEPART z_clear[rob1,gr]-DZ(HERE)
+
+	$come_str[rob1,2] = ""
+	d = -526
+
+  ;      $come_str[rob1,2] = "cmd15,196.15,549.26,-2.36,497.94,-43.65,0.00,0^^j^^m"
+   ;     GOTO 123 ;testing... no loop for comm
+
+	WHILE (d <> 13) DO	    ; cerrage return
+	    d = GETC(slun,1)
+	    IF (IOSTAT(slun) <> -526) AND (d <> -526) THEN ;no characters in port
+	       ; TYPE "$chr(d)=", $CHR(d)
+		$come_str[rob1,2] = $come_str[rob1,2]+$CHR(d)
+	    ELSE
+		IF SIG(i_stop.reset[rob1]) THEN
+		    BREAK
+		    DEPART z_safe[rob1]-DZ(HERE)
+		    BREAK
+		    SPEED robot_speed[rob1]*0.7
+		    MOVE midpt[rob1]
+		    WRITE (slun) "cmd15,1"
+		    SIGNAL o_rob.safe.pos[rob1]
+		    RETURN
+		END
+		IF SIG(i_req.pause[rob1]) THEN
+		    GOTO 222
+		END
+	    END
+	END
+	WHILE (SIG(-i_data.to.rob[rob1])) DO
+	    WAIT
+	    IF SIG(i_stop.reset[rob1]) THEN
+		BREAK
+		DEPART z_safe[rob1]-DZ(HERE)
+		BREAK
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		WRITE (slun) "cmd15,1"
+		SIGNAL o_rob.safe.pos[rob1]
+		RETURN
+	    END
+	    IF SIG(i_req.pause[rob1]) THEN
+		GOTO 222
+	    END
+	END
+
+	SIGNAL o_dat.recive[rob1]
+	SIGNAL -o_ins.place[rob1]
+	SIGNAL -o_rob.safe.pos[rob1]
+	SIGNAL -o_snap.requset[1]
+	TYPE "robot1", $come_str[rob1,2]
+	CALL break_string(rob1, $come_str[rob1,2])
+	$cmd_str[rob1,2] = $MID($par_s[1],4,LEN($par_s[1])-3)
+	cmd2 = VAL($cmd_str[rob1,2])
+
+
+
+	CASE cmd2 OF
+	  VALUE 15:
+	    CALL par_s_to_r(rob1, 8)
+	    carrier.done_fl[rob1] = par_r[8]		  ;1 when finish carrier
+	    CALL pick.insert(rob1, par_r[2], par_r[3], par_r[4])
+	    IF fl.outrange[rob1] == 1 THEN
+		WRITE (slun) "999,205"
+		RETURN
+	    END
+	    IF NOT (SIG(i_req.pause[rob1]) OR SIG(i_stop.reset[rob1])) THEN
+		;EXECUTE 2 snap.req(1)                       ;will wait and ask for snap only when FOV is clear
+		SIGNAL s.start.task.2 ;run task 2 once
+	    END
+	    CALL place.insert(rob1, par_r[5], par_r[6], par_r[7])
+	    IF fl.outrange[rob1] == 1 THEN
+		WRITE (slun) "999,205"
+		RETURN
+	    END
+	    IF picked.sens.fl == 0 THEN
+		TYPE "rob1 - placed Succes"
+		GOTO 222
+	    END
+	    IF placegoodfl[rob1] == 1 THEN
+			;tbd- add logic and transfer to VB
+		TYPE "rob1 - placed Succes"
+	    ELSE
+		TYPE "rob1 - placed Failed"
+	    END
+   222	    
+	    IF SIG(i_req.pause[rob1]) THEN
+		BREAK
+		DEPART z_safe[rob1]-DZ(HERE)
+		BREAK
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		BREAK
+		SIGNAL o_rob.safe.pos[rob1]
+   333		
+		IF SIG(i_stop.reset[rob1]) THEN
+		    GOTO 444
+		END
+		IF NOT SIG(i_req.resume[rob1]) AND SIG(i_req.pause[rob1]) THEN
+		    GOTO 333
+		END
+	    END
+   444	    
+	    IF SIG(i_stop.reset[rob1]) THEN		  ;the only way to get out of auto Loop
+		BREAK
+		DEPART z_safe[rob1]-DZ(HERE)
+		BREAK
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		BREAK
+		SIGNAL o_rob.safe.pos[rob1]
+		IF carrier.done_fl[rob1] THEN
+		    SIGNAL (o_cycle.done[rob1])
+		    ;CALL wait.sig(o_cycle.done[rob1], -1, expired)
+		    CALL wait.sig(-i_carr.ready[rob1], -1, expired)
+				;IF SIG(i_stop.reset[rob1]) THEN  ;in case user stop for aborting wait.sig
+				;        ;do nothing..
+				;END
+		    SIGNAL (-o_cycle.done[rob1])
+		END
+		BREAK
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		WRITE (slun) "cmd15,1"
+		SIGNAL o_rob.safe.pos[rob1]
+		RETURN
+	    END
+	    IF carrier.done_fl[rob1] THEN
+		SPEED robot_speed[rob1]*0.7
+		MOVE midpt[rob1]
+		BREAK
+		SIGNAL o_rob.safe.pos[rob1]
+		SIGNAL (o_cycle.done[rob1])
+		CALL wait.sig(-i_carr.ready[rob1], -1, expired)
+		IF SIG(i_stop.reset[rob1]) THEN	;in case user stop for aborting wait.sig  ;qq
+		    SPEED robot_speed[rob1]*0.7
+		    MOVE midpt[rob1]
+		    SIGNAL (-o_cycle.done[rob1])
+		    WRITE (slun) "cmd15,1"
+		    RETURN
+		END
+
+		SIGNAL (-o_cycle.done[rob1])
+		GOTO 111
+	    END
+	;-------------------------------------------------------------------------------------
+	  VALUE 98:				  ; go back to manual mode (out of auto-cycle)
+	    BREAK
+	    DEPART z_safe[rob1]-DZ(HERE)
+	    BREAK
+	    MOVE midpt[rob1]
+	    WRITE (slun) "cmd15,1"
+	    RETURN
+	;-----------------------------------------------------------------------------------
+	  ANY
+	    TYPE "Unknown command"
+	END
+	prev_cmd[rob1] = cmd2
+      ;  TIMER (2) = 0
+	GOTO 555
+	;TBD-de-activate  fov_clear_sig() 
+.END
+
+.PROGRAM nzs2string($nzs, $result)
+
+; ABSTRACT:  This function parse the nzs to retrieve a string containing the instance
+;
+; INPUTS:       $nzs        Element in the queue containing the information
+;
+; OUTPUTS:      $result     A string containing the instance information
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2006, 2008 by Adept Technology
+
+	AUTO b1, b2, i
+
+; Build up the result string.
+
+	$result = ""				;Start with empty string
+
+; Each byte of the output string is computed from two
+; bytes in the input string.
+
+	FOR i = 1 TO LEN($nzs) STEP 2
+
+	    b1 = ASC($nzs,i)-100		;Extract & shift 1st byte
+	    b2 = ASC($nzs,i+1)-100		;Extract & shift 2nd byte
+
+	    $result = $result+$CHR(b1+b2*16)	;Combine into one byte
+	END
+
+	RETURN
+.END
+
+.PROGRAM par_s_to_r(cur_rob, num_of_par)
+	AUTO i
+	IF cur_rob == rob1 THEN
+	    FOR i = 2 TO num_of_par
+		par_r[i] = VAL($par_s[i])
+;           TYPE par_r[i]
+	    END
+	END
+	IF cur_rob == rob2 THEN
+	    FOR i = 2 TO num_of_par
+		par2_r[i] = VAL($par2_s[i])
+;           TYPE par2_r[i]
+	    END
+	END
+
+.END
+
+.PROGRAM pick.insert(cur_rob, x_vision, y_vision, r_vision)
+	AUTO dest_pt, gen_height
+
+	fl.outrange[cur_rob] = 0
+	IF (x_vision > maxlimitst1x[cur_rob]) OR (x_vision < minlimitst1x[cur_rob]) THEN
+	    fl.outrange[cur_rob] = 1
+	END
+	IF (y_vision > maxlimitst1y[cur_rob]) OR (y_vision < minlimitst1y[cur_rob]) THEN
+	    fl.outrange[cur_rob] = 1
+	END
+	IF fl.outrange[cur_rob] == 1 THEN
+	    WRITE (slun) "999,205"
+	    RETURN
+	END
+
+	CASE gr_group[gr] OF		       ; picking height according to which group gripper belongs
+	  VALUE 1:				 ;---pins gripper----------
+	    IF ins_height <= 4 THEN
+		gen_height = z_source[cur_rob,gr]
+	    ELSE
+		gen_height = z_source[cur_rob,gr]+ins_height-4
+	    END
+	  VALUE 2:				;---magnet gripper---------
+	    gen_height = z_source[cur_rob,gr]+ins_height
+	    gen_height = z_source[cur_rob,gr]+ins_height
+	END
+
+	TOOL f_o_g[cur_rob,gr] ; set tool to finger  ;change command to inverse(f_o_g[]) by fabien
+
+
+	IF (cur_rob == rob1) THEN
+	    IF zero.angle.fl == 1 THEN
+		r_vision = 0
+	    END
+	END
+
+	SET dest_pt = TRANS(x_vision,y_vision,gen_height,0,180,r_vision)  ;:INVERSE(f_o_g[cur_rob,gr])
+;**************************************************
+    ;    TYPE "Before appro pick :", TIMER(15)
+	ACCEL (1) 200, 200
+	APPROS dest_pt, z_clear[cur_rob,gr]-DZ(dest_pt)
+;**************************************************
+    ;    TYPE "Before move  pick :", TIMER(15)
+	ACCEL (1) 80, 200
+	MOVE dest_pt
+	BREAK
+;**************************************************
+    ;    TYPE "After Break pick :", TIMER(15)
+	WAIT.EVENT , del_b_pick[cur_rob,gr]+setup.delays    ;in this syntex, not alow to be zero!!
+	SIGNAL o_fin[cur_rob,1]			 ; open finger(pick insert)
+	SIGNAL o_fin[cur_rob,2]
+	WAIT.EVENT , del_af_pick[cur_rob,gr]+setup.delays
+;**************************************************
+	;TYPE "Before depart pick :", TIMER(15)
+	ACCEL (1) 200, 80
+	; the robot will depart from where it stands and not from a certain position
+	DEPARTS z_clear[cur_rob,gr]-DZ(dest_pt)
+	;APPRO dest_pt, z_clear[gr]-DZ(dest_pt)
+	;TYPE "robot speed=", robot_speed[cur_rob]
+.END
+
+.PROGRAM pickplacetest()
+	AUTO $cmd_str2, cmd2, d
+	;rob2 = 2  ; unload robot
+	cur_rob = 1 ;new testing Be careful!!  other robot!!!!
+
+	DETACH (0)
+	SELECT ROBOT = cur_rob
+	ATTACH (0)
+    ;SPEED 100 ALWAYS
+	CALL init_rs232(cur_rob) ;openning serial com. port
+	SIGNAL -o_fin[cur_rob,1]		 ; open finger(pick insert)
+	SIGNAL -o_fin[cur_rob,2]
+
+	ACCEL (1) 150, 120
+	FINE 200 ALWAYS
+
+	;MOVE midpt[cur_rob]
+	DEPART z_clear[cur_rob,gr]-DZ(HERE)
+   111	
+;**************************************************
+;**************************************************
+	TYPE "Start :", TIMER(15)
+	FINE 500 ALWAYS
+	SPEED 110 ALWAYS
+	TIMER (15) = 0
+
+	$come_str[cur_rob] = ""
+	d = -526
+
+	; You have to be careful with thes kind of instruction
+	; The CX is a little bit hard on that
+	; If a loop is running very fast, it could crash your application
+	; So if you don't need to go too fast, you should always add a WAIT instruction in an infinite loop
+	; What I would do there is to get the $come_str2 in another task. So you don't need it to go fast and it does
+	; not delay the robot motions. get it ?
+    ; i think so.  i will make it till next time (tomorrow) and show you
+    ; ok
+	WHILE (d <> 13) DO	 ; cerrage return
+	    d = GETC(slun,1)
+	    IF (IOSTAT(slun) <> -526) AND (d <> -526) THEN     ;no characters in port
+		;TYPE "$chr(d)=", $CHR(d)
+		$come_str[cur_rob] = $come_str[cur_rob]+$CHR(d)
+	    END
+	END
+;**************************************************
+	TYPE "GETC : ", TIMER(15)
+	TYPE $come_str[cur_rob]
+	CALL break_string($come_str[cur_rob])
+	$cmd_str[cur_rob,2] = $MID($par_s[1],4,LEN($par_s[1])-3)
+	cmd2 = VAL($cmd_str[cur_rob,2])
+
+	CASE cmd2 OF
+	  VALUE 15:
+	    CALL par_s_to_r(8)
+	    carrier.done_fl[cur_rob] = par_r[8]	       ;1 when finish carrier
+;**************************************************
+	    TYPE "Before pick :", TIMER(15)
+	    CALL pick.insert(cur_rob, par_r[2], par_r[3], par_r[4])
+	    WRITE (slun) "cmd15,1" ;ready to recieve next coordinate from VB (after picking, during cycle)
+;**************************************************
+	    TYPE "Before place :", TIMER(15)
+
+	    CALL place.insert(cur_rob, par_r[5], par_r[6], par_r[7])
+	    IF carrier.done_fl[cur_rob] THEN
+	    END
+	;-------------------------------------------------------------------------------------
+	  VALUE 13:			      ;set speed
+	    CALL par_s_to_r(2)
+	    CALL cmd13(cur_rob, par_r[2])
+	    WRITE (slun) "cmd13,1"
+	;-------------------------------------------------------------------------------------
+	  VALUE 98:			       ; go back to manual mode (out of auto-cycle)
+	    RETURN
+	;------------------------------------------------------------------------------------
+	  ANY
+	    TYPE "Unknown command"
+	END
+	prev_cmd[cur_rob] = cmd2
+	TIMER (2) = 0
+	GOTO 111
+.END
+
+.PROGRAM place.insert(cur_rob, x_pos, y_pos, a_pos)
+
+	AUTO LOC dest_pt2
+	AUTO REAL garb.pt2
+
+	fl.outrange[cur_rob] = 0
+	IF (x_pos > maxlimitst2x[cur_rob]) OR (x_pos < minlimitst2x[cur_rob]) THEN
+	    fl.outrange[cur_rob] = 1
+	END
+	IF (y_pos > maxlimitst2y[cur_rob]) OR (y_pos < minlimitst2y[cur_rob]) THEN
+	    fl.outrange[cur_rob] = 1
+	END
+	IF fl.outrange[cur_rob] == 1 THEN
+	    WRITE (slun) "999,205"
+	    RETURN
+	END
+
+	IF (cur_rob == rob1) THEN
+	    IF zero.angle.fl == 1 THEN
+		a_pos = 0
+	    END
+	END
+
+
+	TOOL f_o_g[cur_rob,gr]
+
+	SET dest_pt2 = TRANS(x_pos,y_pos,z_unl[cur_rob,gr]+ins_height,0,180,a_pos)  ;:INVERSE(f_o_g[cur_rob,gr])
+
+	DECOMPOSE garb.pt2[] = dest_pt2
+;**************************************************
+ ;       TYPE "Before appro  place :", TIMER(15)
+	ACCEL (1) 200, 200
+	APPROS dest_pt2, z_clear[cur_rob,gr]-DZ(dest_pt2)
+	;IF SIG(i_pick.sensor) THEN
+	;    placegoodfl[] = 1
+	;ELSE
+	;    placegoodfl[] = 0
+	;END
+;**************************************************
+  ;      TYPE "Before move place :", TIMER(15)
+
+	ACCEL (1) 80, 200
+	MOVE dest_pt2
+	BREAK
+;**************************************************
+  ;      TYPE "After Break place :", TIMER(15)
+
+	;TIMER (1) = 0
+       ; WAIT TIMER(1) > del_b_rel[cur_rob,gr]
+	WAIT.EVENT , del_b_rel[cur_rob,gr]+setup.delays
+	SIGNAL -o_fin[cur_rob,1]	 ; close finger(place insert)
+	SIGNAL -o_fin[cur_rob,2]
+	WAIT.EVENT , del_af_rel[cur_rob,gr]+setup.delays
+       ; TIMER (1) = 0
+       ; WAIT TIMER(1) > del_af_rel[cur_rob,gr] ;
+;**************************************************
+  ;      TYPE "Before depart place :", TIMER(15)
+	ACCEL (1) 200, 80
+	APPRO dest_pt2, z_clear[cur_rob,gr]-DZ(dest_pt2)
+	SIGNAL o_ins.place[cur_rob]
+.END
+
+.PROGRAM resetall(cur_rob)
+;--------------------------------------------------------------------------
+;last updated: 21/10/09 - added different load and unload wait points
+;-------------------------------------------------------------------------
+
+	;z_clear[cur_rob,gr] = 320
+	DETACH (1)
+	ATTACH (0)
+	SPEED 10 ALWAYS
+	IF cur_rob == 1 THEN
+	    RIGHTY
+	ELSE
+	    LEFTY
+	END
+	BREAK
+	DEPART z_safe[cur_rob]-DZ(HERE)	 ;add to chang config if needded (need to check)
+
+	;reset all takes robot out of auto mode (cmd11 takes robot to auto mode)auto_mode=1
+	auto_mode = 0
+
+	APPROS HERE, z_clear[cur_rob,gr]-DZ(HERE)
+	SIGNAL (-o_cycle.done[cur_rob])
+	TYPE "ENTERED RESETALL"
+
+	BREAK
+	TYPE "Reset accepted"
+
+	DEPART z_clear[cur_rob,gr]-DZ(HERE)
+
+	APPROS release.pt[cur_rob,gr], z_clear[cur_rob,gr]-DZ(release.pt[cur_rob,gr])
+	MOVES release.pt[cur_rob,gr]
+	BREAK
+
+	SIGNAL o_fin[cur_rob,1]			       ; close finger(pick insert)
+	SIGNAL o_fin[cur_rob,2]
+	TIMER (cur_rob) = 0
+	WAIT TIMER(cur_rob) > 0.3
+	SIGNAL -o_fin[cur_rob,1]			; close finger(pick insert)
+	SIGNAL -o_fin[cur_rob,2]
+	TIMER (cur_rob) = 0
+	WAIT TIMER(cur_rob) > 0.3
+	SIGNAL o_fin[cur_rob,1]			       ; close finger(pick insert)
+	SIGNAL o_fin[cur_rob,2]
+	TIMER (cur_rob) = 0
+	WAIT TIMER(cur_rob) > 0.3
+	SIGNAL -o_fin[cur_rob,1]			; close finger(pick insert)
+	SIGNAL -o_fin[cur_rob,2]
+
+
+	TIMER (cur_rob) = 0
+	WAIT TIMER(cur_rob) > 0.5
+	APPRO release.pt[cur_rob,gr], z_clear[cur_rob,gr]-DZ(release.pt[cur_rob,gr])
+
+	BREAK
+
+	IF (cur_rob == rob2) THEN
+	    SIGNAL o_rob.safe.pos[cur_rob]
+	END
+
+	prev_cmd[cur_rob] = -1
+	SPEED robot_speed[cur_rob] ALWAYS
+
+	TYPE "Reset Done"
+	WRITE (slun) "cmd99,1"
+
+       ; SIGNAL o_ins_picked[cur_rob]
+       ; SIGNAL o_ins_placed[cur_rob]
+
+   999	
+.END
+
+.PROGRAM reset_seq($myip, seq_id)
+
+; ABSTRACT:  This function is used to reset an AdeptSight sequence
+;
+; INPUTS:       $myip           String containing the IP Address of the AdeptSight vision server
+;               seq_id          Index of the sequence to reset
+;
+; OUTPUTS:      None
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2006, 2008 by Adept Technology
+
+; Set the parameter ID to reset the sequence
+
+	AUTO REAL reset_id
+	reset_id = 5500
+
+; Reset the sequence seq_id on the vision server running on the PC with IP Address ($myip)
+
+	VPARAMETER(seq_id, -1, reset_id) $myip = 1
+
+	RETURN
+.END
+
+.PROGRAM save()
+	LOCAL dlun
+
+	ATTACH (dlun, 4) "DISK"
+	FDELETE (dlun) "ROBOT.PG"
+	FDELETE (dlun) "ROBOT.LC"
+	FDELETE (dlun) "ROBOT.RE"
+	FDELETE (dlun) "ROBOT.ST"
+	DETACH (dlun)
+	MCS "STOREP ROBOT.PG"
+	MCS "STOREL ROBOT.LC"
+	MCS "STORER ROBOT.RE"
+	MCS "STORES ROBOT.ST"
+
+	TYPE "SAVE EXECUTED"
+.END
+
+.PROGRAM save_vars()
+
+	ATTACH (dlun, 4) "DISK"
+	FDELETE (dlun) "ROBOT.LC"
+	FDELETE (dlun) "ROBOT.RE"
+	FDELETE (dlun) "ROBOT.ST"
+	DETACH (dlun)
+
+	MCS "STOREL ROBOT.LC"
+	MCS "STORER ROBOT.RE"
+	MCS "STORES ROBOT.ST"
+	DETACH (0)
+	ATTACH (1)
+	WRITE (1) /C2, /S
+	WRITE (1) /C1, " ***  VAR's CHANGES SAVED !!! ***", /S
+
+.END
+
+.PROGRAM set_as_exec_mod($myip, seq_id, mode)
+
+; ABSTRACT:  This function is used to set AdeptSight execution mode for a given sequence
+;
+; INPUTS:       $myip           String containing the IP Address of the AdeptSight vision server
+;               seq_id          Index of the sequence to reset
+;               mode            Desired AdeptSight execution.
+;                                   Mode = 0 : Single execution mode;
+;                                   otherwise: Continuous execution mode
+;
+; OUTPUTS:      None
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2006, 2008 by Adept Technology
+
+; Set the parameter ID to set the execution mode
+
+	AUTO REAL as_exec_mode_id
+	as_exec_mode_id = 10200
+
+; Change the execution mode for seq_id on PC with IP Address $myip
+
+	VPARAMETER(seq_id, -1, as_exec_mode_id) $myip = mode
+
+	RETURN
+.END
+
+.PROGRAM set_defaults(cur_rob)
+; Function sets default values if it's not defined
+	AUTO i
+
+	FOR i = 1 TO num_of_gr
+	    IF gr_group[i] == gr_group[gr] THEN
+		IF NOT DEFINED(ang_sorce[cur_rob,gr]) THEN	       ; sorce angle above sorce tray
+		    IF DEFINED(ang_sorce[cur_rob,i]) THEN
+			ang_sorce[cur_rob,gr] = ang_sorce[cur_rob,i]
+		    END
+		END
+		IF NOT DEFINED(z_clear[cur_rob,gr]) THEN
+		    IF DEFINED(z_clear[cur_rob,i]) THEN
+			z_clear[cur_rob,gr] = z_clear[cur_rob,i]
+		    END
+		END
+
+		IF NOT DEFINED(z_source[cur_rob,gr]) THEN
+		    IF DEFINED(z_source[cur_rob,i]) THEN
+			z_source[cur_rob,gr] = z_source[cur_rob,i]
+		    END
+		END
+		IF NOT DEFINED(del_b_pick[cur_rob,gr]) THEN
+		    IF DEFINED(del_b_pick[cur_rob,i]) THEN
+			del_b_pick[cur_rob,gr] = del_b_pick[cur_rob,i]
+		    END
+		END
+		IF NOT DEFINED(del_af_pick[cur_rob,gr]) THEN
+		    IF DEFINED(del_af_pick[cur_rob,i]) THEN
+			del_af_pick[cur_rob,gr] = del_af_pick[cur_rob,i]
+		    END
+		END
+		IF NOT DEFINED(del_b_rel[cur_rob,gr]) THEN
+		    IF DEFINED(del_b_rel[cur_rob,i]) THEN
+			del_b_rel[cur_rob,gr] = del_b_rel[cur_rob,i]
+		    END
+		END
+		IF NOT DEFINED(del_af_rel[cur_rob,gr]) THEN
+		    IF DEFINED(del_af_rel[cur_rob,i]) THEN
+			del_af_rel[cur_rob,gr] = del_af_rel[cur_rob,i]
+		    END
+		END
+		IF NOT DEFINED(release.pt[cur_rob,gr]) THEN
+		    IF DEFINED(release.pt[cur_rob,i]) THEN
+			SET release.pt[cur_rob,gr] = release.pt[cur_rob,i]
+		    END
+		END
+	    END		;of gr_group[gr]
+	END	    ;of for
+.END
+
+.PROGRAM set_gripper()
+
+	LOCAL i, grtemp
+;       IN GRIPPER
+;----------------------------------------------------------------------
+; i_gr_code[4]   i_gr_code[3]   i_gr_code[2]  i_gr_code[1]
+;      0               0               0             1   |  1       PINS BIG GRIPPER
+;      0               0               1             0   |  2       PINS SMALL GRIPPER
+;      0               0               1             1   |  3       MAGNETIC BIG GRIPPER
+;      0               1               0             0   |  4       MAGNETIC MID GRIPPER
+;      0               1               0             1   |  5       MAGNETIC SMALL GRIPPER
+;----------------------------------------------------------------------
+
+	RETURN ;   !!!!not in use!!!
+
+	grtemp = ABS(SIG(i_gr_code[4])*8+SIG(i_gr_code[3])*4+SIG(i_gr_code[2])*2+SIG(i_gr_code[1])*1)  ;1100 instead of 1044
+
+	grtemp = 1
+	TYPE "GRTEMP=", grtemp
+	CASE grtemp OF ; if gripper will have internal code
+	  VALUE 1:
+	    TYPE "BIG PINS GRIPPER"
+	    gr = 1
+	    gr_group[gr] = 1		; gripper group
+	  VALUE 2:
+	    TYPE "SMALL PINS GRIPPER"
+	    gr = 2
+	    gr_group[gr] = 1		; gripper group
+	  VALUE 3:
+	    TYPE "Big Magnetic gripper"
+	    gr = 3
+	    gr_group[gr] = 2
+	  VALUE 4:
+	    TYPE "MID. Magnetic gripper"
+	    gr = 4
+	    gr_group[gr] = 2
+	  VALUE 5:
+	    TYPE "SMALL Magnetic gripper"
+	    gr = 5
+	    gr_group[gr] = 2
+	  ANY
+	    gr = 1
+	    gr_group[gr] = 0
+	    ; SIGNAL o_err[1]
+	    $err_code = "6"
+	    TYPE "Unknown gripper type - default is 1"
+	    WRITE (slun) "999,", "Unknown gripper type - default is 1"
+	END
+
+	IF DEFINED(f_o_g[gr]) THEN
+	    SET finger_offset[1] = f_o_g[gr]
+	    TOOL finger_offset[1]
+	ELSE
+	    IF gr_group[gr] <> 0 THEN
+		TYPE "Gripper is not teached,please teach gripper"
+		SET f_o_g[gr] = TRANS(0,0,0,0,0,0)
+		SET finger_offset[1] = f_o_g[gr]
+	    END
+	END
+.END
+
+.PROGRAM set_nfs($ip_str)
+	LOCAL $tmp_str
+	DO
+	    WAIT
+	    ATTACH (lun, 4) "NFS"
+	UNTIL IOSTAT(lun) >= 0
+	FCMND (lun, 23) "/MOUNT 1", $mount
+
+	$tmp_str = $ENCODE("TCP /NODE 'ASERVER' /ADDRESS ",$ip_str)
+	TYPE $tmp_str
+
+	IF $mount == "" THEN
+	   ; FSET (lun) $tmp_str
+	    FSET (lun) "TCP /NODE 'ASERVER' /ADDRESS 172 16 120 17"
+	    DO
+		WAIT
+		FSET (lun) "MOUNT 'XC' /NODE 'ASERVER' /PATH 'c:\adept\disks\disk_c'"
+	    UNTIL IOSTAT(lun) >= 0
+	END
+
+
+
+.END
+
+.PROGRAM snap.req(cam)
+	WHILE TRUE DO
+	    WAIT
+	    CALL wait.sig(start.task.6, -1, expired)
+	    SIGNAL -start.task.6
+
+	    CASE cam OF
+	      VALUE 1:
+		WAIT fl_fov_clr[1] == 1	;changes at task of fov_clear_load
+		SIGNAL o_snap.requset[1] ;request to snap TrayLoad(after robot1 is out of FOV)
+	      VALUE 2:
+		WAIT fl_fov_clr[2] == 1	;changes at task of fov_clear_load
+		SIGNAL o_snap.requset[2] ;request to snap CarrierLoad(after robot1 is out of FOV)
+	      VALUE 3:
+		WAIT fl_fov_clr[3] == 1	;changes at task of fov_clear_Unloa
+		SIGNAL o_snap.requset[3] ;request to snap CarrierUnload(after robot1 is out of FOV)
+	    END
+	END ;WHILE
+.END
+
+.PROGRAM snap.req.cam1()
+	WHILE TRUE DO
+	    WAIT
+	    CALL wait.sig(s.start.task.2, -1, expired)
+	    SIGNAL -s.start.task.2
+
+	    WHILE fl_fov_clr[1] <> 1 DO
+		WAIT
+	    END
+
+
+  ;          WAIT fl_fov_clr[1] == 1 ;changes at task of fov_clear_load
+
+
+	    SIGNAL o_snap.requset[1] ;request to snap TrayLoad(after robot1 is out of FOV)
+	END ;WHILE
+.END
+
+.PROGRAM snap.req.cam2()
+	WHILE TRUE DO
+	    WAIT
+	    CALL wait.sig(s.start.task.3, -1, expired)
+	    SIGNAL -s.start.task.3
+	    WAIT fl_fov_clr[2] == 1	;changes at task of fov_clear_load
+	    SIGNAL o_snap.requset[2]	 ;request to snap CarrierLoad(after robot1 is out of FOV)
+	END ;WHILE
+
+.END
+
+.PROGRAM snap.req.cam3()
+	WHILE TRUE DO
+	    WAIT
+	    CALL wait.sig(s.start.task.6, -1, expired)
+	    SIGNAL -s.start.task.6
+	    WHILE fl_fov_clr[3] <> 1 DO
+		WAIT
+	    END
+ ;           WAIT fl_fov_clr[3] == 1     ;changes at task of fov_clear_Unloa
+	    SIGNAL o_snap.requset[3]	 ;request to snap CarrierUnload(after robot1 is out of FOV)
+	END ;WHILE
+.END
+
+.PROGRAM step_delay()
+	LOCAL $clear.display
+	DETACH (0)
+	ATTACH (1)
+	WRITE (1) $CHR(30), $CHR(1), /S
+	WRITE (1) /C1, "                         Continue", /S
+	WAIT PENDANT(1)
+	DETACH (1)
+	ATTACH (0)
+
+.END
+
+.PROGRAM string2instance($string, location, model, encoder, visionx, visiony, visionrot)
+
+; ABSTRACT:  Extract location and vision data from a string representation.
+;
+;       The input string contains the following binary data:
+;
+;       Bytes   Format  Description
+;       -----   ------  -----------
+;        1-4    Float   X component of location
+;        5-8    Float   Y component of location
+;        9-12   Float   Z component of location
+;       13-16   Float   Yaw component of location
+;       17-20   Float   Pitch component of location
+;       21-24   Float   Roll component of location
+;       25-28   Float   Number of the vision model
+;       29-32   Float   X component of vision location
+;       33-36   Float   Y component of vision location
+;       37-40   Float   Rotation component of vision location
+;       41-48   Double  Encoder value
+;
+; INPUTS:       $string    String containing the data as described above
+;
+; OUTPUTS:      location   Robot location from the input data
+;               model      Number of the vision model
+;               encoder    Encoder value
+;               visionx    X component of vision location
+;               visiony    Y component of vision location
+;               visionrot  Rotation component of vision location
+;
+; SIDE EFFECTS: None
+;
+;* Copyright (c) 2006, 2008 by Adept Technology
+
+	AUTO tpitch, troll, tx, ty, tyaw, tz
+
+; Extract the location components (floats) from the input.
+
+	tx = FLTB($string,1)
+	ty = FLTB($string,5)
+	tz = FLTB($string,9)
+	tyaw = FLTB($string,13)
+	tpitch = FLTB($string,17)
+	troll = FLTB($string,21)
+
+; Define the corresponding location variable.
+
+	SET location = TRANS(tx,ty,tz,tyaw,tpitch,troll)
+
+; Extract the vision instance data (floats).
+
+	model = FLTB($string,25)
+	visionx = FLTB($string,29)
+	visiony = FLTB($string,33)
+	visionrot = FLTB($string,37)
+
+; Extract the encoder value (double).
+
+	encoder = DBLB($string,41)
+
+	RETURN
+.END
+
+.PROGRAM teachfin(cur_rob)
+	GLOBAL calib.p[]
+	LOCAL $clear.display
+	LOCAL no_of_ca, i, j, z.saf[], z.saf1[], p.90[], qa[], pw[]
+	LOCAL q01, ddx[,], ddy[,], pwx[], pwy[], pf[,], ta[]
+	$clear.display = $CHR(12)+$CHR(7)
+
+	DETACH (1)
+	ATTACH (0)
+	IF (cur_rob == rob1) THEN
+	    RIGHTY
+	ELSE
+	    LEFTY
+	END
+
+	CALL set_gripper()
+	SPEED 10 ALWAYS
+
+	DEPART z_safe[cur_rob]-DZ(HERE)
+
+	BREAK
+	rw = 0
+	IF (NOT DEFINED(tb[cur_rob,0])) OR (NOT DEFINED(tb[cur_rob,1])) THEN
+	    tb[cur_rob,0] = 0
+	    tb[cur_rob,1] = 0
+	END
+	no_of_ca = 4
+
+	TOOL finger_offset[cur_rob,1]
+	IF DEFINED(p01[cur_rob,gr]) THEN
+	    DECOMPOSE z.saf1[] = p01[cur_rob,gr]
+	ELSE
+	    HERE p01[cur_rob,gr]
+	    DECOMPOSE z.saf1[] = p01[cur_rob,gr]
+	END
+
+	SET p01[cur_rob,gr] = TRANS(z.saf1[0],z.saf1[1],z_safe[cur_rob],z.saf1[3],z.saf1[4],z.saf1[5])
+	SPEED 7
+	APPRO p01[cur_rob,gr], 0
+	BREAK
+
+	MOVE p01[cur_rob,gr]
+	ATTACH (1)
+	DETACH (0)
+	WRITE (1) $clear.display, " MOVE GRIPPER TO CENTER PT."
+	WRITE (1) /X17, "RECORD", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(3), /S
+	WAIT PENDANT(3)
+	HERE p01[cur_rob,gr]
+	ATTACH (0)
+	DETACH (1)
+
+	DECOMPOSE ta[] = p01[cur_rob,gr]
+	SET p01[cur_rob,gr] = TRANS(ta[0],ta[1],ta[2],ta[3],ta[4],0)
+	SET p.90[1] = TRANS(0,0,0,0,0,rw)
+	SET p.90[2] = TRANS(0,0,0,0,0,rw+90)
+	SET p.90[3] = TRANS(0,0,0,0,0,rw+180)
+	SET p.90[4] = TRANS(0,0,0,0,0,rw+270)
+
+	;------------------ finger 1 ----------------------
+	i = 1
+	TOOL finger_offset[cur_rob,i]
+	FOR j = 1 TO no_of_ca
+	    IF DZ(p01[cur_rob,gr]) < (z_safe[cur_rob]-10) THEN
+		APPRO p01[cur_rob,gr]:p.90[j], 10
+	    END
+	    MOVE p01[cur_rob,gr]:p.90[j]
+	    BREAK
+	    ATTACH (1)
+	    DETACH (0)
+	    WRITE (1) $clear.display, " MOVE GRIPPER TO CENTER PT."
+	    WRITE (1) /X17, "RECORD", $CHR(3), /S
+	    WRITE (1) $CHR(30), $CHR(3), /S
+	    WAIT PENDANT(3)
+	    HERE p01[cur_rob,gr]:p.90[j]:pf[i,j]
+	    IF j <> 1 GOTO 50
+	    HERE q01
+	    DECOMPOSE qa[] = q01
+	    SET p01[cur_rob,gr] = TRANS(ta[0],ta[1],qa[2],ta[3],ta[4],0)
+    50	    
+	    ATTACH (0)
+	    DETACH (1)
+	END
+;-------------------------------------------------------------------------------------
+	FOR i = 1 TO num_of_fin
+	    FOR j = 1 TO no_of_ca
+		DECOMPOSE pw[] = pf[i,j]
+		ddx[i,j] = pw[0]
+		ddy[i,j] = pw[1]
+	    END
+	END
+	FOR i = 1 TO (num_of_fin)
+	    pwx[i] = (ddx[i,1]+ddx[i,2]+ddx[i,3]+ddx[i,4])/4
+	    pwy[i] = (ddy[i,1]+ddy[i,2]+ddy[i,3]+ddy[i,4])/4
+	    TYPE "pwx[", i, "]=", pwx[i]
+	    TYPE "pwy[", i, "]=", pwy[i]
+	END
+	TYPE "tb[0]=", tb[cur_rob,0]
+	tb[cur_rob,0] = tb[cur_rob,0]-pwx[1]
+	tb[cur_rob,1] = tb[cur_rob,1]-pwy[1]
+
+	DELAY 1
+	ATTACH (1)
+	DELAY 0.5
+	CALL fingers(cur_rob)
+	TOOL f_o_g[cur_rob,gr]
+	DEPART z_safe[cur_rob]-DZ(HERE)
+	BREAK
+
+.END
+
+.PROGRAM teach_locations(cur_rob)   ;-- teching all relevent points --
+;---------------------------------------------------------------------------
+;NAME:  TEACH_LOCATIONS
+;
+;ABSTRACT: this program teaches all locations related to the robot at LOAD
+;          configuration
+;DATE CREATED:    19/06/09
+;
+;DATE UPDATED:    06/12/12
+;
+;* copyright (c) 2009  BY SHAFIR PRODUCTION SYSTEMS
+;---------------------------------------------------------------------------
+	LOCAL tmp_loc
+	LOCAL in_range_ans
+	LOCAL $clear.display, i
+	LOCAL tta[], i
+	LOCAL garb.pt[]
+	LOCAL tmp.x	      ; tmp loc. var to calculate work areas centers
+	LOCAL tmp.y	      ; tmp loc. var to calculate word areas centers       
+	GLOBAL carrier_cntr.p		  ; the carrier center points
+	GLOBAL tray_cntr.p	    ; the tray center points
+
+	$clear.display = $CHR(12)+$CHR(7)
+
+	CALL set_gripper()
+	SPEED 2 ALWAYS
+	$clear.display = $CHR(12)+$CHR(7)
+	ATTACH (0)
+	DETACH (1)
+	IF cur_rob == 1 THEN
+	    RIGHTY
+	ELSE
+	    LEFTY
+	END
+	SPEED 3 ALWAYS
+	DEPART z_safe[cur_rob]-DZ(HERE)
+	BREAK
+	;------------------------------ TEACHING LOCATIONS -------------------------------------------------
+	IF DEFINED(f_o_g[cur_rob,gr]) THEN
+	    TOOL f_o_g[cur_rob,gr]
+	ELSE
+	    ATTACH (1)
+	    WRITE (1) /C1, $clear.display, "      PLEASE TEACH GRIPPER FIRST ", /S
+	    WRITE (1) /C1, "                   OK", /S
+	    WRITE (1) $CHR(30), $CHR(3), /S
+	    WAIT PENDANT(3)
+	    ATTACH (0)
+	    DELAY 0.5
+	    GOTO 100
+	END
+	ATTACH (1)
+	DETACH (0)
+;--------THEACHING SERVICE TRAY CALIBRATION POINTS------------------------------
+	WRITE (1) $clear.display, /S
+	WRITE (1) " DO YOU WANT TO TEACH TRAY CAL. POINTS? ", /S
+	WRITE (1) "          YES              NO", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(2), /S
+	WRITE (1) $CHR(30), $CHR(4), /S
+
+	WAIT (PENDANT(2) OR PENDANT(4))
+	;stop LED blinking
+	WRITE (1) $CHR(28), $CHR(2), /S
+	WRITE (1) $CHR(28), $CHR(4), /S
+
+	IF PENDANT(2) GOTO 20
+
+	;-------------------------------------------------------------------
+	; checking if user wants to teach tray origin pt.
+	WRITE (1) $clear.display, /S
+	WRITE (1) " DO YOU WANT TO TEACH TRAY ORIGIN? ", /S
+	WRITE (1) "          YES              NO", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(2), /S
+	WRITE (1) $CHR(30), $CHR(4), /S
+
+	WAIT (PENDANT(2) OR PENDANT(4))
+	;stop LED blinking
+	WRITE (1) $CHR(28), $CHR(2), /S
+	WRITE (1) $CHR(28), $CHR(4), /S
+
+	IF PENDANT(2) GOTO 10
+
+	ATTACH (0)
+	DETACH (1)
+	IF DEFINED(srv_tray_origin[cur_rob]) THEN
+	    APPRO srv_tray_origin[cur_rob], z_safe[cur_rob]-DZ(srv_tray_origin[cur_rob])
+	END
+	BREAK
+
+	ATTACH (1)
+	DETACH (0)
+
+	WRITE (1) $clear.display, /S
+	WRITE (1) $clear.display, " MOVE TO ORIGIN & PRESS RECORD "
+	WRITE (1) /X17, "RECORD          EXIT", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(1), /S
+	WAIT (PENDANT(1) OR PENDANT(3))
+	IF PENDANT(1) GOTO 100
+	IF PENDANT(3) THEN
+	    HERE srv_tray_origin[cur_rob]
+	    ATTACH (0)
+	    DETACH (1)
+	END
+	APPRO srv_tray_origin[cur_rob], z_safe[cur_rob]-DZ(srv_tray_origin[cur_rob])
+
+;--------THEACHING TRAY CALIBRATION POINTS------------------------------
+    10	
+
+	TYPE /C2
+	TYPE /C1, "*** TEACHING THE ROBOT 4 POINTS ON THE TRAY ***"
+	TYPE /C1, "***           0  --------> 1              ***"
+	TYPE /C1, "***           ^            |              ***"
+	TYPE /C1, "***           |            |              ***"
+	TYPE /C1, "***           3 <--------  2              ***"
+
+	FOR i = 0 TO n_of_calib_p-1	       ; number of calib points on the sorce tray(including 0)
+	    ATTACH (0)
+	    DETACH (1)
+	    IF DEFINED(tray_calib.p[cur_rob,i]) THEN
+			;------------------------------------------------
+			; checking if next loc. is in robot range
+		in_range_ans = INRANGE(tray_calib.p[cur_rob,i])
+			;------------------------------------------------
+		IF in_range_ans == 0 THEN
+		    APPRO tray_calib.p[cur_rob,i], z_safe[cur_rob]-DZ(tray_calib.p[cur_rob,i])
+		END
+	    END
+	    BREAK
+	    ATTACH (1)
+	    DETACH (0)
+	    IF in_range_ans == 0 THEN
+		WRITE (1) $clear.display, " MOVE TO CAL. POINT ", i, " & PRESS RECORD "
+	    ELSE
+		WRITE (1) $clear.display, " MOVE TO CAL. POINT ", i, "- FIRST TIME "
+	    END
+	    WRITE (1) /X17, "RECORD          EXIT", $CHR(3), /S
+	    WRITE (1) $CHR(30), $CHR(3), /S
+	    WRITE (1) $CHR(30), $CHR(1), /S
+	    WAIT (PENDANT(3) OR PENDANT(1))
+	    IF PENDANT(1) GOTO 100
+	    HERE tray_calib.p[cur_rob,i]
+	    ATTACH (0)
+	    DETACH (1)
+	    APPRO tray_calib.p[cur_rob,i], z_safe[cur_rob]-DZ(tray_calib.p[cur_rob,i])
+	END
+
+	tmp.x = 0
+	tmp.y = 0
+	FOR i = 0 TO 3
+	    tmp.x = tmp.x+DX(tray_calib.p[cur_rob,i])
+	    tmp.y = tmp.y+DY(tray_calib.p[cur_rob,i])
+	END
+	tmp.x = tmp.x/4
+	tmp.y = tmp.y/4
+	SET tray_cntr.p[cur_rob] = TRANS(tmp.x,tmp.y,z_safe[cur_rob],0,180,0)
+
+	BREAK
+	DEPARTS z_safe[cur_rob]-DZ(HERE)
+
+	ATTACH (1)
+	DETACH (0)
+
+;--------THEACHING CARRIER CALIBRATION POINTS------------------------------
+    20	
+
+	WRITE (1) $clear.display, /S
+	WRITE (1) "DO YOU WANT TO TEACH CARRIER CAL. PTS? "
+	WRITE (1) "          YES              NO", $CHR(3), /S
+
+
+	WRITE (1) $CHR(30), $CHR(2), /S
+	WRITE (1) $CHR(30), $CHR(4), /S
+	WAIT (PENDANT(2) OR PENDANT(4))
+	IF PENDANT(2) GOTO 30
+
+	TYPE /C2
+	TYPE /C1, "*** TEACHING THE ROBOT 4 POINTS ON THE CARRIER ***"
+	TYPE /C1, "***           0  --------> 1              ***"
+	TYPE /C1, "***           ^            |              ***"
+	TYPE /C1, "***           |            |              ***"
+	TYPE /C1, "***           3 <--------  2              ***"
+
+	;------- added safty move to avoid obsticles ------------------
+	IF DISTANCE(HERE,carrier_calib.p[cur_rob,0]) > 300 THEN
+	    ATTACH (1)
+	    DETACH (0)
+	    WRITE (1) "SAFE MOVE TO AVOID COLLISIONS "
+	    ATTACH (0)
+	    DETACH (1)
+	    MOVES #mid.conv[cur_rob]
+	END
+	;--------------------------------------------------------------
+	FOR i = 0 TO n_of_calib_p-1	       ; number of calib points on the carrier(including 0)
+	    ATTACH (0)
+	    DETACH (1)
+	    IF DEFINED(carrier_calib.p[cur_rob,i]) THEN
+			;------------------------------------------------
+			; checking if next loc. is in robot range
+		in_range_ans = INRANGE(carrier_calib.p[cur_rob,i])
+			;------------------------------------------------
+		IF in_range_ans == 0 THEN
+		    APPROS carrier_calib.p[cur_rob,i], z_safe[cur_rob]-DZ(carrier_calib.p[cur_rob,i])
+		END
+	    END
+	    BREAK
+	    ATTACH (1)
+	    DETACH (0)
+	    IF in_range_ans == 0 THEN
+		WRITE (1) $clear.display, " MOVE TO CAL. POINT ", i, " & PRESS RECORD "
+	    ELSE
+		WRITE (1) $clear.display, " MOVE TO CAL. POINT ", i, "- FIRST TIME  "
+	    END
+	    WRITE (1) /X17, "RECORD          EXIT", $CHR(3), /S
+	    WRITE (1) $CHR(30), $CHR(3), /S
+	    WRITE (1) $CHR(30), $CHR(1), /S
+	    WAIT (PENDANT(3) OR PENDANT(1))
+	    IF PENDANT(1) GOTO 100
+	    HERE carrier_calib.p[cur_rob,i]
+	    ATTACH (0)
+	    DETACH (1)
+	    APPRO carrier_calib.p[cur_rob,i], z_safe[cur_rob]-DZ(carrier_calib.p[cur_rob,i])
+	END
+
+	tmp.x = 0
+	tmp.y = 0
+	FOR i = 0 TO 3
+	    tmp.x = tmp.x+DX(carrier_calib.p[cur_rob,i])
+	    tmp.y = tmp.y+DY(carrier_calib.p[cur_rob,i])
+	END
+	tmp.x = tmp.x/4
+	tmp.y = tmp.y/4
+	SET carrier_cntr.p[cur_rob] = TRANS(tmp.x,tmp.y,z_safe[cur_rob],0,180,0)
+	BREAK
+	DEPARTS z_safe[cur_rob]-DZ(HERE)
+;---------------------------------------------------------------------------
+    30	
+	DETACH (1)
+	ATTACH (0)
+	BREAK
+	DEPART z_safe[cur_rob]-DZ(HERE)
+
+	;------------------------------------------------
+	;checking if next loc. is in robot range
+	;transferring precision pt to location/transformation pts
+	DECOMPOSE garb.pt[] = #mid.conv[cur_rob]
+	SOLVE.TRANS tmp_loc, error = garb.pt[]
+	in_range_ans = INRANGE(tmp_loc)
+	;------------------------------------------------
+
+	IF DEFINED(#mid.conv[cur_rob]) THEN
+	    IF in_range_ans == 0 THEN
+		MOVE mid.conv[cur_rob]
+	    END
+	ELSE
+	    TYPE "mid.conv pt. not defined"
+	END
+	BREAK
+	ATTACH (1)
+	DETACH (0)
+	WRITE (1) $clear.display, " MOVE TO MID. CONV & PRESS RECORD "
+	WRITE (1) /X17, "RECORD             EXIT", $CHR(3), /S
+
+	WRITE (1) $CHR(30), $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(1), /S
+	WAIT (PENDANT(3) OR PENDANT(1))
+	IF PENDANT(1) GOTO 100
+	HERE #mid.conv[cur_rob]
+	ATTACH (0)
+	DETACH (1)
+	BREAK
+;---------------------------------------------------------------------------
+    40	
+	DETACH (1)
+	ATTACH (0)
+	BREAK
+	DEPART z_safe[cur_rob]-DZ(HERE)
+	IF DEFINED(release.pt[cur_rob,gr]) THEN
+	    APPRO release.pt[cur_rob,gr], z_safe[cur_rob]-DZ(release.pt[cur_rob,gr])
+	    MOVE release.pt[cur_rob,gr]
+	END
+	BREAK
+	ATTACH (1)
+	DETACH (0)
+	WRITE (1) $clear.display, " MOVE TO RELEASE POINT & PRESS RECORD "
+	WRITE (1) /X17, "RECORD            EXIT", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(1), /S
+	WAIT (PENDANT(3) OR PENDANT(1))
+	IF PENDANT(1) GOTO 100
+	HERE release.pt[cur_rob,gr]
+	ATTACH (0)
+	DETACH (1)
+	DEPART z_safe[cur_rob]-DZ(HERE)
+	BREAK
+;---------------------------------------------------------------------------
+    50	
+	IF (cur_rob == 2) THEN
+	    DETACH (1)
+	    ATTACH (0)
+	    BREAK
+	    DEPART z_safe[cur_rob]-DZ(HERE)
+	    IF DEFINED(measure.p[cur_rob]) THEN
+		APPRO measure.p[cur_rob], z_safe[cur_rob]-DZ(measure.p[cur_rob])
+		MOVE measure.p[cur_rob]
+	    END
+	    BREAK
+	    ATTACH (1)
+	    DETACH (0)
+	    WRITE (1) $clear.display, " MOVE TO MEASURE POINT & PRESS RECORD "
+	    WRITE (1) /X17, "RECORD            EXIT", $CHR(3), /S
+	    WRITE (1) $CHR(30), $CHR(3), /S
+	    WRITE (1) $CHR(30), $CHR(1), /S
+	    WAIT (PENDANT(3) OR PENDANT(1))
+	    IF PENDANT(1) GOTO 100
+	    HERE measure.p[cur_rob]
+	    ATTACH (0)
+	    DETACH (1)
+	    DEPART z_safe[cur_rob]-DZ(HERE)
+	    BREAK
+	END
+;---------------------------------------------------------------------------
+   100	
+	ATTACH (0)
+	DETACH (1)
+	BREAK
+.END
+
+.PROGRAM testprog()
+	LOCAL a
+	WHILE (TRUE) DO
+	    WAIT
+	    a = 5
+	END
+.END
+
+.PROGRAM to.mesure(cur_rob, angle)
+
+	AUTO LOC tmp.measure
+	AUTO REAL tmp.pt
+
+
+	DECOMPOSE tmp.pt[] = measure.p[cur_rob]
+
+	TOOL f_o_g[cur_rob,gr] ; set tool to finger  ;change command to inverse(f_o_g[]) by fabien
+;**************************************************
+
+       ; SET tmp.measure = TRANS(tmp.pt[0],tmp.pt[1],tmp.pt[2],0,180,angle)
+	SET tmp.measure = TRANS(tmp.pt[0]+measureoffsetx,tmp.pt[1]+measureoffsety,tmp.pt[2]+measureoffsetz,0,180,90+measureoffseta) ;insert must teach at zero 
+	;vision must teach at zero 
+	APPROS tmp.measure, z_clear[cur_rob,gr]-DZ(tmp.measure)
+;**************************************************
+	WAIT SIG(i_caliber.ready[rob2])
+
+	SIGNAL o_air.puff[rob2]
+	WAIT.EVENT , del_b_msr
+	SIGNAL -o_air.puff[rob2]
+	ACCEL (1) 80, 200
+	SPEED 10
+	MOVE tmp.measure
+	BREAK
+;**************************************************
+	WAIT.EVENT , del_b_rel[cur_rob,gr]+setup.delays	   ;in this syntex, not alow to be zero!!
+	SIGNAL -o_fin[cur_rob,1]		  ; open finger(pick insert)
+	SIGNAL -o_fin[cur_rob,2]
+	WAIT.EVENT , del_af_rel[cur_rob,gr]+0.6+setup.delays
+;**************************************************
+	;TYPE "Before depart pick :", TIMER(15)
+	ACCEL (1) 200, 80
+	; the robot will depart from where it stands and not from a certain position
+	SPEED 10
+	DEPARTS z_clear[cur_rob,gr]-DZ(tmp.measure)
+	SPEED (robot_speed[rob2]*0.4)
+	MOVE midpt[rob2]
+	SIGNAL (o_measure.place[rob2])
+
+.END
+
+.PROGRAM unload.cycle()
+
+
+	AUTO cmd2, d
+	ACCEL (1) 150, 120
+	FINE 500 ALWAYS
+	cmd2 = 0
+
+	s.start.task.6 = 2106
+	SIGNAL -s.start.task.6
+	WAIT
+	IF TASK(1,6) <> 4 THEN
+	    EXECUTE 6 snap.req.cam3()
+	END
+
+	IF TASK(1,5) <> 4 THEN
+	    EXECUTE 5 fov_clear_unloa()	;activating field of view clear sensing
+	END
+	IF robot_speed[rob2] > 70 THEN
+	    SPEED (robot_speed[rob2]*0.4)
+	END
+	BREAK
+	DEPART z_safe[rob2]-DZ(HERE)
+	BREAK
+	MOVE midpt[rob2]
+	BREAK
+	SIGNAL o_rob.safe.pos[rob2]
+	SIGNAL (-o_cycle.done[rob2])
+
+	SIGNAL s.start.task.6	;run task 6 once
+
+;        IF TASK(1,6) <> 4 THEN
+;            EXECUTE 6 snap.req(3) ; rase dout(3) when possible to snap
+;        END
+
+
+   111	;starting the N' cycle
+	SIGNAL o_rob.safe.pos[rob2]
+
+      ;  TYPE "Start Unload Cycle :", TIMER(15)
+	TIMER (15) = 0
+	IF SIG(-i_carr.ready[rob2]) OR SIG(-i_tray.ready[rob2]) THEN
+	    WAIT.EVENT , 1
+	    IF SIG(i_stop.reset[rob2]) THEN
+		IF robot_speed[rob2] > 70 THEN
+		    SPEED (robot_speed[rob2]*0.4)
+		END
+		BREAK
+		DEPART z_safe[rob2]-DZ(HERE)
+		BREAK
+		MOVE midpt[rob2]
+		WRITE (slun) "cmd16,1"
+		RETURN
+	    END
+	    GOTO 111
+	END
+
+	$come_str[rob2,2] = ""
+	d = -526
+
+	WHILE (d <> 13) DO	; cerrage return
+	   ; WAIT
+	    d = GETC(slun,1)
+	    IF (IOSTAT(slun) <> -526) AND (d <> -526) THEN     ;no characters in port
+		;TYPE "$chr(d)=", $CHR(d)
+		$come_str[rob2,2] = $come_str[rob2,2]+$CHR(d)
+	    ELSE
+		IF SIG(i_carr.done) THEN   ;Done unloading the carrier (flagDone by VB,then send to PLC)
+		    BREAK
+		    DEPART z_safe[rob2]-DZ(HERE)
+		    BREAK
+		    SPEED (robot_speed[rob2]*0.4)
+		    MOVE midpt[rob2]
+		    SIGNAL (o_cycle.done[rob2])
+		    WAIT SIG(-i_carr.ready[rob2]) OR SIG(i_stop.reset[rob2])	  ;PLC turn off this signal when receive carr done from robot
+		    WAIT SIG(-i_carr.done) OR SIG(i_stop.reset[rob2])		;PC  turn off this signal when recieve carr done from robot
+		    SIGNAL (-o_cycle.done[rob2])
+		    IF SIG(i_stop.reset[rob2]) THEN
+			WRITE (slun) "cmd16,1"
+			RETURN
+		    END
+		    GOTO 111
+		END
+		IF SIG(i_stop.reset[rob2]) THEN
+		    BREAK
+		    DEPART z_safe[rob2]-DZ(HERE)
+		    BREAK
+		    SPEED (robot_speed[rob2]*0.4)
+		    MOVE midpt[rob2]
+		    WRITE (slun) "cmd16,1"
+		    RETURN
+		END
+	    END
+	    IF SIG(i_req.pause[rob2]) THEN
+		GOTO 222
+	    END
+	END
+	;TYPE "recieved coordinats from PC!"
+	IF TIMER(3) > 0 THEN
+	    TYPE "cycle time=", TIMER(3)
+	END
+	SIGNAL (-o_rob.safe.pos[rob2])
+	TIMER (3) = 0
+	SIGNAL -o_snap.requset[3]
+	SIGNAL -o_ins.place[rob2]
+       ; TYPE "robot2", $come_str[rob2,2]
+	CALL break_string(rob2, $come_str[rob2,2])
+	$cmd_str[rob2,2] = $MID($par2_s[1],4,LEN($par2_s[1])-3)
+	cmd2 = VAL($cmd_str[rob2,2])
+
+	CASE cmd2 OF
+
+	  VALUE 15:
+	    CALL par_s_to_r(rob2, 8)
+	    ;carrier.done_fl[rob2] = par2_r[8]   ;1 when finish Unloading carrier
+	    measure_fl[rob2] = par2_r[8] ;1 when need to measure insert
+	    IF measure_fl[rob2] == 2 THEN
+		;tbd check if station ready
+		CALL from.mesure(rob2, par2_r[7])  ;send with angle (for pick and place with same angle)
+		GOTO 555
+	    END
+
+	    CALL pick.insert(rob2, par2_r[2], par2_r[3], par2_r[4])
+	    IF fl.outrange[rob2] == 1 THEN
+		BREAK
+		DEPART z_safe[rob2]-DZ(HERE)
+		BREAK
+		MOVE midpt[rob2]
+		WRITE (slun) "cmd16,1"
+		WAIT.EVENT , 1
+		WRITE (slun) "999,205"
+		RETURN
+	    END
+
+	    SIGNAL s.start.task.6
+
+	    WRITE (slun) "cmd15,1" ;!!!not like 4 robot program! Testing for answer PC and buffering in robot the next coords
+
+	    IF measure_fl[rob2] == 1 THEN
+		;tbd check if station ready
+		CALL to.mesure(rob2, par2_r[7])
+		GOTO 222
+	    END
+   555	    
+	    CALL place.insert(rob2, par2_r[5], par2_r[6], par2_r[7])
+	    IF fl.outrange[rob2] == 1 THEN
+		BREAK
+		DEPART z_safe[rob2]-DZ(HERE)
+		BREAK
+		SPEED (robot_speed[rob2]*0.4)
+		MOVE midpt[rob2]
+		WRITE (slun) "cmd16,1"
+		WAIT.EVENT , 1
+		WRITE (slun) "999,205"
+		RETURN
+	    END
+
+	   ;TYPE "time for place=", TIMER(3)
+	   ; IF placegoodfl[rob2] == 1 THEN
+	    ;    WRITE (slun) "cmd15,1"
+	   ; ELSE
+	   ;WRITE (slun) "cmd15,0" tbd? pick sensor.. if insert was not picked
+	   ;     WRITE (slun) "cmd15,1"
+	   ; END
+   222	    
+	    IF SIG(i_req.pause[rob2]) THEN
+		BREAK
+		DEPART z_safe[rob2]-DZ(HERE)
+		BREAK
+		SPEED (robot_speed[rob2]*0.4)
+		MOVE midpt[rob2]
+   333		
+		IF SIG(i_stop.reset[rob2]) THEN
+		    GOTO 444
+		END
+		IF NOT SIG(i_req.resume[rob2]) AND SIG(i_req.pause[rob2]) THEN
+		    GOTO 333
+		END
+	    END
+   444	    
+	    IF SIG(i_stop.reset[rob2]) THEN	  ;out of auto Loop
+		BREAK
+		DEPART z_safe[rob2]-DZ(HERE)
+		BREAK
+		SPEED (robot_speed[rob2]*0.4)
+		MOVE midpt[rob2]
+		WRITE (slun) "cmd16,1"
+		SIGNAL o_rob.safe.pos[rob2]
+		RETURN
+	    END
+	;-------------------------------------------------------------------------------------
+
+	  VALUE 98:
+	    BREAK		      ; go back to manual mode (out of auto-cycle)
+	    DEPART z_safe[rob2]-DZ(HERE)
+	    BREAK
+	    SPEED (robot_speed[rob2]*0.4)
+	    MOVE midpt[rob2]
+	    WRITE (slun) "cmd16,1"
+	    SIGNAL o_rob.safe.pos[rob2]
+	    RETURN
+	;------------------------------------------------------------------------------------
+	  ANY
+	    TYPE "Unknown command"
+	END
+	prev_cmd[rob2] = cmd2
+	GOTO 111
+.END
+
+.PROGRAM wait.sig(sig, tout, expired)
+	AUTO time
+	expired = FALSE
+	time = TIMER(-3)
+
+	IF tout == -1 THEN
+	    DO
+		WAIT
+	    UNTIL (SIG(sig) OR SIG(i_stop.reset[rob1]) OR SIG(i_stop.reset[rob2]))     ;qq
+	    ;UNTIL SIG(sig)
+	ELSE
+	    DO
+		WAIT
+	    UNTIL ((SIG(sig))) OR (((TIMER(-3)-time) >= tout))
+	END
+
+	IF NOT SIG(sig) THEN
+	    expired = TRUE
+	END
+.END
+
+

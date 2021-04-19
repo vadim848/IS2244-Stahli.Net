@@ -263,7 +263,7 @@ namespace Stahli2Robots
 
             ErrorDescriptionHeb[215] = "215: אין זיהוי גשש נועל לולים";
             ErrorDescriptionHeb[216] = "216: בוכנה 80 לא סגורה";
-            ErrorDescriptionHeb[217] = "";  //tbd after Vadim done update PLC...
+            ErrorDescriptionHeb[217] = "";  
             ErrorDescriptionHeb[218] = "";
             ErrorDescriptionHeb[219] = "";
             ErrorDescriptionHeb[220] = "";

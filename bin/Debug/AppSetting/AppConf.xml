@@ -1,119 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AppSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <AppSetxyLoadWorldTrayOrigin>
-    <X>180.6127</X>
-    <Y>592.2136</Y>
+    <X>174.4072</X>
+    <Y>592.0881</Y>
     <A>0</A>
   </AppSetxyLoadWorldTrayOrigin>
   <AppSetxyUnloadWorldTrayOrigin>
-    <X>262.4672</X>
-    <Y>-205.5704</Y>
+    <X>266.36</X>
+    <Y>-204.297</Y>
     <A>0</A>
   </AppSetxyUnloadWorldTrayOrigin>
   <AppSetLoadTrayCalibPt>
     <PointCoord>
-      <X>183.6891</X>
-      <Y>348.8582</Y>
+      <X>181.528</X>
+      <Y>346.847</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>184.0273</X>
-      <Y>532.6804</Y>
+      <X>181.558</X>
+      <Y>530.63</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>513.7758</X>
-      <Y>532.2238</Y>
+      <X>511.39</X>
+      <Y>530.742</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>513.4061</X>
-      <Y>347.6429</Y>
+      <X>511.832</X>
+      <Y>347.071</Y>
       <A>0</A>
     </PointCoord>
   </AppSetLoadTrayCalibPt>
   <AppSetLoadCarrierCalibPt>
     <PointCoord>
-      <X>421.996</X>
-      <Y>-227.0752</Y>
+      <X>420.341</X>
+      <Y>-231.263</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>365.2285</X>
-      <Y>-88.97467</Y>
+      <X>361.866</X>
+      <Y>-85.54</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>503.1985</X>
-      <Y>-32.49066</Y>
+      <X>506.044</X>
+      <Y>-26.42</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>559.6475</X>
-      <Y>-170.2687</Y>
+      <X>564.798</X>
+      <Y>-171.219</Y>
       <A>0</A>
     </PointCoord>
   </AppSetLoadCarrierCalibPt>
   <AppSetUnloadTrayCalibPt>
     <PointCoord>
-      <X>324.1166</X>
-      <Y>-212.4951</Y>
+      <X>326.992</X>
+      <Y>-210.907</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>507.8445</X>
-      <Y>-214.3059</Y>
+      <X>511.065</X>
+      <Y>-211.344</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>505.9233</X>
-      <Y>-544.4763</Y>
+      <X>510.839</X>
+      <Y>-540.442</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>322.1801</X>
-      <Y>-543.3116</Y>
+      <X>326.307</X>
+      <Y>-540.706</Y>
       <A>0</A>
     </PointCoord>
   </AppSetUnloadTrayCalibPt>
   <AppSetUnloadCarrierCalibPt>
     <PointCoord>
-      <X>-209.8781</X>
-      <Y>-398.5609</Y>
+      <X>-211.934</X>
+      <Y>-397.812</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>-146.5562</X>
-      <Y>-280.2048</Y>
+      <X>-141.747</X>
+      <Y>-275.631</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>-26.92933</X>
-      <Y>-350.7397</Y>
+      <X>-19.801</X>
+      <Y>-345.799</Y>
       <A>0</A>
     </PointCoord>
     <PointCoord>
-      <X>-92.05199</X>
-      <Y>-461.2314</Y>
+      <X>-90.113</X>
+      <Y>-467.982</Y>
       <A>0</A>
     </PointCoord>
   </AppSetUnloadCarrierCalibPt>
-  <CurrentInsertCode>C43_CC</CurrentInsertCode>
+  <CurrentInsertCode>dnsg 442</CurrentInsertCode>
   <AppSetLangFl>Eng</AppSetLangFl>
   <AppSetLoadCarrAddedX>0</AppSetLoadCarrAddedX>
   <AppSetLoadCarrAddedY>0</AppSetLoadCarrAddedY>
   <AppSetLoadAddedAngle>0</AppSetLoadAddedAngle>
-  <AppSetUnloadAddedAngle>0</AppSetUnloadAddedAngle>
-  <AppSetOriginXOffset>1</AppSetOriginXOffset>
-  <AppSetOriginYOffset>-2</AppSetOriginYOffset>
-  <AppSetUnloadedInsCounter>0</AppSetUnloadedInsCounter>
-  <AppSetLoadedInsCounter>0</AppSetLoadedInsCounter>
-  <AppSetCounterPerOrder>0</AppSetCounterPerOrder>
+  <AppSetUnloadAddedAngle>45</AppSetUnloadAddedAngle>
+  <AppSetOriginXOffset>2</AppSetOriginXOffset>
+  <AppSetOriginYOffset>-1</AppSetOriginYOffset>
+  <AppSetUnloadedInsCounter>28205</AppSetUnloadedInsCounter>
+  <AppSetLoadedInsCounter>29734</AppSetLoadedInsCounter>
+  <AppSetCounterPerOrder>8165</AppSetCounterPerOrder>
   <AppSetInsQnt>0</AppSetInsQnt>
   <AppSetTotalUnloadMissedCount>0</AppSetTotalUnloadMissedCount>
   <AppSetMissPocketTotalCount>0</AppSetMissPocketTotalCount>
   <AppSetUnloadCarrierSliceNo>1</AppSetUnloadCarrierSliceNo>
-  <AppSetLoadTrayCurrIndex>0</AppSetLoadTrayCurrIndex>
-  <AppSetUnLoadTrayCurrIndex>0</AppSetUnLoadTrayCurrIndex>
+  <AppSetLoadTrayCurrIndex>130</AppSetLoadTrayCurrIndex>
+  <AppSetUnLoadTrayCurrIndex>97</AppSetUnLoadTrayCurrIndex>
   <AppSetLoadCarrierCurrIndex>0</AppSetLoadCarrierCurrIndex>
 </AppSettings>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OrderParams xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <InsertCode>wnmg 431</InsertCode>
+  <InsertDescription>wnmg 431</InsertDescription>
+  <ProductCode>CNSG 432-TF</ProductCode>
+  <InsertSymetry>3</InsertSymetry>
+  <InsertHeight>5</InsertHeight>
+  <SensorHeight>6</SensorHeight>
+  <InsertHoleDiameter>2.7</InsertHoleDiameter>
+  <GripperCode>4</GripperCode>
+  <ServiceLoadTrayName>TA-132.txt</ServiceLoadTrayName>
+  <ServiceUnloadTrayName>TA-132.txt</ServiceUnloadTrayName>
+  <CarrierName>POLURITEN_LARGE.txt</CarrierName>
+  <Cam1_Brightness>0.5</Cam1_Brightness>
+  <Cam2_Brightness>0.4</Cam2_Brightness>
+  <Cam3_Brightness>0.19</Cam3_Brightness>
+  <Cam1_Contrast>0.4</Cam1_Contrast>
+  <Cam2_Contrast>0.5</Cam2_Contrast>
+  <Cam3_Contrast>0.87</Cam3_Contrast>
+  <Cam1_Trashhold>0.71</Cam1_Trashhold>
+  <Cam2_Trashhold>0.72</Cam2_Trashhold>
+  <Cam3_Trashhold>0.73</Cam3_Trashhold>
+  <Cam1_Score>0.42</Cam1_Score>
+  <Cam2_Score>0.4</Cam2_Score>
+  <Cam3_Score>0.4</Cam3_Score>
+  <Cam1_Angle>180</Cam1_Angle>
+  <Cam3_Angle>180</Cam3_Angle>
+</OrderParams>

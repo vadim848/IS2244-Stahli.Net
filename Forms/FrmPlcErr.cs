@@ -26,6 +26,48 @@ namespace Stahli2Robots
 
         public void RefreshLists()
         {
+            //// General
+            gridGeneralErrors.Rows.Clear();
+            for (int i = 0; i < 10; i++)
+            {
+                gridGeneralErrors.Rows.Add();
+                gridGeneralErrors[0, i].Value = (i + 1).ToString();  //Err No.
+                switch (i)
+                {
+                    case 0:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg1; //qq
+                        break;
+                    case 1:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg2;
+                        break;
+                    case 2:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg3;
+                        break;
+                    case 3:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg4;
+                        break;
+                    case 4:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg5;
+                        break;
+                    case 5:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg6;
+                        break;
+                    case 6:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg7;
+                        break;
+                    case 7:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg8;
+                        break;
+                    case 8:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg9;
+                        break;
+                    case 9:
+                        gridGeneralErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.General_PlcErrMsg.Msg10;
+                        break;
+                }
+            }
+
+
             //// load
             gridLoadConvErrors.Rows.Clear();
             for (int i = 0; i < 10; i++)
@@ -66,20 +108,7 @@ namespace Stahli2Robots
                         break;
                 }
             }
-            //short count = AppGen.Inst.MDImain.frmBeckhoff.LoadConveyor_PLC.ConvErrorCount;
-            //lstLoad.Items.Clear();
-
-            //if (count >= 1) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg1);
-            //if (count >= 2) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg2);
-            //if (count >= 3) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg3);
-            //if (count >= 4) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg4);
-            //if (count >= 5) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg5);
-            //if (count >= 6) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg6);
-            //if (count >= 7) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg7);
-            //if (count >= 8) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg8);
-            //if (count >= 9) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg9);
-            //if (count >= 10) lstLoad.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.LoadConv_PlcErrMsg.Msg10);
-
+           
             //// unload
             gridUnloadConvErrors.Rows.Clear();
             for (int i = 0; i < 10; i++)
@@ -120,20 +149,7 @@ namespace Stahli2Robots
                         break;
                 }
             }
-            //count = AppGen.Inst.MDImain.frmBeckhoff.UnloadConveyor_PLC.ConvErrorCount;
-            //lstUnload.Items.Clear();
-
-            //if (count >= 1) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg1);
-            //if (count >= 2) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg2);
-            //if (count >= 3) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg3);
-            //if (count >= 4) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg4);
-            //if (count >= 5) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg5);
-            //if (count >= 6) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg6);
-            //if (count >= 7) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg7);
-            //if (count >= 8) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg8);
-            //if (count >= 9) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg9);
-            //if (count >= 10) lstUnload.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.UnloadConv_PlcErrMsg.Msg10);
-
+            
             //// index table
             gridTableIndexErrors.Rows.Clear();
             for (int i = 0; i < 10; i++)
@@ -173,23 +189,7 @@ namespace Stahli2Robots
                         gridTableIndexErrors[1, i].Value = AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg10;
                         break;
                 }
-            }
-
-
-
-            //count = AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PLC.TableConvErrorCount;
-            //lstIndexTable.Items.Clear();
-
-            //if (count >= 1) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg1);
-            //if (count >= 2) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg2);
-            //if (count >= 3) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg3);
-            //if (count >= 4) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg4);
-            //if (count >= 5) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg5);
-            //if (count >= 6) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg6);
-            //if (count >= 7) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg7);
-            //if (count >= 8) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg8);
-            //if (count >= 9) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg9);
-            //if (count >= 10) lstIndexTable.Items.Add(AppGen.Inst.MDImain.frmBeckhoff.IndexTable_PlcErrMsg.Msg10);          
+            }         
         }
 
         private void FrmPlcErr_Load(object sender, EventArgs e)

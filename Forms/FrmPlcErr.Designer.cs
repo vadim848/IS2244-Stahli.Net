@@ -41,18 +41,24 @@
             this.gridTableIndexErrors = new System.Windows.Forms.DataGridView();
             this.Column1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Score = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.gridGeneralErrors = new System.Windows.Forms.DataGridView();
+            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.grpUnloadConv.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridUnloadConvErrors)).BeginInit();
             this.grpLoadConv.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridLoadConvErrors)).BeginInit();
             this.rgpTable.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gridTableIndexErrors)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gridGeneralErrors)).BeginInit();
             this.SuspendLayout();
             // 
             // cmdRefreshAllErrors
             // 
             this.cmdRefreshAllErrors.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmdRefreshAllErrors.Location = new System.Drawing.Point(189, 649);
+            this.cmdRefreshAllErrors.Location = new System.Drawing.Point(189, 743);
             this.cmdRefreshAllErrors.Name = "cmdRefreshAllErrors";
             this.cmdRefreshAllErrors.Size = new System.Drawing.Size(185, 28);
             this.cmdRefreshAllErrors.TabIndex = 3;
@@ -65,9 +71,9 @@
             this.grpUnloadConv.Controls.Add(this.gridUnloadConvErrors);
             this.grpUnloadConv.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpUnloadConv.ForeColor = System.Drawing.Color.Black;
-            this.grpUnloadConv.Location = new System.Drawing.Point(12, 434);
+            this.grpUnloadConv.Location = new System.Drawing.Point(12, 550);
             this.grpUnloadConv.Name = "grpUnloadConv";
-            this.grpUnloadConv.Size = new System.Drawing.Size(514, 205);
+            this.grpUnloadConv.Size = new System.Drawing.Size(514, 175);
             this.grpUnloadConv.TabIndex = 6;
             this.grpUnloadConv.TabStop = false;
             this.grpUnloadConv.Text = "Unload conveyor";
@@ -83,7 +89,7 @@
             this.gridUnloadConvErrors.Margin = new System.Windows.Forms.Padding(2);
             this.gridUnloadConvErrors.Name = "gridUnloadConvErrors";
             this.gridUnloadConvErrors.RowHeadersVisible = false;
-            this.gridUnloadConvErrors.Size = new System.Drawing.Size(501, 180);
+            this.gridUnloadConvErrors.Size = new System.Drawing.Size(501, 150);
             this.gridUnloadConvErrors.TabIndex = 42;
             // 
             // dataGridViewTextBoxColumn3
@@ -105,9 +111,9 @@
             this.grpLoadConv.Controls.Add(this.gridLoadConvErrors);
             this.grpLoadConv.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.grpLoadConv.ForeColor = System.Drawing.Color.Black;
-            this.grpLoadConv.Location = new System.Drawing.Point(12, 223);
+            this.grpLoadConv.Location = new System.Drawing.Point(12, 369);
             this.grpLoadConv.Name = "grpLoadConv";
-            this.grpLoadConv.Size = new System.Drawing.Size(514, 205);
+            this.grpLoadConv.Size = new System.Drawing.Size(514, 175);
             this.grpLoadConv.TabIndex = 5;
             this.grpLoadConv.TabStop = false;
             this.grpLoadConv.Text = "Load conveyor";
@@ -123,7 +129,7 @@
             this.gridLoadConvErrors.Margin = new System.Windows.Forms.Padding(2);
             this.gridLoadConvErrors.Name = "gridLoadConvErrors";
             this.gridLoadConvErrors.RowHeadersVisible = false;
-            this.gridLoadConvErrors.Size = new System.Drawing.Size(501, 180);
+            this.gridLoadConvErrors.Size = new System.Drawing.Size(501, 150);
             this.gridLoadConvErrors.TabIndex = 42;
             // 
             // dataGridViewTextBoxColumn1
@@ -145,9 +151,9 @@
             this.rgpTable.Controls.Add(this.gridTableIndexErrors);
             this.rgpTable.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rgpTable.ForeColor = System.Drawing.Color.Black;
-            this.rgpTable.Location = new System.Drawing.Point(12, 12);
+            this.rgpTable.Location = new System.Drawing.Point(12, 188);
             this.rgpTable.Name = "rgpTable";
-            this.rgpTable.Size = new System.Drawing.Size(514, 205);
+            this.rgpTable.Size = new System.Drawing.Size(514, 175);
             this.rgpTable.TabIndex = 4;
             this.rgpTable.TabStop = false;
             this.rgpTable.Text = "Index Table";
@@ -163,7 +169,7 @@
             this.gridTableIndexErrors.Margin = new System.Windows.Forms.Padding(2);
             this.gridTableIndexErrors.Name = "gridTableIndexErrors";
             this.gridTableIndexErrors.RowHeadersVisible = false;
-            this.gridTableIndexErrors.Size = new System.Drawing.Size(501, 180);
+            this.gridTableIndexErrors.Size = new System.Drawing.Size(501, 150);
             this.gridTableIndexErrors.TabIndex = 41;
             // 
             // Column1
@@ -180,11 +186,52 @@
             this.Score.ReadOnly = true;
             this.Score.Width = 450;
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.gridGeneralErrors);
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox1.ForeColor = System.Drawing.Color.Black;
+            this.groupBox1.Location = new System.Drawing.Point(11, 9);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(514, 175);
+            this.groupBox1.TabIndex = 7;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "General  Errors";
+            // 
+            // gridGeneralErrors
+            // 
+            this.gridGeneralErrors.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
+            this.gridGeneralErrors.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridGeneralErrors.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn5,
+            this.dataGridViewTextBoxColumn6});
+            this.gridGeneralErrors.Location = new System.Drawing.Point(6, 18);
+            this.gridGeneralErrors.Margin = new System.Windows.Forms.Padding(2);
+            this.gridGeneralErrors.Name = "gridGeneralErrors";
+            this.gridGeneralErrors.RowHeadersVisible = false;
+            this.gridGeneralErrors.Size = new System.Drawing.Size(501, 150);
+            this.gridGeneralErrors.TabIndex = 41;
+            // 
+            // dataGridViewTextBoxColumn5
+            // 
+            this.dataGridViewTextBoxColumn5.HeaderText = "No.";
+            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            this.dataGridViewTextBoxColumn5.ReadOnly = true;
+            this.dataGridViewTextBoxColumn5.Width = 28;
+            // 
+            // dataGridViewTextBoxColumn6
+            // 
+            this.dataGridViewTextBoxColumn6.HeaderText = "General Error";
+            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
+            this.dataGridViewTextBoxColumn6.ReadOnly = true;
+            this.dataGridViewTextBoxColumn6.Width = 450;
+            // 
             // FrmPlcErr
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(535, 689);
+            this.ClientSize = new System.Drawing.Size(532, 785);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.grpUnloadConv);
             this.Controls.Add(this.grpLoadConv);
             this.Controls.Add(this.rgpTable);
@@ -201,6 +248,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.gridLoadConvErrors)).EndInit();
             this.rgpTable.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gridTableIndexErrors)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gridGeneralErrors)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -220,5 +269,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column1;
         private System.Windows.Forms.DataGridViewTextBoxColumn Score;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.DataGridView gridGeneralErrors;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
     }
 }

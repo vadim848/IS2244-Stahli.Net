@@ -24,6 +24,7 @@ namespace Stahli2Robots
 		private System.ComponentModel.Container components = null;
 
         private ArrayList notificationHandles;
+        #region textbox desing
         internal TextBox textBox2;
         internal TextBox textBox1;
         internal Label label45;
@@ -97,6 +98,8 @@ namespace Stahli2Robots
         internal TextBox textBox52;
         internal TextBox textBox55;
         internal TextBox textBox56;
+        #endregion
+
         private TcAdsClient adsClient;
  
         
@@ -108,6 +111,8 @@ namespace Stahli2Robots
         public int hPlcErrMsg0;
         public int hPlcErrMsg1;
         public int hPlcErrMsg2;
+        public int hPlcErrMsg3; //qq
+        
       
 		public FrmBeckhoff()
 		{
@@ -186,6 +191,7 @@ namespace Stahli2Robots
                 hPlcErrMsg0 = adsClient.CreateVariableHandle(".act_Error_Load_HMI");
                 hPlcErrMsg1 = adsClient.CreateVariableHandle(".act_Error_Unload_HMI");
                 hPlcErrMsg2 = adsClient.CreateVariableHandle(".act_Error_Table_HMI");
+                hPlcErrMsg3 = adsClient.CreateVariableHandle(".act_Error_General_HMI");  //qq
 
                 //----------GeneralControl:----------
                 GeneralControl_PLC.hTopLight = adsClient.CreateVariableHandle(".TopLight");
@@ -194,7 +200,7 @@ namespace Stahli2Robots
                 GeneralControl_PLC.hYellowLight = adsClient.CreateVariableHandle(".trafic_Yelow");
                 GeneralControl_PLC.hRedLight = adsClient.CreateVariableHandle(".trafic_Red");
                 GeneralControl_PLC.hBuzzer = adsClient.CreateVariableHandle(".trafic_Buzzer");
-                GeneralControl_PLC.hS3 = adsClient.CreateVariableHandle(".Req_s3");
+                GeneralControl_PLC.hS3 = adsClient.CreateVariableHandle(".Req_s3");   
                 GeneralControl_PLC.hProductionMessage = adsClient.CreateVariableHandle("prg_Production.Message");
                 GeneralControl_PLC.hLastMeasure = adsClient.CreateVariableHandle(".s_LastMeasure");
                 GeneralControl_PLC.hProdMode = adsClient.CreateVariableHandle(".m_Prod");
@@ -211,6 +217,8 @@ namespace Stahli2Robots
                 GeneralControl_PLC.hTolLow = adsClient.CreateVariableHandle(".ar_MeasTolerance.fTolLow");
                 GeneralControl_PLC.hCorrLow1 = adsClient.CreateVariableHandle(".ar_MeasTolerance.fCorrLow1");
                 GeneralControl_PLC.hCorrLow2 = adsClient.CreateVariableHandle(".ar_MeasTolerance.fCorrLow2");
+                GeneralControl_PLC.hGeneralErrorCount = adsClient.CreateVariableHandle(".act_ErrorNum_General");  //qq
+                GeneralControl_PLC.hLastBatch = adsClient.CreateVariableHandle(".b_LastBatch"); //qq
         
                 //--------Load conveyor:-----------
                 LoadConveyor_PLC.hOp_VB = adsClient.CreateVariableHandle(".op_Load_VB");
@@ -325,6 +333,7 @@ namespace Stahli2Robots
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".act_Error_Load_HMI", AdsTransMode.OnChange, 100, 0, ".act_Error_Load_HMI", typeof(PlcErrMsg)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".act_Error_Unload_HMI", AdsTransMode.OnChange, 100, 0, ".act_Error_Unload_HMI", typeof(PlcErrMsg)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".act_Error_Table_HMI", AdsTransMode.OnChange, 100, 0, ".act_Error_Table_HMI", typeof(PlcErrMsg)));
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".act_Error_General_HMI", AdsTransMode.OnChange, 100, 0, ".act_Error_General_HMI", typeof(PlcErrMsg))); //qq
                                 
                 //----------GeneralControl:----------
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".TopLight", AdsTransMode.OnChange, 100, 0, ".TopLight", typeof(bool)));
@@ -340,7 +349,9 @@ namespace Stahli2Robots
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx("prg_Safety.Req_Release_ES", AdsTransMode.OnChange, 100, 0, "prg_Safety.Req_Release_ES", typeof(bool)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".TSafeIn.ES_State", AdsTransMode.OnChange, 100, 0, ".TSafeIn.ES_State", typeof(bool)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".ResumeAll", AdsTransMode.OnChange, 100, 0, ".ResumeAll", typeof(bool)));
-                notificationHandles.Add(adsClient.AddDeviceNotificationEx("prg_Messages.ResetErrors", AdsTransMode.OnChange, 100, 0, "prg_Messages.ResetErrors", typeof(bool)));             
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx("prg_Messages.ResetErrors", AdsTransMode.OnChange, 100, 0, "prg_Messages.ResetErrors", typeof(bool)));
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".act_ErrorNum_General", AdsTransMode.OnChange, 100, 0, ".act_ErrorNum_General", typeof(short)));  //qq
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".b_LastBatch", AdsTransMode.OnChange, 100, 0, ".b_LastBatch", typeof(bool)));  //qq
                 //--------Load conveyor:-----------
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".op_Load_VB", AdsTransMode.OnChange, 100, 0, ".op_Load_VB", typeof(short)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".m_Load_VB", AdsTransMode.OnChange, 100, 0, ".m_Load_VB", typeof(short)));
@@ -401,9 +412,8 @@ namespace Stahli2Robots
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".ar_MeasTolerance.fTarget", AdsTransMode.OnChange, 100, 0, ".ar_MeasTolerance.fTarget", typeof(float)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".ar_MeasTolerance.fTolLow", AdsTransMode.OnChange, 100, 0, ".ar_MeasTolerance.fTolLow", typeof(float)));
                 notificationHandles.Add(adsClient.AddDeviceNotificationEx(".ar_MeasTolerance.fCorrLow1", AdsTransMode.OnChange, 100, 0, ".ar_MeasTolerance.fCorrLow1", typeof(float)));
-                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".ar_MeasTolerance.fCorrLow2", AdsTransMode.OnChange, 100, 0, ".ar_MeasTolerance.fCorrLow2", typeof(float)));   
-
-
+                notificationHandles.Add(adsClient.AddDeviceNotificationEx(".ar_MeasTolerance.fCorrLow2", AdsTransMode.OnChange, 100, 0, ".ar_MeasTolerance.fCorrLow2", typeof(float)));
+                
                 //--------------------------------------------  
             }
             catch (Exception ex)
@@ -429,6 +439,7 @@ namespace Stahli2Robots
                 if (name == ".act_Error_Load_HMI") LoadConv_PlcErrMsg = (PlcErrMsg)e.Value;
                 if (name == ".act_Error_Unload_HMI") UnloadConv_PlcErrMsg = (PlcErrMsg)e.Value;
                 if (name == ".act_Error_Table_HMI") IndexTable_PlcErrMsg = (PlcErrMsg)e.Value;
+                if (name == ".act_Error_General_HMI") General_PlcErrMsg = (PlcErrMsg)e.Value; //qq
             }
             else
             {
@@ -512,7 +523,9 @@ namespace Stahli2Robots
                 if (name == ".ar_MeasTolerance.fTarget") GeneralControl_PLC.Target = (float)e.Value;
                 if (name == ".ar_MeasTolerance.fTolLow") GeneralControl_PLC.TolLow = (float)e.Value;
                 if (name == ".ar_MeasTolerance.fCorrLow1") GeneralControl_PLC.CorrLow1 = (float)e.Value;
-                if (name == ".ar_MeasTolerance.fCorrLow2") GeneralControl_PLC.CorrLow2 = (float)e.Value;                
+                if (name == ".ar_MeasTolerance.fCorrLow2") GeneralControl_PLC.CorrLow2 = (float)e.Value;
+                if (name == ".act_ErrorNum_General") GeneralControl_PLC.GeneralErrorCount = (short)e.Value;  //qq
+                if (name == ".b_LastBatch") GeneralControl_PLC.LastBatch = (bool)e.Value; //qq
                 //--------Load conveyor:-----------
                 if (name == ".st_LoadReady") LoadConveyor_PLC.fl_ConvReady = (bool)e.Value;
                 if (name == ".op_Load_VB") LoadConveyor_PLC.Op_VB = (short)e.Value;
@@ -561,9 +574,7 @@ namespace Stahli2Robots
                 if (name == "prg_Measuring.ar_CarrToMeasure[3]") IndexTable_PLC.carrToMeasure[3] = (bool)e.Value;
                 if (name == "prg_Measuring.ar_CarrToMeasure[4]") IndexTable_PLC.carrToMeasure[4] = (bool)e.Value;
                 if (name == "prg_Measuring.ar_CarrToMeasure[5]") IndexTable_PLC.carrToMeasure[5] = (bool)e.Value;
-                if (name == "prg_Measuring.ar_CarrToMeasure[6]") IndexTable_PLC.carrToMeasure[6] = (bool)e.Value;
-                
-                
+                if (name == "prg_Measuring.ar_CarrToMeasure[6]") IndexTable_PLC.carrToMeasure[6] = (bool)e.Value;              
                 //--------------------------------------------
             }
         }
@@ -1409,6 +1420,7 @@ namespace Stahli2Robots
                 LoadConv_PlcErrMsg = (PlcErrMsg)adsClient.ReadAny(hPlcErrMsg0, typeof(PlcErrMsg));
                 UnloadConv_PlcErrMsg = (PlcErrMsg)adsClient.ReadAny(hPlcErrMsg1, typeof(PlcErrMsg));
                 IndexTable_PlcErrMsg = (PlcErrMsg)adsClient.ReadAny(hPlcErrMsg2, typeof(PlcErrMsg));
+                General_PlcErrMsg = (PlcErrMsg)adsClient.ReadAny(hPlcErrMsg3, typeof(PlcErrMsg)); //qq
 
                 GeneralControl_PLC.TopLight = (bool)adsClient.ReadAny(GeneralControl_PLC.hTopLight, typeof(bool));
                 GeneralControl_PLC.BottomLight1 = (bool)adsClient.ReadAny(GeneralControl_PLC.hBottomLight1, typeof(bool));
@@ -1433,12 +1445,13 @@ namespace Stahli2Robots
                 GeneralControl_PLC.TolLow = (float)adsClient.ReadAny(GeneralControl_PLC.hTolLow, typeof(float));
                 GeneralControl_PLC.CorrLow1 = (float)adsClient.ReadAny(GeneralControl_PLC.hCorrLow1, typeof(float));
                 GeneralControl_PLC.CorrLow2 = (float)adsClient.ReadAny(GeneralControl_PLC.hCorrLow2, typeof(float));
+                GeneralControl_PLC.GeneralErrorCount = (short)adsClient.ReadAny(GeneralControl_PLC.hGeneralErrorCount, typeof(short)); //qq
+                GeneralControl_PLC.LastBatch = (bool)adsClient.ReadAny(GeneralControl_PLC.hLastBatch, typeof(bool));
 
                 //--------Load conveyor:-----------
                 LoadConveyor_PLC.Op_VB = (short)adsClient.ReadAny(LoadConveyor_PLC.hOp_VB, typeof(short));
                 LoadConveyor_PLC.fl_ConvReady = (bool)adsClient.ReadAny(LoadConveyor_PLC.hfl_ConvReady, typeof(bool));
                 LoadConveyor_PLC.fl_ConvMode = (short)adsClient.ReadAny(LoadConveyor_PLC.hfl_ConvMode, typeof(short));
-               // LoadConveyor_PLC.ConvError = (short)adsClient.ReadAny(LoadConveyor_PLC.hConvError, typeof(short));
                 LoadConveyor_PLC.InitWithStation = (bool)adsClient.ReadAny(LoadConveyor_PLC.hInitWithStation, typeof(bool));
                 LoadConveyor_PLC.InitConv = (bool)adsClient.ReadAny(LoadConveyor_PLC.hInitConv, typeof(bool));
                 LoadConveyor_PLC.ConvResume = (bool)adsClient.ReadAny(LoadConveyor_PLC.hConvResume, typeof(bool));
@@ -1451,7 +1464,6 @@ namespace Stahli2Robots
                 UnloadConveyor_PLC.Op_VB = (short)adsClient.ReadAny(UnloadConveyor_PLC.hOp_VB, typeof(short));
                 UnloadConveyor_PLC.fl_ConvReady = (bool)adsClient.ReadAny(UnloadConveyor_PLC.hfl_ConvReady, typeof(bool));
                 UnloadConveyor_PLC.fl_ConvMode = (short)adsClient.ReadAny(UnloadConveyor_PLC.hfl_ConvMode, typeof(short));
-             //   UnloadConveyor_PLC.ConvError = (short)adsClient.ReadAny(UnloadConveyor_PLC.hConvError, typeof(short));
                 UnloadConveyor_PLC.InitWithStation = (bool)adsClient.ReadAny(UnloadConveyor_PLC.hInitWithStation, typeof(bool));
                 UnloadConveyor_PLC.InitConv = (bool)adsClient.ReadAny(UnloadConveyor_PLC.hInitConv, typeof(bool));
                 UnloadConveyor_PLC.ConvResume = (bool)adsClient.ReadAny(UnloadConveyor_PLC.hConvResume, typeof(bool));
@@ -1509,6 +1521,7 @@ namespace Stahli2Robots
                 adsClient.WriteAny(hPlcErrMsg0, LoadConv_PlcErrMsg);
                 adsClient.WriteAny(hPlcErrMsg1, UnloadConv_PlcErrMsg);
                 adsClient.WriteAny(hPlcErrMsg2, IndexTable_PlcErrMsg);
+                adsClient.WriteAny(hPlcErrMsg3, General_PlcErrMsg); //qq
      
                 //----------general Control:----------------
                 adsClient.WriteAny(GeneralControl_PLC.hTopLight, GeneralControl_PLC.TopLight);
@@ -1531,7 +1544,9 @@ namespace Stahli2Robots
                 adsClient.WriteAny(GeneralControl_PLC.hTarget, GeneralControl_PLC.Target);
                 adsClient.WriteAny(GeneralControl_PLC.hTolLow, GeneralControl_PLC.TolLow);
                 adsClient.WriteAny(GeneralControl_PLC.hCorrLow1, GeneralControl_PLC.CorrLow1);
-                adsClient.WriteAny(GeneralControl_PLC.hCorrLow2, GeneralControl_PLC.CorrLow2);              
+                adsClient.WriteAny(GeneralControl_PLC.hCorrLow2, GeneralControl_PLC.CorrLow2);
+                adsClient.WriteAny(GeneralControl_PLC.hGeneralErrorCount, GeneralControl_PLC.GeneralErrorCount);  //qq
+                adsClient.WriteAny(GeneralControl_PLC.hLastBatch, GeneralControl_PLC.LastBatch);  //qq
                 //--------Load conveyor:-----------
                 adsClient.WriteAny(LoadConveyor_PLC.hOp_VB, LoadConveyor_PLC.Op_VB);
                 adsClient.WriteAny(LoadConveyor_PLC.hfl_ConvReady, LoadConveyor_PLC.fl_ConvReady);
@@ -1657,14 +1672,7 @@ namespace Stahli2Robots
             RobotDada2.ProcesPercent = short.Parse(textBox56.Text);
         }
 
-       //public void WriteData(int handle, object val)
-       // {
-       //     try
-       //     {
-       //         adsClient.WriteAny(handle, val);
-       //     }
-       //     catch { }
-       // }
+       
         public object ReadData(int handle, Type type)
         {
             try
@@ -1766,6 +1774,27 @@ namespace Stahli2Robots
                 lock ((object)unloadConveyor_PLC)
                 {
                     unloadConveyor_PLC = value;
+                }
+            }
+        }
+
+
+
+        private PlcErrMsg general_PlcErrMsg = new PlcErrMsg();  //qq
+        public PlcErrMsg General_PlcErrMsg
+        {
+            get
+            {
+                lock ((object)general_PlcErrMsg)
+                {
+                    return general_PlcErrMsg;
+                }
+            }
+            set
+            {
+                lock ((object)general_PlcErrMsg)
+                {
+                    general_PlcErrMsg = value;
                 }
             }
         }
@@ -2584,6 +2613,8 @@ namespace Stahli2Robots
         public float TolLow;
         public float CorrLow1;
         public float CorrLow2;
+        public short GeneralErrorCount;
+        public bool LastBatch;
 
         public int hTopLight;
         public int hBottomLight1;
@@ -2607,7 +2638,9 @@ namespace Stahli2Robots
         public int hTarget;
         public int hTolLow;
         public int hCorrLow1;
-        public int hCorrLow2; 
+        public int hCorrLow2;
+        public int hGeneralErrorCount;
+        public int hLastBatch;
     }
 
     
