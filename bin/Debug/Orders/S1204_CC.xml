@@ -13,10 +13,10 @@
   <CarrierName>35_D23_T4.txt</CarrierName>
   <Cam1_Brightness>0.4</Cam1_Brightness>
   <Cam2_Brightness>0.5</Cam2_Brightness>
-  <Cam3_Brightness>1</Cam3_Brightness>
-  <Cam1_Contrast>0.5</Cam1_Contrast>
+  <Cam3_Brightness>0.6</Cam3_Brightness>
+  <Cam1_Contrast>0.8</Cam1_Contrast>
   <Cam2_Contrast>0.6</Cam2_Contrast>
-  <Cam3_Contrast>1</Cam3_Contrast>
+  <Cam3_Contrast>0.7</Cam3_Contrast>
   <Cam1_Trashhold>0.71</Cam1_Trashhold>
   <Cam2_Trashhold>0.72</Cam2_Trashhold>
   <Cam3_Trashhold>0.73</Cam3_Trashhold>

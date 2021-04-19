@@ -60,18 +60,17 @@ namespace Stahli2Robots
             stCorrLow2 = new System.Windows.Forms.DataVisualization.Charting.StripLine {};
 
 
-            //15.10.15  -correct color
-            stCorrHigh2.Interval = 0;
+            stCorrHigh2.Interval = 0;         
             stCorrHigh2.StripWidth = 0.001;
-            stCorrHigh2.BackColor = Color.Blue;
+            stCorrHigh2.BackColor = Color.Red;
 
             stCorrHigh1.Interval = 0;
             stCorrHigh1.StripWidth = 0.001;
-            stCorrHigh1.BackColor = Color.Green;
+            stCorrHigh1.BackColor = Color.Blue;
 
             stTolHigh.Interval = 0;
             stTolHigh.StripWidth = 0.001;
-            stTolHigh.BackColor = Color.Red;
+            stTolHigh.BackColor = Color.Green;
 
             stTarget.Interval = 0;
             stTarget.StripWidth = 0.0015;
@@ -79,15 +78,15 @@ namespace Stahli2Robots
 
             stTolLow.Interval = 0;
             stTolLow.StripWidth = 0.001;
-            stTolLow.BackColor = Color.Red;
+            stTolLow.BackColor = Color.Green;
 
             stCorrLow1.Interval = 0;
             stCorrLow1.StripWidth = 0.001;
-            stCorrLow1.BackColor = Color.Green;
+            stCorrLow1.BackColor = Color.Blue;
 
             stCorrLow2.Interval = 0;
             stCorrLow2.StripWidth = 0.001;
-            stCorrLow2.BackColor = Color.Blue;
+            stCorrLow2.BackColor = Color.Red;
 
         }
 
@@ -292,6 +291,7 @@ namespace Stahli2Robots
             {
                 setupResultGoodLed4.Visible = true;
                 setupResultFailLed4.Visible = false;
+                AppGen.Inst.bLoadReciepe = 0; //added by noam
             }
             else
             {
@@ -519,13 +519,14 @@ namespace Stahli2Robots
                                 AppGen.Inst.MainCycle.SetupDelays = 0;
 	                        }
 
-                            if (!checkGripperCode()) return false;
                             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + ","
                                                                                                         + AppGen.Inst.MainCycle.PickSensor.ToString() + ","
                                                                                                         + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
                                                                                                         + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
                                                                                                         + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
-                                                                                                        + AppGen.Inst.OrderParams.GripperCode.ToString());          //Ziv 15-07-15
+                                                                                                        + AppGen.Inst.OrderParams.GripperCode.ToString() + ","        //Ziv 15-07-15
+                                                                                                        + AppGen.Inst.bLoadReciepe.ToString() + ","//  added by noam.
+                                                                                                        + AppGen.Inst.MainCycle.SetMaxOffsetRangeHeight.ToString()); //  added by noam.          
 
                             AppGen.Inst.RobotConnection.stLoadRobotControl.bDone = true;
 
@@ -545,6 +546,7 @@ namespace Stahli2Robots
                             if (AppGen.Inst.RobotConnection.stLoadRobotControl.AutoModeFl)
                             {
                                 setupResultGoodLed4.Visible = true;
+                                AppGen.Inst.bLoadReciepe = 0; //added by noam
                             }
                             else
                             {
@@ -591,7 +593,6 @@ namespace Stahli2Robots
                                 AppGen.Inst.MainCycle.SetupDelays = 0;
                             }
 
-                            if (!checkGripperCode()) return false;
                             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
                                                                                                        + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
                                                                                                        + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
@@ -2158,7 +2159,6 @@ namespace Stahli2Robots
         }
         private void cmdDebugLoadingCycle_Click(object sender, EventArgs e)
         {
-            if (!checkGripperCode()) return;
             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + ","
                                                                                     + AppGen.Inst.MainCycle.PickSensor.ToString() + ","
                                                                                     + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
@@ -2207,7 +2207,6 @@ namespace Stahli2Robots
         }
         private void cmdDebugUnloadingCycle_Click(object sender, EventArgs e)
         {
-            if (!checkGripperCode()) return;
             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
                                                                                                        + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
                                                                                                        + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
@@ -2286,7 +2285,7 @@ namespace Stahli2Robots
 
         private void cmdReset_Click(object sender, EventArgs e)
         {
-            AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh2 = float.Parse(txtNominal.Text) + float.Parse(txtCorrHigh2.Text);
+            AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh2 = float.Parse(txtNominal.Text) + float.Parse(txtCorrHigh2.Text) ;
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hCorrHigh2, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh2);
             AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh1 = float.Parse(txtNominal.Text) + float.Parse(txtCorrHigh1.Text);
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hCorrHigh1, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh1);
@@ -2300,10 +2299,10 @@ namespace Stahli2Robots
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hCorrLow1, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrLow1);
             AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrLow2 = float.Parse(txtNominal.Text) - float.Parse(txtCorrLow2.Text);
             AppGen.Inst.MDImain.frmBeckhoff.UpdatePlcData(AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.hCorrLow2, AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrLow2);
-
-            chrtInsertMaesures.ChartAreas[0].AxisY.Maximum = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.TolHigh + 0.01;
-            chrtInsertMaesures.ChartAreas[0].AxisY.Minimum = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.TolLow - 0.01;
-            stCorrHigh2.IntervalOffset = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh2;
+        
+            chrtInsertMaesures.ChartAreas[0].AxisY.Maximum = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh2 + 0.01;
+            chrtInsertMaesures.ChartAreas[0].AxisY.Minimum = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrLow2 - 0.01;          
+            stCorrHigh2.IntervalOffset = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh2;           
             chrtInsertMaesures.ChartAreas[0].AxisY.StripLines.Add(stCorrHigh2);
             stCorrHigh1.IntervalOffset = AppGen.Inst.MDImain.frmBeckhoff.GeneralControl_PLC.CorrHigh1;
             chrtInsertMaesures.ChartAreas[0].AxisY.StripLines.Add(stCorrHigh1);
@@ -2324,7 +2323,6 @@ namespace Stahli2Robots
             }
             chrtInsertMaesures.Invalidate();
         }
-		
         private void cmdClearData_Click(object sender, EventArgs e)
         {
             series1.Points.Clear();
@@ -2338,15 +2336,6 @@ namespace Stahli2Robots
             chrtInsertMaesures.Invalidate();
         }
 
-        public bool checkGripperCode()
-        {
-            if (AppGen.Inst.OrderParams.GripperCode == 0)
-            {
-                MessageBox.Show("No gripper was selected in order !","Gripper Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return false;
-            }
-            else return true;
-        }
         //members:
         public System.Windows.Forms.DataVisualization.Charting.Series series1;
         public StripLine stCorrHigh2;
@@ -2356,8 +2345,6 @@ namespace Stahli2Robots
         public StripLine stTolLow;
         public StripLine stCorrLow1;
         public StripLine stCorrLow2;
-
-
 
 
 

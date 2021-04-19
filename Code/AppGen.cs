@@ -37,6 +37,7 @@ namespace Stahli2Robots
         //---- 15.06.09 ----
         internal double newRotation;
         //---- -------- ----
+        public int bLoadReciepe { get; set; }//added by noam
         public void OnInitApp()
         {
             mainCycle.OnInitApp();

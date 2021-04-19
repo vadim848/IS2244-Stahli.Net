@@ -40,8 +40,8 @@ namespace Stahli2Robots
             filePathPHW = System.IO.Directory.GetCurrentDirectory() + "\\CarrierFiles\\";
             IndexList = new List<CarrierIndex>();
             CurrIndex = 0;
-            NoOfInsAtCircle = new int[5];
-            CircleRadius = new double[5];
+            NoOfInsAtCircle = new int[10];
+            CircleRadius = new double[10];
             NoOfCircles = 0;
 
 
@@ -104,7 +104,13 @@ namespace Stahli2Robots
 
                     if (LastCircleNo < carrierIndex.Master.Cir)
                     {
-                        CircleRadius[carrierIndex.Master.Cir] = carrierIndex.Master.X;    //first index in circle is the radius (x=radius, y=0)
+                        //start Old
+                       // CircleRadius[carrierIndex.Master.Cir] = carrierIndex.Master.X;    //first index in circle is the radius (x=radius, y=0)
+                        //end old
+                        //start New
+                        CircleRadius[carrierIndex.Master.Cir] = Math.Sqrt(Math.Pow(carrierIndex.Master.X, 2) + Math.Pow(carrierIndex.Master.Y, 2));    //first index in circle is the radius of srqt of Y and Y <<new>>
+                        //end New
+
                     }
                     LastCircleNo = carrierIndex.Master.Cir;
                     NoOfCircles = carrierIndex.Master.Cir;

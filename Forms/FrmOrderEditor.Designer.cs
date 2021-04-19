@@ -864,12 +864,11 @@
             // 
             this.cmbGrippertype.FormattingEnabled = true;
             this.cmbGrippertype.Items.AddRange(new object[] {
-            "0 - No Gripper",
-            "1 - Big Pins",
-            "2 - Small Pins",
-            "3 - Big Magnetic",
-            "4 - Medium Magnetic",
-            "5 - Small Magnetic"});
+            "0 - Big Pins",
+            "1 - Small Pins",
+            "2 - Big Magnetic",
+            "3 - Medium Magnetic",
+            "4 - Small Magnetic"});
             this.cmbGrippertype.Location = new System.Drawing.Point(451, 212);
             this.cmbGrippertype.Name = "cmbGrippertype";
             this.cmbGrippertype.Size = new System.Drawing.Size(167, 21);
@@ -950,7 +949,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(449, 696);
+            this.ClientSize = new System.Drawing.Size(785, 696);
             this.Controls.Add(this.txtSensorHeight);
             this.Controls.Add(this.cmdOpenDialogTray2);
             this.Controls.Add(this.txtTrayUnload);

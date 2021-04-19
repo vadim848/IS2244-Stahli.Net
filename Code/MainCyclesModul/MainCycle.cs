@@ -955,7 +955,8 @@ namespace Stahli2Robots
         public int CarrierUnloadVisionCount;  //Counting Inserts vision recognize every carrier 
         public bool ResumeOnce;
         public int MissPocketCarrCount;   //loading cycle
-        public int MissPocketTotalCount;  //loading cycle      
+        public int MissPocketTotalCount;  //loading cycle     
+        public double SetMaxOffsetRangeHeight;//Added by noam
     }
 }
 

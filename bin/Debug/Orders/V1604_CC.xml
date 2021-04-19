@@ -10,18 +10,18 @@
   <GripperCode>0</GripperCode>
   <ServiceLoadTrayName>V3_Maruo.txt</ServiceLoadTrayName>
   <ServiceUnloadTrayName>V3_Maruo.txt</ServiceUnloadTrayName>
-  <CarrierName>D15_ELLIPTIC-250.txt</CarrierName>
+  <CarrierName>36E-V16T4.txt</CarrierName>
   <Cam1_Brightness>0.4</Cam1_Brightness>
   <Cam2_Brightness>0.5</Cam2_Brightness>
-  <Cam3_Brightness>0.8</Cam3_Brightness>
+  <Cam3_Brightness>0.53</Cam3_Brightness>
   <Cam1_Contrast>0.6</Cam1_Contrast>
-  <Cam2_Contrast>0.6</Cam2_Contrast>
-  <Cam3_Contrast>1</Cam3_Contrast>
+  <Cam2_Contrast>0.5</Cam2_Contrast>
+  <Cam3_Contrast>0.63</Cam3_Contrast>
   <Cam1_Trashhold>0.71</Cam1_Trashhold>
   <Cam2_Trashhold>0.72</Cam2_Trashhold>
   <Cam3_Trashhold>0.73</Cam3_Trashhold>
   <Cam1_Score>0.8</Cam1_Score>
-  <Cam2_Score>0.5</Cam2_Score>
+  <Cam2_Score>0.6</Cam2_Score>
   <Cam3_Score>0.4</Cam3_Score>
   <Cam1_Angle>180</Cam1_Angle>
   <Cam3_Angle>180</Cam3_Angle>

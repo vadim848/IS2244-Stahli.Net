@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AppSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <AppSetxyLoadWorldTrayOrigin>
-    <X>180.6127</X>
+    <X>173.294</X>
     <Y>592.2136</Y>
     <A>0</A>
   </AppSetxyLoadWorldTrayOrigin>
@@ -98,22 +98,23 @@
       <A>0</A>
     </PointCoord>
   </AppSetUnloadCarrierCalibPt>
-  <CurrentInsertCode>Ziv_test_2</CurrentInsertCode>
+  <CurrentInsertCode>T1604_CC</CurrentInsertCode>
   <AppSetLangFl>Eng</AppSetLangFl>
   <AppSetLoadCarrAddedX>0</AppSetLoadCarrAddedX>
   <AppSetLoadCarrAddedY>0</AppSetLoadCarrAddedY>
-  <AppSetLoadAddedAngle>90</AppSetLoadAddedAngle>
+  <AppSetLoadAddedAngle>60</AppSetLoadAddedAngle>
   <AppSetUnloadAddedAngle>0</AppSetUnloadAddedAngle>
   <AppSetOriginXOffset>-1</AppSetOriginXOffset>
   <AppSetOriginYOffset>-2</AppSetOriginYOffset>
   <AppSetUnloadedInsCounter>38750</AppSetUnloadedInsCounter>
-  <AppSetLoadedInsCounter>38890</AppSetLoadedInsCounter>
-  <AppSetCounterPerOrder>0</AppSetCounterPerOrder>
+  <AppSetLoadedInsCounter>39140</AppSetLoadedInsCounter>
+  <AppSetCounterPerOrder>203</AppSetCounterPerOrder>
   <AppSetInsQnt>0</AppSetInsQnt>
   <AppSetTotalUnloadMissedCount>0</AppSetTotalUnloadMissedCount>
   <AppSetMissPocketTotalCount>0</AppSetMissPocketTotalCount>
   <AppSetUnloadCarrierSliceNo>1</AppSetUnloadCarrierSliceNo>
-  <AppSetLoadTrayCurrIndex>0</AppSetLoadTrayCurrIndex>
+  <AppSetLoadTrayCurrIndex>79</AppSetLoadTrayCurrIndex>
   <AppSetUnLoadTrayCurrIndex>0</AppSetUnLoadTrayCurrIndex>
   <AppSetLoadCarrierCurrIndex>0</AppSetLoadCarrierCurrIndex>
+  <AppSetMaxOffsetRangeHeight>0.5</AppSetMaxOffsetRangeHeight>
 </AppSettings>

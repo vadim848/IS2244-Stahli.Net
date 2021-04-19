@@ -67,7 +67,6 @@
     <Reference Include="Cognex.VisionPro, Version=53.0.0.0, Culture=neutral, PublicKeyToken=ef0f902af9dee505, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Program Files\Cognex\VisionPro\ReferencedAssemblies\Cognex.VisionPro.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="Cognex.VisionPro.CalibFix, Version=53.0.0.0, Culture=neutral, PublicKeyToken=ef0f902af9dee505, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>

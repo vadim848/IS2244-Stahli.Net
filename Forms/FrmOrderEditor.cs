@@ -35,6 +35,7 @@ namespace Stahli2Robots
         private void cmdLoadOrder_Click(object sender, EventArgs e)  //Reading from OrderParams.xml //AppSetting.XML
         {
             LoadingOrder(txtFileName.Text, false);
+            AppGen.Inst.bLoadReciepe = 1; //added by noam.
         }
         private void cmdSaveOrder_Click(object sender, EventArgs e)  //Savinging to OrderParams.xml //AppSetting.XML
         {
@@ -149,7 +150,7 @@ namespace Stahli2Robots
             LoadOrderData();
             AppGen.Inst.OrderParams.Serialize(OrderName);
             editModeFl = false;
-            this.Width = 455;
+            this.Width = 464;
         }
         private void cmdEditMode_Click(object sender, EventArgs e)
         {

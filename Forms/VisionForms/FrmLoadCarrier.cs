@@ -133,7 +133,7 @@ namespace Stahli2Robots
             toolBlock = cogToolBlockEditV21.Subject;
             try
             {
-               // toolBlock = CogSerializer.LoadObjectFromFile(@"C:\PROJECT\IS2244- Stahli\Stahli.Net 30.07.15\bin\Debug\CognexStahli\Camera2.vpp") as CogToolBlock;
+                //toolBlock = CogSerializer.LoadObjectFromFile(@"C:\PROJECTS\Stahli.Net\Bin\Debug\CognexStahli\Camera2.vpp") as CogToolBlock;
                 toolBlock = CogSerializer.LoadObjectFromFile(System.IO.Directory.GetCurrentDirectory() + "\\CognexStahli\\Camera2.vpp") as CogToolBlock;
                 //if it is new insert, upload a defult
             }
@@ -666,7 +666,7 @@ namespace Stahli2Robots
             cbxHolesResult.Enabled = true;
 
             //17.6
-             AcqFifoTool.Run(); //17.6Roey
+            AcqFifoTool.Run(); //17.6Roey
             //25.03.14
             cogAcqFifoTool = cogToolBlockEditV21.Subject.Tools["CogAcqFifoTool1"] as CogAcqFifoTool;
             //17.02.14p
@@ -932,12 +932,22 @@ namespace Stahli2Robots
                 //17.6Roey---------------------------------------------------
                 //cogRecordDisplay1.Record = cogPMAlignTool.InputImage;
                 //Roey----------------------------------------------------------
-
                 cogRecordDisplay1.InteractiveGraphics.Add(cogPMAlignTool.Pattern.TrainRegion as ICogGraphicInteractive, "test", false);
                 cogRecordDisplay1.InteractiveGraphics.Add(cogPMAlignToolCenter.Pattern.TrainRegion as ICogGraphicInteractive, "testCenter", false);
 
 
-              
+
+
+
+
+
+
+
+
+
+
+
+
                 //Now
                 axes = new CogCoordinateAxes();
                 axes.Transform = cogPMAlignTool.Pattern.Origin;
@@ -1414,7 +1424,7 @@ namespace Stahli2Robots
 
                     //SavePatternToFile();
                     //save the teach pattern according to order name (ziv)
-                    AppGen.Inst.MDImain.frmVisionMain.savePattern("Camera2", AppGen.Inst.OrderParams.InsertCode, cogPMAlignToolFindOneInsert.Pattern); 
+                    AppGen.Inst.MDImain.frmVisionMain.savePattern("Camera2", AppGen.Inst.OrderParams.InsertCode, cogPMAlignTool.Pattern); 
                   
 
                 }
@@ -1615,8 +1625,7 @@ namespace Stahli2Robots
         void LoadPatternFromFile()
         {
             // Ziv 14.07.15
-            cogPMAlignToolFindOneInsert.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera2", AppGen.Inst.OrderParams.InsertCode); 
-           // cogPMAlignTool.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera2", AppGen.Inst.OrderParams.InsertCode);   //13.07.15 (Ziv)
+            cogPMAlignTool.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera2", AppGen.Inst.OrderParams.InsertCode);   //13.07.15 (Ziv)
             if (cogPMAlignTool.Pattern == null)
             {
                 cogPMAlignTool.Pattern = new CogPMAlignPattern();

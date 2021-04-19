@@ -83,6 +83,7 @@ namespace Stahli2Robots
             AppSetTotalUnloadMissedCount = other.AppSetTotalUnloadMissedCount;
             AppSetMissPocketTotalCount = other.AppSetMissPocketTotalCount;
             AppSetLangFl = other.AppSetLangFl;
+            AppSetMaxOffsetRangeHeight = other.AppSetMaxOffsetRangeHeight;//added by noam
         }
 
         public void Serialize() 
@@ -137,6 +138,7 @@ namespace Stahli2Robots
             AppGen.Inst.MainCycle.UnloadedInsCounter=AppSetUnloadedInsCounter;
             AppGen.Inst.MainCycle.TotalUnloadMissedCount = AppSetTotalUnloadMissedCount;
             AppGen.Inst.MainCycle.MissPocketTotalCount = AppSetMissPocketTotalCount;
+            AppGen.Inst.MainCycle.SetMaxOffsetRangeHeight = AppSetMaxOffsetRangeHeight; //added by noam
             AppGen.Inst.MDImain.LangFl = AppSetLangFl;
             
 
@@ -178,9 +180,8 @@ namespace Stahli2Robots
         public int AppSetUnloadCarrierSliceNo { get; set; }
         public int AppSetLoadTrayCurrIndex { get; set; }
         public int AppSetUnLoadTrayCurrIndex { get; set; }
-        public int AppSetLoadCarrierCurrIndex { get; set; }  
-      
-        
+        public int AppSetLoadCarrierCurrIndex { get; set; }
+        public double AppSetMaxOffsetRangeHeight { get; set; } //added by noam        
 
         public PointCoord AppSetxyLoadWorldTrayOrigin = new PointCoord();
         public PointCoord AppSetxyUnloadWorldTrayOrigin = new PointCoord();
