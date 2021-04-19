@@ -1,0 +1,10 @@
+C:\Ziv\C#mdi\mdi\mdi\bin\Release\mdi.exe
+C:\Ziv\C#mdi\mdi\mdi\bin\Release\mdi.pdb
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Release\mdi.Properties.Resources.resources
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Release\GenerateResource.read.1.tlog
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Release\GenerateResource.write.1.tlog
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Release\mdi.exe
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Release\mdi.pdb
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Release\mdi.exe
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Release\mdi.pdb

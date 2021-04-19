@@ -1,0 +1,1125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="grpService" xml:space="preserve">
+    <value>בדיקה 1</value>
+  </data>
+  <data name="chkDebugMode" xml:space="preserve">
+    <value>בדיקה 2</value>
+  </data>
+  <data name="chkWithStacker" xml:space="preserve">
+    <value>בדיקה 3</value>
+  </data>
+  <data name="chkErrLog" xml:space="preserve">
+    <value>בדיקה 4</value>
+  </data>
+  <data name="chkVisionON" xml:space="preserve">
+    <value>בדיקה 5</value>
+  </data>
+  <data name="chkRobotsOn" xml:space="preserve">
+    <value>בדיקה 6</value>
+  </data>
+  <data name="chkPlcON" xml:space="preserve">
+    <value>בדיקה 7</value>
+  </data>
+  <data name="lblTableMode" xml:space="preserve">
+    <value>בדיקה 8</value>
+  </data>
+  <data name="cmbWarnnings" xml:space="preserve">
+    <value>בדיקה 9</value>
+  </data>
+  <data name="_tbr_Main" xml:space="preserve">
+    <value>בדיקה 10</value>
+  </data>
+  <data name="_tbr_Conv" xml:space="preserve">
+    <value>בדיקה 11</value>
+  </data>
+  <data name="_tbr_Robot" xml:space="preserve">
+    <value>בדיקה 12</value>
+  </data>
+  <data name="_tbr_Camera" xml:space="preserve">
+    <value>בדיקה 13</value>
+  </data>
+  <data name="_tbr_Tray" xml:space="preserve">
+    <value>בדיקה 14</value>
+  </data>
+  <data name="_tbr_Carr" xml:space="preserve">
+    <value>בדיקה 15</value>
+  </data>
+  <data name="_tbr_Order" xml:space="preserve">
+    <value>בדיקה 16</value>
+  </data>
+  <data name="_tbr_PLC" xml:space="preserve">
+    <value>בדיקה 17</value>
+  </data>
+  <data name="_tbr_ES_Rel" xml:space="preserve">
+    <value>בדיקה 18</value>
+  </data>
+  <data name="_tbr_Exit" xml:space="preserve">
+    <value>בדיקה 19</value>
+  </data>
+  <data name="FrmAssemblies" xml:space="preserve">
+    <value>בדיקה 20</value>
+  </data>
+  <data name="groupBox7" xml:space="preserve">
+    <value>בדיקה 21</value>
+  </data>
+  <data name="groupBox4" xml:space="preserve">
+    <value>בדיקה 22</value>
+  </data>
+  <data name="cmdTraficLight" xml:space="preserve">
+    <value>בדיקה 23</value>
+  </data>
+  <data name="cmdBuzzer" xml:space="preserve">
+    <value>בדיקה 24</value>
+  </data>
+  <data name="cmdResetBuzzer" xml:space="preserve">
+    <value>בדיקה 25</value>
+  </data>
+  <data name="groupBox3" xml:space="preserve">
+    <value>בדיקה 26</value>
+  </data>
+  <data name="cmdToggleLight" xml:space="preserve">
+    <value>בדיקה 27</value>
+  </data>
+  <data name="cmdToggleLight2" xml:space="preserve">
+    <value>בדיקה 28</value>
+  </data>
+  <data name="cmdToggleLight1" xml:space="preserve">
+    <value>בדיקה 29</value>
+  </data>
+  <data name="grbStatus" xml:space="preserve">
+    <value>בדיקה 30</value>
+  </data>
+  <data name="cmdSysMachinePauseStat" xml:space="preserve">
+    <value>בדיקה 31</value>
+  </data>
+  <data name="cmdSysMachinePlayStat" xml:space="preserve">
+    <value>בדיקה 32</value>
+  </data>
+  <data name="TabLoadConv" xml:space="preserve">
+    <value>בדיקה 33</value>
+  </data>
+  <data name="groupBox13" xml:space="preserve">
+    <value>בדיקה 34</value>
+  </data>
+  <data name="cmdLoadConvPauseStat" xml:space="preserve">
+    <value>בדיקה 35</value>
+  </data>
+  <data name="cmdLoadConvPlayStat" xml:space="preserve">
+    <value>בדיקה 36</value>
+  </data>
+  <data name="groupBox2" xml:space="preserve">
+    <value>בדיקה 37</value>
+  </data>
+  <data name="optAuto0" xml:space="preserve">
+    <value>בדיקה 38</value>
+  </data>
+  <data name="optSemiAuto0" xml:space="preserve">
+    <value>בדיקה 39</value>
+  </data>
+  <data name="optManual0" xml:space="preserve">
+    <value>בדיקה 40</value>
+  </data>
+  <data name="chkContLastMotion0" xml:space="preserve">
+    <value>בדיקה 41</value>
+  </data>
+  <data name="ResetErr0" xml:space="preserve">
+    <value>בדיקה 42</value>
+  </data>
+  <data name="chkContinueLastMotion" xml:space="preserve">
+    <value>בדיקה 43</value>
+  </data>
+  <data name="cmdResetErr" xml:space="preserve">
+    <value>בדיקה 44</value>
+  </data>
+  <data name="groupBox6" xml:space="preserve">
+    <value>בדיקה 45</value>
+  </data>
+  <data name="chkIncludStation0" xml:space="preserve">
+    <value>בדיקה 46</value>
+  </data>
+  <data name="cmdNewTray0" xml:space="preserve">
+    <value>בדיקה 47</value>
+  </data>
+  <data name="cmdResume0" xml:space="preserve">
+    <value>בדיקה 48</value>
+  </data>
+  <data name="cmdResetCycle0" xml:space="preserve">
+    <value>בדיקה 49</value>
+  </data>
+  <data name="cmdInitConv0" xml:space="preserve">
+    <value>בדיקה 50</value>
+  </data>
+  <data name="frmManOperation0" xml:space="preserve">
+    <value>בדיקה 51</value>
+  </data>
+  <data name="cmdManTray1Unlock" xml:space="preserve">
+    <value>בדיקה 52</value>
+  </data>
+  <data name="cmdManTray1Lock" xml:space="preserve">
+    <value>בדיקה 53</value>
+  </data>
+  <data name="cmdManTray1Down" xml:space="preserve">
+    <value>בדיקה 54</value>
+  </data>
+  <data name="cmdManTray1Up" xml:space="preserve">
+    <value>בדיקה 55</value>
+  </data>
+  <data name="label1" xml:space="preserve">
+    <value>בדיקה 56</value>
+  </data>
+  <data name="TabUnloadConv" xml:space="preserve">
+    <value>בדיקה 57</value>
+  </data>
+  <data name="groupBox14" xml:space="preserve">
+    <value>בדיקה 58</value>
+  </data>
+  <data name="cmdUnloadConvPauseStat" xml:space="preserve">
+    <value>בדיקה 59</value>
+  </data>
+  <data name="cmdUnloadConvPlayStat" xml:space="preserve">
+    <value>בדיקה 60</value>
+  </data>
+  <data name="ResetErr1" xml:space="preserve">
+    <value>בדיקה 61</value>
+  </data>
+  <data name="groupBox11" xml:space="preserve">
+    <value>בדיקה 62</value>
+  </data>
+  <data name="optAuto1" xml:space="preserve">
+    <value>בדיקה 63</value>
+  </data>
+  <data name="optSemiAuto1" xml:space="preserve">
+    <value>בדיקה 64</value>
+  </data>
+  <data name="optManual1" xml:space="preserve">
+    <value>בדיקה 65</value>
+  </data>
+  <data name="groupBox5" xml:space="preserve">
+    <value>בדיקה 66</value>
+  </data>
+  <data name="chkIncludStation1" xml:space="preserve">
+    <value>בדיקה 67</value>
+  </data>
+  <data name="cmdNewTray1" xml:space="preserve">
+    <value>בדיקה 68</value>
+  </data>
+  <data name="cmdResume1" xml:space="preserve">
+    <value>בדיקה 69</value>
+  </data>
+  <data name="cmdResetCycle1" xml:space="preserve">
+    <value>בדיקה 70</value>
+  </data>
+  <data name="cmdInitConv1" xml:space="preserve">
+    <value>בדיקה 71</value>
+  </data>
+  <data name="chkContLastMotion1" xml:space="preserve">
+    <value>בדיקה 72</value>
+  </data>
+  <data name="frmManOperation1" xml:space="preserve">
+    <value>בדיקה 73</value>
+  </data>
+  <data name="cmdManTray2Unlock" xml:space="preserve">
+    <value>בדיקה 74</value>
+  </data>
+  <data name="cmdManTray2Lock" xml:space="preserve">
+    <value>בדיקה 75</value>
+  </data>
+  <data name="cmdManTray2Down" xml:space="preserve">
+    <value>בדיקה 76</value>
+  </data>
+  <data name="cmdManTray2Up" xml:space="preserve">
+    <value>בדיקה 77</value>
+  </data>
+  <data name="label3" xml:space="preserve">
+    <value>בדיקה 78</value>
+  </data>
+  <data name="TabIndexTable" xml:space="preserve">
+    <value>בדיקה 79</value>
+  </data>
+  <data name="groupBox15" xml:space="preserve">
+    <value>בדיקה 80</value>
+  </data>
+  <data name="cmdTablePauseStat" xml:space="preserve">
+    <value>בדיקה 81</value>
+  </data>
+  <data name="cmdTablePlayStat" xml:space="preserve">
+    <value>בדיקה 82</value>
+  </data>
+  <data name="ResetErr2" xml:space="preserve">
+    <value>בדיקה 83</value>
+  </data>
+  <data name="groupBox12" xml:space="preserve">
+    <value>בדיקה 84</value>
+  </data>
+  <data name="optAuto2" xml:space="preserve">
+    <value>בדיקה 85</value>
+  </data>
+  <data name="optSemiAuto2" xml:space="preserve">
+    <value>בדיקה 86</value>
+  </data>
+  <data name="optManual2" xml:space="preserve">
+    <value>בדיקה 87</value>
+  </data>
+  <data name="groupBox10" xml:space="preserve">
+    <value>בדיקה 88</value>
+  </data>
+  <data name="cmdTurnTable" xml:space="preserve">
+    <value>בדיקה 89</value>
+  </data>
+  <data name="cmdResume2" xml:space="preserve">
+    <value>בדיקה 90</value>
+  </data>
+  <data name="cmdResetCycle2" xml:space="preserve">
+    <value>בדיקה 91</value>
+  </data>
+  <data name="cmdInitTable" xml:space="preserve">
+    <value>בדיקה 92</value>
+  </data>
+  <data name="label5" xml:space="preserve">
+    <value>בדיקה 93</value>
+  </data>
+  <data name="FrmBeckhoff" xml:space="preserve">
+    <value>בדיקה 94</value>
+  </data>
+  <data name="label2" xml:space="preserve">
+    <value>בדיקה 95</value>
+  </data>
+  <data name="label7" xml:space="preserve">
+    <value>בדיקה 96</value>
+  </data>
+  <data name="label8" xml:space="preserve">
+    <value>בדיקה 97</value>
+  </data>
+  <data name="label10" xml:space="preserve">
+    <value>בדיקה 98</value>
+  </data>
+  <data name="label11" xml:space="preserve">
+    <value>בדיקה 99</value>
+  </data>
+  <data name="label12" xml:space="preserve">
+    <value>בדיקה 100</value>
+  </data>
+  <data name="label13" xml:space="preserve">
+    <value>בדיקה 101</value>
+  </data>
+  <data name="label47" xml:space="preserve">
+    <value>בדיקה 102</value>
+  </data>
+  <data name="label53" xml:space="preserve">
+    <value>בדיקה 103</value>
+  </data>
+  <data name="label56" xml:space="preserve">
+    <value>בדיקה 104</value>
+  </data>
+  <data name="label57" xml:space="preserve">
+    <value>בדיקה 105</value>
+  </data>
+  <data name="label58" xml:space="preserve">
+    <value>בדיקה 106</value>
+  </data>
+  <data name="label59" xml:space="preserve">
+    <value>בדיקה 107</value>
+  </data>
+  <data name="label60" xml:space="preserve">
+    <value>בדיקה 108</value>
+  </data>
+  <data name="label61" xml:space="preserve">
+    <value>בדיקה 109</value>
+  </data>
+  <data name="label62" xml:space="preserve">
+    <value>בדיקה 110</value>
+  </data>
+  <data name="btnWrite" xml:space="preserve">
+    <value>בדיקה 111</value>
+  </data>
+  <data name="btnRead" xml:space="preserve">
+    <value>בדיקה 112</value>
+  </data>
+  <data name="GroupBox1" xml:space="preserve">
+    <value>בדיקה 113</value>
+  </data>
+  <data name="label45" xml:space="preserve">
+    <value>בדיקה 114</value>
+  </data>
+  <data name="label44" xml:space="preserve">
+    <value>בדיקה 115</value>
+  </data>
+  <data name="label43" xml:space="preserve">
+    <value>בדיקה 116</value>
+  </data>
+  <data name="label42" xml:space="preserve">
+    <value>בדיקה 117</value>
+  </data>
+  <data name="label41" xml:space="preserve">
+    <value>בדיקה 118</value>
+  </data>
+  <data name="label39" xml:space="preserve">
+    <value>בדיקה 119</value>
+  </data>
+  <data name="label38" xml:space="preserve">
+    <value>בדיקה 120</value>
+  </data>
+  <data name="label36" xml:space="preserve">
+    <value>בדיקה 121</value>
+  </data>
+  <data name="label35" xml:space="preserve">
+    <value>בדיקה 122</value>
+  </data>
+  <data name="label34" xml:space="preserve">
+    <value>בדיקה 123</value>
+  </data>
+  <data name="label33" xml:space="preserve">
+    <value>בדיקה 124</value>
+  </data>
+  <data name="label30" xml:space="preserve">
+    <value>בדיקה 125</value>
+  </data>
+  <data name="label24" xml:space="preserve">
+    <value>בדיקה 126</value>
+  </data>
+  <data name="label21" xml:space="preserve">
+    <value>בדיקה 127</value>
+  </data>
+  <data name="label20" xml:space="preserve">
+    <value>בדיקה 128</value>
+  </data>
+  <data name="label19" xml:space="preserve">
+    <value>בדיקה 129</value>
+  </data>
+  <data name="label18" xml:space="preserve">
+    <value>בדיקה 130</value>
+  </data>
+  <data name="label17" xml:space="preserve">
+    <value>בדיקה 131</value>
+  </data>
+  <data name="label16" xml:space="preserve">
+    <value>בדיקה 132</value>
+  </data>
+  <data name="label15" xml:space="preserve">
+    <value>בדיקה 133</value>
+  </data>
+  <data name="FrmOrderEditor" xml:space="preserve">
+    <value>בדיקה 134</value>
+  </data>
+  <data name="cmdLoadOrder" xml:space="preserve">
+    <value>בדיקה 135</value>
+  </data>
+  <data name="cmdEditMode" xml:space="preserve">
+    <value>בדיקה 136</value>
+  </data>
+  <data name="grp1" xml:space="preserve">
+    <value>בדיקה 137</value>
+  </data>
+  <data name="lblOrder4" xml:space="preserve">
+    <value>בדיקה 138</value>
+  </data>
+  <data name="lblOrder9" xml:space="preserve">
+    <value>בדיקה 139</value>
+  </data>
+  <data name="lblTrayUnload" xml:space="preserve">
+    <value>בדיקה 140</value>
+  </data>
+  <data name="lblOrder21" xml:space="preserve">
+    <value>בדיקה 141</value>
+  </data>
+  <data name="lblOrder20" xml:space="preserve">
+    <value>בדיקה 142</value>
+  </data>
+  <data name="lblOrder16" xml:space="preserve">
+    <value>בדיקה 143</value>
+  </data>
+  <data name="lblOrder15" xml:space="preserve">
+    <value>בדיקה 144</value>
+  </data>
+  <data name="lblOrder14" xml:space="preserve">
+    <value>בדיקה 145</value>
+  </data>
+  <data name="cmdOpenDialog" xml:space="preserve">
+    <value>בדיקה 146</value>
+  </data>
+  <data name="lblInsertCode" xml:space="preserve">
+    <value>בדיקה 147</value>
+  </data>
+  <data name="lblOrder1" xml:space="preserve">
+    <value>בדיקה 148</value>
+  </data>
+  <data name="lblOrder19" xml:space="preserve">
+    <value>בדיקה 149</value>
+  </data>
+  <data name="lblOrder18" xml:space="preserve">
+    <value>בדיקה 150</value>
+  </data>
+  <data name="lblOrder17" xml:space="preserve">
+    <value>בדיקה 151</value>
+  </data>
+  <data name="lblOrder13" xml:space="preserve">
+    <value>בדיקה 152</value>
+  </data>
+  <data name="lblOrder12" xml:space="preserve">
+    <value>בדיקה 153</value>
+  </data>
+  <data name="lblOrder11" xml:space="preserve">
+    <value>בדיקה 154</value>
+  </data>
+  <data name="lblOrder10" xml:space="preserve">
+    <value>בדיקה 155</value>
+  </data>
+  <data name="lblCarrier" xml:space="preserve">
+    <value>בדיקה 156</value>
+  </data>
+  <data name="lblOrder8" xml:space="preserve">
+    <value>בדיקה 157</value>
+  </data>
+  <data name="lblTrayLoad" xml:space="preserve">
+    <value>בדיקה 158</value>
+  </data>
+  <data name="lblOrder7" xml:space="preserve">
+    <value>בדיקה 159</value>
+  </data>
+  <data name="lblOrder6" xml:space="preserve">
+    <value>בדיקה 160</value>
+  </data>
+  <data name="lblOrder5" xml:space="preserve">
+    <value>בדיקה 161</value>
+  </data>
+  <data name="lblOrder3" xml:space="preserve">
+    <value>בדיקה 162</value>
+  </data>
+  <data name="lblOrder2" xml:space="preserve">
+    <value>בדיקה 163</value>
+  </data>
+  <data name="lblDescription" xml:space="preserve">
+    <value>בדיקה 164</value>
+  </data>
+  <data name="cmdSaveOrder" xml:space="preserve">
+    <value>בדיקה 165</value>
+  </data>
+  <data name="FrmTrayBuilder" xml:space="preserve">
+    <value>בדיקה 166</value>
+  </data>
+  <data name="cmdPreviewTrayFile" xml:space="preserve">
+    <value>בדיקה 167</value>
+  </data>
+  <data name="cmdGeneratTray" xml:space="preserve">
+    <value>בדיקה 168</value>
+  </data>
+  <data name="groupBox1" xml:space="preserve">
+    <value>בדיקה 169</value>
+  </data>
+  <data name="cmbTrayType" xml:space="preserve">
+    <value>בדיקה 170</value>
+  </data>
+  <data name="FrmCarrierBuilder" xml:space="preserve">
+    <value>בדיקה 171</value>
+  </data>
+  <data name="FrmRobots" xml:space="preserve">
+    <value>בדיקה 172</value>
+  </data>
+  <data name="tabUnloadRobot" xml:space="preserve">
+    <value>בדיקה 173</value>
+  </data>
+  <data name="cmdSingleCyc2" xml:space="preserve">
+    <value>בדיקה 174</value>
+  </data>
+  <data name="RobotCommunication2" xml:space="preserve">
+    <value>בדיקה 175</value>
+  </data>
+  <data name="label9" xml:space="preserve">
+    <value>בדיקה 176</value>
+  </data>
+  <data name="cmdSendComm2" xml:space="preserve">
+    <value>בדיקה 177</value>
+  </data>
+  <data name="cmdStopWaiting2" xml:space="preserve">
+    <value>בדיקה 178</value>
+  </data>
+  <data name="label6" xml:space="preserve">
+    <value>בדיקה 179</value>
+  </data>
+  <data name="OptTrayHeight2" xml:space="preserve">
+    <value>בדיקה 180</value>
+  </data>
+  <data name="OptIndexTable2" xml:space="preserve">
+    <value>בדיקה 181</value>
+  </data>
+  <data name="cmdChangeHeight2" xml:space="preserve">
+    <value>בדיקה 182</value>
+  </data>
+  <data name="cmdReadHeight2" xml:space="preserve">
+    <value>בדיקה 183</value>
+  </data>
+  <data name="cmdChangeGripper2" xml:space="preserve">
+    <value>בדיקה 184</value>
+  </data>
+  <data name="cmdReadRobotParam2" xml:space="preserve">
+    <value>בדיקה 185</value>
+  </data>
+  <data name="cmdReleaseInsert2" xml:space="preserve">
+    <value>בדיקה 186</value>
+  </data>
+  <data name="cmdHoldInsert2" xml:space="preserve">
+    <value>בדיקה 187</value>
+  </data>
+  <data name="cmdSaveRobotParam2" xml:space="preserve">
+    <value>בדיקה 188</value>
+  </data>
+  <data name="cmdRobotReset2" xml:space="preserve">
+    <value>בדיקה 189</value>
+  </data>
+  <data name="cmdDoutOFF2" xml:space="preserve">
+    <value>בדיקה 190</value>
+  </data>
+  <data name="cmdDoutOn2" xml:space="preserve">
+    <value>בדיקה 191</value>
+  </data>
+  <data name="cmdRobotSpeed2" xml:space="preserve">
+    <value>בדיקה 192</value>
+  </data>
+  <data name="cmdRobotManu2" xml:space="preserve">
+    <value>בדיקה 193</value>
+  </data>
+  <data name="cmdChkInput2" xml:space="preserve">
+    <value>בדיקה 194</value>
+  </data>
+  <data name="tabLoadRobot" xml:space="preserve">
+    <value>בדיקה 195</value>
+  </data>
+  <data name="cmdReadCalibPoints" xml:space="preserve">
+    <value>בדיקה 196</value>
+  </data>
+  <data name="cmdStop" xml:space="preserve">
+    <value>בדיקה 197</value>
+  </data>
+  <data name="cmdReadCarrierFile" xml:space="preserve">
+    <value>בדיקה 198</value>
+  </data>
+  <data name="cmdTestAutoCycle" xml:space="preserve">
+    <value>בדיקה 199</value>
+  </data>
+  <data name="cmdSingleCyc" xml:space="preserve">
+    <value>בדיקה 200</value>
+  </data>
+  <data name="RobotCommunication" xml:space="preserve">
+    <value>בדיקה 201</value>
+  </data>
+  <data name="label4" xml:space="preserve">
+    <value>בדיקה 202</value>
+  </data>
+  <data name="cmdSendComm" xml:space="preserve">
+    <value>בדיקה 203</value>
+  </data>
+  <data name="cmdStopWaiting" xml:space="preserve">
+    <value>בדיקה 204</value>
+  </data>
+  <data name="grbHeightStation" xml:space="preserve">
+    <value>בדיקה 205</value>
+  </data>
+  <data name="OptTrayHeight" xml:space="preserve">
+    <value>בדיקה 206</value>
+  </data>
+  <data name="OptIndexTable" xml:space="preserve">
+    <value>בדיקה 207</value>
+  </data>
+  <data name="cmdChangeHeight" xml:space="preserve">
+    <value>בדיקה 208</value>
+  </data>
+  <data name="cmdReadHeight" xml:space="preserve">
+    <value>בדיקה 209</value>
+  </data>
+  <data name="cmdChangeGripper" xml:space="preserve">
+    <value>בדיקה 210</value>
+  </data>
+  <data name="cmdReadRobotParam" xml:space="preserve">
+    <value>בדיקה 211</value>
+  </data>
+  <data name="cmdReleaseInsert" xml:space="preserve">
+    <value>בדיקה 212</value>
+  </data>
+  <data name="cmdHoldInsert" xml:space="preserve">
+    <value>בדיקה 213</value>
+  </data>
+  <data name="cmdSaveRobotParam" xml:space="preserve">
+    <value>בדיקה 214</value>
+  </data>
+  <data name="cmdRobotReset" xml:space="preserve">
+    <value>בדיקה 215</value>
+  </data>
+  <data name="cmdDoutOFF" xml:space="preserve">
+    <value>בדיקה 216</value>
+  </data>
+  <data name="cmdDoutOn" xml:space="preserve">
+    <value>בדיקה 217</value>
+  </data>
+  <data name="cmdRobotSpeed" xml:space="preserve">
+    <value>בדיקה 218</value>
+  </data>
+  <data name="cmdRobotManu" xml:space="preserve">
+    <value>בדיקה 219</value>
+  </data>
+  <data name="cmdChkInput" xml:space="preserve">
+    <value>בדיקה 220</value>
+  </data>
+  <data name="FrmStahliIO" xml:space="preserve">
+    <value>בדיקה 221</value>
+  </data>
+  <data name="label14" xml:space="preserve">
+    <value>בדיקה 222</value>
+  </data>
+  <data name="label23" xml:space="preserve">
+    <value>בדיקה 223</value>
+  </data>
+  <data name="label22" xml:space="preserve">
+    <value>בדיקה 224</value>
+  </data>
+  <data name="tabPage1" xml:space="preserve">
+    <value>בדיקה 225</value>
+  </data>
+  <data name="cmdTest" xml:space="preserve">
+    <value>בדיקה 226</value>
+  </data>
+  <data name="grp14" xml:space="preserve">
+    <value>בדיקה 227</value>
+  </data>
+  <data name="lblTitel33" xml:space="preserve">
+    <value>בדיקה 228</value>
+  </data>
+  <data name="lblTitel32" xml:space="preserve">
+    <value>בדיקה 229</value>
+  </data>
+  <data name="lblTitel31" xml:space="preserve">
+    <value>בדיקה 230</value>
+  </data>
+  <data name="lblTitel30" xml:space="preserve">
+    <value>בדיקה 231</value>
+  </data>
+  <data name="lblTitel29" xml:space="preserve">
+    <value>בדיקה 232</value>
+  </data>
+  <data name="lblTitel28" xml:space="preserve">
+    <value>בדיקה 233</value>
+  </data>
+  <data name="lblTitel27" xml:space="preserve">
+    <value>בדיקה 234</value>
+  </data>
+  <data name="lblTitel26" xml:space="preserve">
+    <value>בדיקה 235</value>
+  </data>
+  <data name="lblTitel25" xml:space="preserve">
+    <value>בדיקה 236</value>
+  </data>
+  <data name="cmdLoadCarrierReady" xml:space="preserve">
+    <value>בדיקה 237</value>
+  </data>
+  <data name="cmdLoadTrayReady" xml:space="preserve">
+    <value>בדיקה 238</value>
+  </data>
+  <data name="cmdUnloadCarrierReady" xml:space="preserve">
+    <value>בדיקה 239</value>
+  </data>
+  <data name="cmdUnloadTrayReady" xml:space="preserve">
+    <value>בדיקה 240</value>
+  </data>
+  <data name="cmdIndexTable" xml:space="preserve">
+    <value>בדיקה 241</value>
+  </data>
+  <data name="cmdControlThickness" xml:space="preserve">
+    <value>בדיקה 242</value>
+  </data>
+  <data name="cmdLoadStahliIO" xml:space="preserve">
+    <value>בדיקה 243</value>
+  </data>
+  <data name="lblTitel10" xml:space="preserve">
+    <value>בדיקה 244</value>
+  </data>
+  <data name="cmdResetCounters" xml:space="preserve">
+    <value>בדיקה 245</value>
+  </data>
+  <data name="lblTitel13" xml:space="preserve">
+    <value>בדיקה 246</value>
+  </data>
+  <data name="lblTitel12" xml:space="preserve">
+    <value>בדיקה 247</value>
+  </data>
+  <data name="lblTitel11" xml:space="preserve">
+    <value>בדיקה 248</value>
+  </data>
+  <data name="lblTitel9" xml:space="preserve">
+    <value>בדיקה 249</value>
+  </data>
+  <data name="lblTitel8" xml:space="preserve">
+    <value>בדיקה 250</value>
+  </data>
+  <data name="lblTitel7" xml:space="preserve">
+    <value>בדיקה 251</value>
+  </data>
+  <data name="button16" xml:space="preserve">
+    <value>בדיקה 252</value>
+  </data>
+  <data name="cmdResetAllButton" xml:space="preserve">
+    <value>בדיקה 253</value>
+  </data>
+  <data name="cmdCleanLineButton" xml:space="preserve">
+    <value>בדיקה 254</value>
+  </data>
+  <data name="cmdStartButton" xml:space="preserve">
+    <value>בדיקה 255</value>
+  </data>
+  <data name="cmdPauseButton" xml:space="preserve">
+    <value>בדיקה 256</value>
+  </data>
+  <data name="cmdStopButton" xml:space="preserve">
+    <value>בדיקה 257</value>
+  </data>
+  <data name="grp9" xml:space="preserve">
+    <value>בדיקה 258</value>
+  </data>
+  <data name="label32" xml:space="preserve">
+    <value>בדיקה 259</value>
+  </data>
+  <data name="label31" xml:space="preserve">
+    <value>בדיקה 260</value>
+  </data>
+  <data name="lblTitel15" xml:space="preserve">
+    <value>בדיקה 261</value>
+  </data>
+  <data name="lblTitel14" xml:space="preserve">
+    <value>בדיקה 262</value>
+  </data>
+  <data name="cmdResumeCameras" xml:space="preserve">
+    <value>בדיקה 263</value>
+  </data>
+  <data name="lblTitel6" xml:space="preserve">
+    <value>בדיקה 264</value>
+  </data>
+  <data name="cmdResumeRobots" xml:space="preserve">
+    <value>בדיקה 265</value>
+  </data>
+  <data name="lblTitel5" xml:space="preserve">
+    <value>בדיקה 266</value>
+  </data>
+  <data name="cmdDebugUnloadingCycle" xml:space="preserve">
+    <value>בדיקה 267</value>
+  </data>
+  <data name="cmdResumeUnloadConv" xml:space="preserve">
+    <value>בדיקה 268</value>
+  </data>
+  <data name="lblTitel4" xml:space="preserve">
+    <value>בדיקה 269</value>
+  </data>
+  <data name="cmdResumeIndexTable" xml:space="preserve">
+    <value>בדיקה 270</value>
+  </data>
+  <data name="lblTitel3" xml:space="preserve">
+    <value>בדיקה 271</value>
+  </data>
+  <data name="cmdDebugLoadingCycle" xml:space="preserve">
+    <value>בדיקה 272</value>
+  </data>
+  <data name="cmdResumeLoadConv" xml:space="preserve">
+    <value>בדיקה 273</value>
+  </data>
+  <data name="lblTitel2" xml:space="preserve">
+    <value>בדיקה 274</value>
+  </data>
+  <data name="cmdErrForm" xml:space="preserve">
+    <value>בדיקה 275</value>
+  </data>
+  <data name="lblTitel1" xml:space="preserve">
+    <value>בדיקה 276</value>
+  </data>
+  <data name="cmdResumeGeneral" xml:space="preserve">
+    <value>בדיקה 277</value>
+  </data>
+  <data name="groupBox8" xml:space="preserve">
+    <value>בדיקה 278</value>
+  </data>
+  <data name="lblTitel24" xml:space="preserve">
+    <value>בדיקה 279</value>
+  </data>
+  <data name="lblTitel23" xml:space="preserve">
+    <value>בדיקה 280</value>
+  </data>
+  <data name="lblTitel22" xml:space="preserve">
+    <value>בדיקה 281</value>
+  </data>
+  <data name="lblTitel21" xml:space="preserve">
+    <value>בדיקה 282</value>
+  </data>
+  <data name="lblTitel20" xml:space="preserve">
+    <value>בדיקה 283</value>
+  </data>
+  <data name="cmdResetIndexes" xml:space="preserve">
+    <value>בדיקה 284</value>
+  </data>
+  <data name="lblTitel19" xml:space="preserve">
+    <value>בדיקה 285</value>
+  </data>
+  <data name="lblTitel18" xml:space="preserve">
+    <value>בדיקה 286</value>
+  </data>
+  <data name="lblTitel17" xml:space="preserve">
+    <value>בדיקה 287</value>
+  </data>
+  <data name="lblTitel16" xml:space="preserve">
+    <value>בדיקה 288</value>
+  </data>
+  <data name="cmdLoadConv" xml:space="preserve">
+    <value>בדיקה 289</value>
+  </data>
+  <data name="cmdUnloadConv" xml:space="preserve">
+    <value>בדיקה 290</value>
+  </data>
+  <data name="cmdUnloadRobot" xml:space="preserve">
+    <value>בדיקה 291</value>
+  </data>
+  <data name="cmdLoadRobot" xml:space="preserve">
+    <value>בדיקה 292</value>
+  </data>
+  <data name="tabPage2" xml:space="preserve">
+    <value>בדיקה 293</value>
+  </data>
+  <data name="button3" xml:space="preserve">
+    <value>בדיקה 294</value>
+  </data>
+  <data name="button4" xml:space="preserve">
+    <value>בדיקה 295</value>
+  </data>
+  <data name="tabPage3" xml:space="preserve">
+    <value>בדיקה 296</value>
+  </data>
+  <data name="button1" xml:space="preserve">
+    <value>בדיקה 297</value>
+  </data>
+  <data name="button2" xml:space="preserve">
+    <value>בדיקה 298</value>
+  </data>
+  <data name="cmdTeachInsert" xml:space="preserve">
+    <value>בדיקה 299</value>
+  </data>
+  <data name="cmdServiceTrays" xml:space="preserve">
+    <value>בדיקה 300</value>
+  </data>
+  <data name="cmdCarrierTrays" xml:space="preserve">
+    <value>בדיקה 301</value>
+  </data>
+  <data name="chkCarrierMissed" xml:space="preserve">
+    <value>בדיקה 302</value>
+  </data>
+  <data name="chkTotalMissed" xml:space="preserve">
+    <value>בדיקה 303</value>
+  </data>
+  <data name="chkTriangles90" xml:space="preserve">
+    <value>בדיקה 304</value>
+  </data>
+  <data name="chkSecondUnloadRun" xml:space="preserve">
+    <value>בדיקה 305</value>
+  </data>
+  <data name="label48" xml:space="preserve">
+    <value>בדיקה 306</value>
+  </data>
+  <data name="chkTotalEmptyPockets" xml:space="preserve">
+    <value>בדיקה 307</value>
+  </data>
+  <data name="chkCarrierEmptyPockets" xml:space="preserve">
+    <value>בדיקה 308</value>
+  </data>
+  <data name="label46" xml:space="preserve">
+    <value>בדיקה 309</value>
+  </data>
+  <data name="chkSetupFlag" xml:space="preserve">
+    <value>בדיקה 310</value>
+  </data>
+  <data name="chkPreScanLoadCarrier" xml:space="preserve">
+    <value>בדיקה 311</value>
+  </data>
+  <data name="chkNoPickedSensor" xml:space="preserve">
+    <value>בדיקה 312</value>
+  </data>
+  <data name="chkPlaceZeroAngle" xml:space="preserve">
+    <value>בדיקה 313</value>
+  </data>
+  <data name="chkFillingMissingInserts" xml:space="preserve">
+    <value>בדיקה 314</value>
+  </data>
+  <data name="chkRescanLoadTray" xml:space="preserve">
+    <value>בדיקה 315</value>
+  </data>
+  <data name="tabPage4" xml:space="preserve">
+    <value>בדיקה 316</value>
+  </data>
+  <data name="chkFirstLoadOrder" xml:space="preserve">
+    <value>בדיקה 317</value>
+  </data>
+  <data name="cmdSetupAll" xml:space="preserve">
+    <value>בדיקה 318</value>
+  </data>
+  <data name="cmdStopSetup" xml:space="preserve">
+    <value>בדיקה 319</value>
+  </data>
+  <data name="cmdBackToManualMode" xml:space="preserve">
+    <value>בדיקה 320</value>
+  </data>
+  <data name="chkOperatorHeightConfermation" xml:space="preserve">
+    <value>בדיקה 321</value>
+  </data>
+  <data name="chkIndexTableSetup" xml:space="preserve">
+    <value>בדיקה 322</value>
+  </data>
+  <data name="chkUnloadRobotSetup" xml:space="preserve">
+    <value>בדיקה 323</value>
+  </data>
+  <data name="chkLoadRobotSetup" xml:space="preserve">
+    <value>בדיקה 324</value>
+  </data>
+  <data name="chkUnloadConv" xml:space="preserve">
+    <value>בדיקה 325</value>
+  </data>
+  <data name="chkUnloadConvSetup" xml:space="preserve">
+    <value>בדיקה 326</value>
+  </data>
+  <data name="chkLoadConv" xml:space="preserve">
+    <value>בדיקה 327</value>
+  </data>
+  <data name="chkLoadConvSetup" xml:space="preserve">
+    <value>בדיקה 328</value>
+  </data>
+  <data name="cmdNextTab" xml:space="preserve">
+    <value>בדיקה 329</value>
+  </data>
+  <data name="cmdPrevTab" xml:space="preserve">
+    <value>בדיקה 330</value>
+  </data>
+  <data name="FrmPlcErr" xml:space="preserve">
+    <value>בדיקה 331</value>
+  </data>
+  <data name="grpUnloadConv" xml:space="preserve">
+    <value>בדיקה 332</value>
+  </data>
+  <data name="grpLoadConv" xml:space="preserve">
+    <value>בדיקה 333</value>
+  </data>
+  <data name="rgpTable" xml:space="preserve">
+    <value>בדיקה 334</value>
+  </data>
+  <data name="cmdRefreshAllErrors" xml:space="preserve">
+    <value>בדיקה 335</value>
+  </data>
+</root>

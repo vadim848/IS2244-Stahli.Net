@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OrderParams xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <InsertCode>asaf test 222</InsertCode>
+  <InsertDescription>CNSG 432-TF</InsertDescription>
+  <ProductCode>CNSG 432-TF222</ProductCode>
+  <InsertSymetry>2</InsertSymetry>
+  <InsertHeight>5222</InsertHeight>
+  <InsertHoleDiameter>2.722</InsertHoleDiameter>
+  <GripperCode>1</GripperCode>
+  <ServiceTrayName>ta-285.txt</ServiceTrayName>
+  <CarrierName>C_S_WNMG 432.txt</CarrierName>
+  <Cam1_Brightness>0.251</Cam1_Brightness>
+  <Cam2_Brightness>0.252</Cam2_Brightness>
+  <Cam3_Brightness>0.252</Cam3_Brightness>
+  <Cam1_Contrast>0.261</Cam1_Contrast>
+  <Cam2_Contrast>0.262</Cam2_Contrast>
+  <Cam3_Contrast>0.263</Cam3_Contrast>
+  <Cam1_Trashhold>0.271</Cam1_Trashhold>
+  <Cam2_Trashhold>0.272</Cam2_Trashhold>
+  <Cam3_Trashhold>0.273</Cam3_Trashhold>
+  <Cam1_Score>0.281</Cam1_Score>
+  <Cam2_Score>0.282</Cam2_Score>
+  <Cam3_Score>0.283</Cam3_Score>
+</OrderParams>

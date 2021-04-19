@@ -1,0 +1,135 @@
+.PROGRAM cmd33(cur_rob)	 ;replace gripper
+	LOCAL $clear.display
+	$clear.display = $CHR(12)+$CHR(7)
+	DETACH (1)
+	ATTACH (0)
+
+	; taking robot to gripper replace location
+	SPEED 10 ALWAYS
+	APPROS HERE, z_clear[cur_rob,gr]-DZ(HERE)
+	APPROS tray_calib.p[cur_rob,0], z_clear[cur_rob,gr]-DZ(tray_calib.p[cur_rob,0])
+
+	; change all relevent outputs for gripper replace operation
+	SPEED 5 ALWAYS
+	BREAK
+	fl_replacegr = TRUE		  ; replace gripper flag
+	SIGNAL -o_fin[cur_rob,1]
+	SIGNAL -o_fin[cur_rob,2]
+	SIGNAL o_release_gr[cur_rob]
+
+	ATTACH (1)
+	DETACH (0)
+	BREAK
+	WRITE (1) $clear.display, /S
+	WRITE (1) " Done Replace Gripper? ", /S
+
+	WRITE (1) "                   YES   ", $CHR(3), /S
+	WRITE (1) $CHR(30), $CHR(5), /S
+	WAIT (PENDANT(5))
+	; stop LED blinking
+	WRITE (1) $CHR(28), $CHR(5), /S
+	ATTACH (0)
+	DETACH (1)
+	BREAK
+	SIGNAL -o_release_gr[cur_rob]
+	SPEED robot_speed[cur_rob] ALWAYS
+
+.END
+
+.PROGRAM cmd41(index)	; Sending robot's poinsts to HMI (from robots to HMI)
+
+	LOCAL $calib_str1
+	LOCAL garb.pt[]		  ;temp array of locations arguments (x,y)
+	$calib_str1 = ""
+	CASE index OF
+	  VALUE 0:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,0]					 ;[robot-1,pointNo-0] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,0,", $calib_str1
+	    WRITE (slun) "cmd41,1,0,", $calib_str1
+	  VALUE 1:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,1]					 ;[robot-1,pointNo-1] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,1,", $calib_str1
+	    WRITE (slun) "cmd41,1,1,", $calib_str1
+	  VALUE 2:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,2]					 ;[robot-1,pointNo-2] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,2,", $calib_str1
+	    WRITE (slun) "cmd41,1,2,", $calib_str1
+	  VALUE 3:
+	    DECOMPOSE garb.pt[] = tray_calib.p[1,3]					 ;[robot-1,pointNo-3] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,3,", $calib_str1
+	    WRITE (slun) "cmd41,1,3,", $calib_str1
+	  VALUE 4:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,0]					 ;[robot-1,pointNo-0] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,4,", $calib_str1
+	    WRITE (slun) "cmd41,1,4,", $calib_str1
+	  VALUE 5:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,1]					 ;[robot-1,pointNo-1] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,5,", $calib_str1
+	    WRITE (slun) "cmd41,1,5,", $calib_str1
+	  VALUE 6:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,2]					 ;[robot-1,pointNo-2] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,6,", $calib_str1
+	    WRITE (slun) "cmd41,1,6,", $calib_str1
+	  VALUE 7:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[1,3]					 ;[robot-1,pointNo-3] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,7,", $calib_str1
+	    WRITE (slun) "cmd41,1,7,", $calib_str1
+	  VALUE 8:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,0]					 ;[robot-2,pointNo-0] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,8,", $calib_str1
+	    WRITE (slun) "cmd41,1,8,", $calib_str1
+	  VALUE 9:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,1]					 ;[robot-2,pointNo-1] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,9,", $calib_str1
+	    WRITE (slun) "cmd41,1,9,", $calib_str1
+	  VALUE 10:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,2]					 ;[robot-2,pointNo-2] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,10,", $calib_str1
+	    WRITE (slun) "cmd41,1,10,", $calib_str1
+	  VALUE 11:
+	    DECOMPOSE garb.pt[] = tray_calib.p[2,3]					 ;[robot-2,pointNo-3] (service tray)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,11,", $calib_str1
+	    WRITE (slun) "cmd41,1,11,", $calib_str1
+	  VALUE 12:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,0]					 ;[robot-2,pointNo-0] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,12,", $calib_str1
+	    WRITE (slun) "cmd41,1,12,", $calib_str1
+	  VALUE 13:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,1]					 ;[robot-2,pointNo-1] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,13,", $calib_str1
+	    WRITE (slun) "cmd41,1,13,", $calib_str1
+	  VALUE 14:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,2]					 ;[robot-2,pointNo-2] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,14,", $calib_str1
+	    WRITE (slun) "cmd41,1,14,", $calib_str1
+	  VALUE 15:
+	    DECOMPOSE garb.pt[] = carrier_calib.p[2,3]					 ;[robot-2,pointNo-3] (carrier)
+	    $calib_str1 = $calib_str1+$ENCODE(garb.pt[0])+","+$ENCODE(garb.pt[1])
+	    TYPE "cmd41,1,15,", $calib_str1
+	    WRITE (slun) "cmd41,1,15,", $calib_str1
+	  VALUE 16:									 ;service tray origin of LOAD robot    
+	    WRITE (slun) "cmd41,1,16,", $ENCODE(DX(srv_tray_origin[1]))+","+$ENCODE(DY(srv_tray_origin[1]))
+	    TYPE "cmd41,1,16,", $ENCODE(DX(srv_tray_origin[1]))+","+$ENCODE(DY(srv_tray_origin[1]))
+	  VALUE 17:									 ;service tray origin of LOAD robot 
+	    WRITE (slun) "cmd41,1,17,", $ENCODE(DX(srv_tray_origin[2]))+","+$ENCODE(DY(srv_tray_origin[2]))
+	    TYPE "cmd41,1,17,", $ENCODE(DX(srv_tray_origin[2]))+","+$ENCODE(DY(srv_tray_origin[2]))
+	END
+
+
+.END
+

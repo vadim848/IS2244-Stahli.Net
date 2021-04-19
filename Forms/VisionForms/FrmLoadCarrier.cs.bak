@@ -1,0 +1,921 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using Cognex.VisionPro;
+using Cognex.VisionPro.ImageFile;
+using Cognex.VisionPro.ImageProcessing;
+using Cognex.VisionPro.PatInspect;
+using Cognex.VisionPro.PMAlign;
+using Cognex.VisionPro.Exceptions;
+using Cognex.VisionPro.ToolBlock;
+using Cognex.VisionPro.CalibFix;
+using Cognex.VisionPro.Dimensioning;
+
+
+namespace Stahli2Robots
+{
+    public partial class FrmLoadCarrier : Form
+    {
+        #region "Module Level vars"
+
+        CogImageFileTool ImageFileTool;
+        CogPMAlignTool PatMaxTool;
+        CogAcqFifoTool AcqFifoTool;
+
+        //Flag for "VisionPro Demo" tab indicating that user is currently setting up a
+        //tool.  Also used to indicate in live video mode.  If user selects "Setup"
+        //then the GUI controls are disabled except for the interactive graphics
+        //required for setup as well as the "OK" button used to complete the Setup.
+
+        bool SettingUp;
+        // values passed to EnableAll & DisableAll subroutines which
+        //indicates what is being setup thus determining which Buttons on the GUI
+        //should be left enabled.
+        public enum SettingUpConstants : int
+        {
+            settingUpPatMax,
+            settingLiveVideo
+        }
+
+        SettingUpConstants settingUpPatMax = SettingUpConstants.settingUpPatMax;
+        SettingUpConstants settingLiveVideo = SettingUpConstants.settingLiveVideo;
+        CogImageFileTool mIFTool;
+        CogAcqFifoTool mAcqTool;
+
+
+        //long numPass = 0;
+        //long numFail = 0;
+
+        CogPMAlignTool mPMAlignTool;
+
+        ICogAcqFifo myAcqFifo;
+
+        private CogFrameGrabbers myFrameGrabbers;
+        private ICogFrameGrabber myFrameGrabber;
+
+        ICogAcqBrightness brightnessParams;
+        ICogAcqContrast contrastParams;
+
+        //private Cognex.VisionPro.ToolBlock.CogToolBlockEditV2 cogToolBlockEditV21;
+        CogToolBlock toolBlock = new CogToolBlock();
+        CogPMAlignTool cogPMAlignTool;
+
+        CogCoordinateAxes axes;
+
+        // This is the calibration tool.
+        private CogCalibNPointToNPointTool CalibNPointTool;
+        // This object holds calibration operator.
+        private CogCalibNPointToNPoint Calib;
+
+        CogPolygon cogPolygon = new CogPolygon();
+
+        //Acquire region params
+        ICogAcqROI ROIParams;
+        const int MaxXWidth = 3000;
+        const int MaxYWidth = 3000;
+        const int MinXWidth = 1000;
+        const int MinYWidth = 1000;
+        const int StartXIndx = 200;//320;
+        const int StartYIndx = 0;//61;
+        const int DeltaXFrameMov = 1000;
+        const int DeltaYFrameMov = 1000;
+        int xMov, yMov = 0;
+        bool flagFullTray = true;
+        int countFrames = 0;
+        //Search region params
+        double xSearchReg, ySearchReg;
+
+        int CurrIndex;   //use to be called frameIndex;
+        
+        CogRectangle PatMaxSearchRegion = new CogRectangle();
+
+        private CogCalibCheckerboardTool calbCheckerBoard;
+
+        //ReadFromMainProj fromMainProject = new ReadFromMainProj();
+        Calculate calculations = new Calculate();
+
+        //25.03.14
+        CogAcqFifoTool cogAcqFifoTool = new CogAcqFifoTool();
+        CogCreateSegmentAvgSegsTool cogCreateSegmentAvgSegsTool = new CogCreateSegmentAvgSegsTool();
+        #endregion
+
+        public FrmLoadCarrier()
+        {
+            InitializeComponent();
+            //this.TopLevel = false;
+            //Add any initialization after the InitializeComponent() call
+            cogToolBlockEditV21.LocalDisplayVisible = false;
+            mIFTool = new CogImageFileTool();
+            mIFTool.Operator.Open(Environment.GetEnvironmentVariable("VPRO_ROOT") + @"\images\coins.idb", CogImageFileModeConstants.Read);
+            mAcqTool = new CogAcqFifoTool();
+
+
+            //17.02.14
+            toolBlock = cogToolBlockEditV21.Subject;
+            try
+            {
+                //toolBlock = CogSerializer.LoadObjectFromFile("C:\\Project\\Shtali\\Vision\\N17_02.vpp") as CogToolBlock;  //Need to upload insernt name as given by asaf
+                toolBlock = CogSerializer.LoadObjectFromFile(@"C:\PROJECT\Stahli.Net\Bin\Debug\CognexStahli\Camera2.vpp") as CogToolBlock;  //Need to upload insernt name as given by asaf
+                //if it is new insert, upload a defult
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Tool block is error");
+            }
+            cogToolBlockEditV21.Subject = toolBlock;
+            cogToolBlockEditV21.Subject.Ran += new EventHandler(Subject_Ran);
+            cogToolBlockEditV21.SubjectChanged += new EventHandler(cogToolBlockEditV21_SubjectChanged);
+            //-----------------------------------
+
+            foreach (ICogTool tool in toolBlock.Tools)
+            {
+                cogAcqFifoTool = tool as CogAcqFifoTool;
+            }
+
+            foreach (ICogTool tool in toolBlock.Tools)
+            {
+                calbCheckerBoard = tool as CogCalibCheckerboardTool;
+                if (calbCheckerBoard != null) break;
+            }
+
+            foreach (ICogTool tool in toolBlock.Tools)
+            {
+                CalibNPointTool = tool as CogCalibNPointToNPointTool;
+                if (CalibNPointTool != null) break;
+            }
+
+            foreach (ICogTool tool in toolBlock.Tools)
+            {
+                cogPMAlignTool = tool as CogPMAlignTool;
+                if (cogPMAlignTool != null) break;
+            }
+        }
+
+        private void CarrierAngleForm_Load(object sender, EventArgs e)
+        {
+            SettingUp = false;
+            //Set reference to CogImageFileTool created by Edit Control
+            //The Image File Edit Control creates its subject when its AutoCreateTool property is True
+            ImageFileTool = CogImageFileEdit1.Subject;
+            ImageFileTool.Ran += ImageFileTool_Ran;   //HERE
+            //Set reference to CogAcqFifoTool created by Edit Control
+            //The Acq Fifo Edit Control creates its subject when its AutoCreateTool property is True
+            AcqFifoTool = CogAcqFifoEdit1.Subject;
+            AcqFifoTool.Ran += AcqFifoTool_Ran;
+
+            //25.03.14
+            cogAcqFifoTool = CogAcqFifoEdit1.Subject;
+            cogAcqFifoTool = cogToolBlockEditV21.Subject.Tools["CogAcqFifoTool1"] as CogAcqFifoTool;
+            cogAcqFifoTool.Run();
+
+
+            //Operator will be Nothing if no Frame Grabber is available.  Disable the Frame Grabber
+            //option on the "VisionPro Demo" tab if no frame grabber available.
+            if (AcqFifoTool.Operator == null)
+            {
+                optImageAcquisitionOptionFrameGrabber.Enabled = false;
+            }
+
+            //Initialize the Dialog box for the "Open File" button on the "VisionPro Demo" tab.
+            ImageAcquisitionCommonDialog.Filter = ImageFileTool.Operator.FilterText;
+            ImageAcquisitionCommonDialog.CheckFileExists = true;
+            ImageAcquisitionCommonDialog.ReadOnlyChecked = true;
+
+            //AutoCreateTool for the PMAlign edit control is False, therefore, we must create
+            //a PMAlign tool and set the subject of the control to reference the new tool.
+            PatMaxTool = new CogPMAlignTool();
+            PatMaxTool.Changed += PatMaxTool_Changed;
+            CogPMAlignEdit1.Subject = PatMaxTool;
+
+            //Change the default Train Region to center of a 640x480 image & change the DOFs
+            //so that Skew is not enabled.  Note - TrainRegion is of type ICogRegion, therefore,
+            //we must use a CogRectangleAffine reference in order to call CogRectangleAffine
+            //properties.
+            CogRectangleAffine PatMaxTrainRegion = default(CogRectangleAffine);
+            PatMaxTrainRegion = PatMaxTool.Pattern.TrainRegion as CogRectangleAffine;
+            //PatMaxTrainRegion = cogPMAlignTool.Pattern.TrainRegion as CogRectangleAffine;
+            if ((PatMaxTrainRegion != null))
+            {
+                PatMaxTrainRegion.SetCenterLengthsRotationSkew(320, 240, 100, 100, 0, 0);
+                PatMaxTrainRegion.GraphicDOFEnable = CogRectangleAffineDOFConstants.Position | CogRectangleAffineDOFConstants.Rotation | CogRectangleAffineDOFConstants.Size;
+            }
+
+            //Create a SearchRegion that uses the entire image (assumes 640x480)
+            //Note that by default the SearchRegion is Nothing and PMAlign will search the entire
+            //image anyway.  This is added for sample code purposes & to graphically show that the
+            //entire image is being used.
+            //CogRectangle PatMaxSearchRegion = new CogRectangle();
+            PatMaxTool.SearchRegion = PatMaxSearchRegion;
+            //cogPMAlignTool.SearchRegion = PatMaxSearchRegion;
+            PatMaxSearchRegion.SetCenterWidthHeight(320, 240, 640, 480);
+            PatMaxSearchRegion.GraphicDOFEnable = CogRectangleDOFConstants.Position | CogRectangleDOFConstants.Size;
+            PatMaxSearchRegion.Interactive = true;
+
+
+            numericUpDown1.Value = Convert.ToDecimal(cogPMAlignTool.RunParams.AcceptThreshold);
+            PatMaxTool.RunParams.AcceptThreshold = Convert.ToDouble(numericUpDown1.Value);
+
+            numericUpDown2.Value = Convert.ToDecimal(cogPMAlignTool.RunParams.ApproximateNumberToFind);
+            PatMaxTool.RunParams.ApproximateNumberToFind = Convert.ToInt32(numericUpDown2.Value);
+            
+
+            calculations.CalcSearchReg(out xSearchReg, out ySearchReg);
+            myAcqFifo = AcqFifoTool.Operator;
+            try
+            {
+                //myFrameGrabber = cogAcqTool.Operator.FrameGrabber;
+                //myAcqFifo = cogAcqTool.Operator;
+                AcqFifoTool.Operator = myAcqFifo;
+                myAcqFifo.OwnedContrastParams.Contrast = cogAcqFifoTool.Operator.OwnedContrastParams.Contrast;
+                myAcqFifo.OwnedBrightnessParams.Brightness = cogAcqFifoTool.Operator.OwnedBrightnessParams.Brightness;
+                brightnessParams = myAcqFifo.OwnedBrightnessParams;
+                contrastParams = myAcqFifo.OwnedContrastParams;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("didn't ditected camera settings");
+            }
+
+            //brightnessParams = myAcqFifo.OwnedBrightnessParams; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (brightnessParams != null)
+                brightnessUpDown.Value = Convert.ToDecimal(brightnessParams.Brightness);
+            //contrastParams = myAcqFifo.OwnedContrastParams; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (contrastParams != null)
+                contrastUpDown.Value = Convert.ToDecimal(contrastParams.Contrast);
+            try
+            {
+                cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Input image wasn't set");
+            }
+        }
+        private void cmdImageAcquisitionLiveOrOpenCommand_Click(System.Object sender, System.EventArgs e)
+        {
+            //Clear graphics, assuming a new image will be in the display once user
+            //completes either Live Video or Open File operation, therefore, graphics
+            //will be out of sync.
+            CogDisplay1.StaticGraphics.Clear();
+            CogDisplay1.InteractiveGraphics.Clear();
+
+            cogRecordDisplay1.StaticGraphics.Clear();
+            cogRecordDisplay1.InteractiveGraphics.Clear();
+
+            ROIParams = myAcqFifo.OwnedROIParams;
+
+                ROIParams.SetROIXYWidthHeight(StartXIndx, StartYIndx, MaxXWidth, MaxYWidth);
+
+
+            //"Live Video"  & "Stop Live" button when Frame Grabber option is selected.
+            //Using our EnableAll & DisableAll subroutine to force the user stop live
+            //video before doing anything else.
+            if (optImageAcquisitionOptionFrameGrabber.Checked == true)
+            {
+                if (cogRecordDisplay1.LiveDisplayRunning)
+                {
+                    cogRecordDisplay1.StopLiveDisplay();
+                    EnableAll(settingLiveVideo);
+                    //Run the AcqFifoTool so that all of the sample app images get the last
+                    AcqFifoTool.Run();
+
+                    cogRecordDisplay1.Fit(true);
+                    cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+
+                }
+                else if ((AcqFifoTool.Operator != null))
+                {
+                    AcqFifoTool.Run();
+
+                    cogRecordDisplay1.Fit(true);
+                    cogRecordDisplay1.StartLiveDisplay(AcqFifoTool.Operator, false);
+                    cogRecordDisplay1.Fit(true);
+                    cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+                    DisableAll(settingLiveVideo);
+                    cogRecordDisplay1.Fit(true);
+                }
+
+            }
+            else
+            {
+                //"Open File" button when image file option is selected
+                //DrawingEnabled is used to simply hide the image while the Fit is performed.
+                //This prevents the image from being diplayed at the initial zoom factor
+                //prior to fit being called.
+                try
+                {
+                    DialogResult result = ImageAcquisitionCommonDialog.ShowDialog();
+                    if (result != System.Windows.Forms.DialogResult.Cancel)
+                    {
+                        ImageFileTool.Operator.Open(ImageAcquisitionCommonDialog.FileName, CogImageFileModeConstants.Read);
+                        cogRecordDisplay1.DrawingEnabled = false;
+                        ImageFileTool.Run();
+                        cogRecordDisplay1.Fit(true);
+                        cogRecordDisplay1.DrawingEnabled = true;
+                    }
+                }
+                catch (CogException cogex)
+                {
+                    MessageBox.Show("Following Specific Cognex Error Occured:" + cogex.Message);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Following Error Occured:" + ex.Message);
+                }
+                cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image; //!!!!! Neet to solve why pic doesn't get into tool
+            }
+            cogRecordDisplay1.Fit(true);
+
+        }
+        private void cmdImageAcquisitionNewImageCommand_Click(System.Object sender, System.EventArgs e)
+        {
+            ROIParams = myAcqFifo.OwnedROIParams;
+
+                ROIParams.SetROIXYWidthHeight(StartXIndx, StartYIndx, MaxXWidth, MaxYWidth);
+
+            if (optImageAcquisitionOptionFrameGrabber.Checked == true)
+            {
+                AcqFifoTool.Run();
+
+                cogRecordDisplay1.Fit(true);
+
+            }
+            else
+            {
+                ImageFileTool.Run();
+            }
+            cogRecordDisplay1.Fit(true);
+            cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+        }
+        private void optImageAcquisitionOptionFrameGrabber_CheckedChanged(System.Object sender, System.EventArgs e)
+        {
+            if (optImageAcquisitionOptionFrameGrabber.Checked == true)
+            {
+                cmdImageAcquisitionLiveOrOpenCommand.Text = "Live Video";
+                cmdImageAcquisitionNewImageCommand.Text = "Acquire";
+            }
+            else
+            {
+                cmdImageAcquisitionLiveOrOpenCommand.Text = "Open File";
+                cmdImageAcquisitionNewImageCommand.Text = "Next Image";
+            }
+            cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+        }
+
+        private void optImageAcquisitionOptionImageFile_CheckedChanged(System.Object sender, System.EventArgs e)
+        {
+            if (optImageAcquisitionOptionImageFile.Checked == true)
+            {
+                cmdImageAcquisitionLiveOrOpenCommand.Text = "Open File";
+                cmdImageAcquisitionNewImageCommand.Text = "Next Image";
+            }
+            else
+            {
+                cmdImageAcquisitionLiveOrOpenCommand.Text = "Live Video";
+                cmdImageAcquisitionNewImageCommand.Text = "Acquire";
+            }
+            cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+        }
+
+        private void cmdPatMaxSetupCommand_Click(System.Object sender, System.EventArgs e)
+        {
+            cogRecordDisplay1.InteractiveGraphics.Add(cogPMAlignTool.Pattern.TrainRegion as ICogGraphicInteractive, "test", false);
+            // Add an origin graphic with tip text to distinguish them
+            axes = new CogCoordinateAxes();
+            axes.Transform = cogPMAlignTool.Pattern.Origin;
+            //axes.TipText = "PatMax Pattern Origin " + i.ToString();
+            axes.GraphicDOFEnable = CogCoordinateAxesDOFConstants.All &
+                ~CogCoordinateAxesDOFConstants.Skew;
+            axes.Interactive = true;
+            // Add a standard VisionPro "manipulable" mouse cursor.
+            axes.MouseCursor = CogStandardCursorConstants.ManipulableGraphic;
+            axes.XAxisLabel.MouseCursor = CogStandardCursorConstants.ManipulableGraphic;
+            axes.YAxisLabel.MouseCursor = CogStandardCursorConstants.ManipulableGraphic;
+            cogRecordDisplay1.InteractiveGraphics.Add((ICogGraphicInteractive)axes, "test", false);
+        }
+        private void DisableAll(SettingUpConstants butThis)
+        {
+            //Disable all of the frames (Disables controls within frame)
+            frmImageAcquisitionFrame.Enabled = false;
+            frmPatMax.Enabled = false;
+            //Disable all of the tabs except "VisionPro Demo" tab.
+            VProAppTab.TabPages[1].Enabled = false;
+            VProAppTab.TabPages[2].Enabled = false;
+            VProAppTab.TabPages[3].Enabled = false;
+            //Based on what the user is doing, Re-enable appropriate frame and disable
+            //specific controls within the frame.
+            if (butThis == settingUpPatMax)
+            {
+                frmPatMax.Enabled = true;
+                //cmdPatMaxSetupCommand.Text = "OK";
+                cmdTeach.Text = "OK";
+                cmdPatMaxRunCommand.Enabled = false;
+            }
+            else if (butThis == settingLiveVideo)
+            {
+                frmImageAcquisitionFrame.Enabled = true;
+                cmdImageAcquisitionLiveOrOpenCommand.Text = "Stop Live";
+                cmdImageAcquisitionNewImageCommand.Enabled = false;
+                optImageAcquisitionOptionFrameGrabber.Enabled = false;
+                optImageAcquisitionOptionImageFile.Enabled = false;
+            }
+        }
+        //Enable all of the GUI controls when done a task.  Example, done setting up PMAlign.
+        private void EnableAll(SettingUpConstants butThis)
+        {
+            frmImageAcquisitionFrame.Enabled = true;
+            frmPatMax.Enabled = true;
+            VProAppTab.TabPages[1].Enabled = true;
+            VProAppTab.TabPages[2].Enabled = true;
+            VProAppTab.TabPages[3].Enabled = true;
+            if (butThis == settingUpPatMax)
+            {
+                //cmdPatMaxSetupCommand.Text = "Setup";
+                cmdTeach.Text = "Teach";
+                cmdPatMaxRunCommand.Enabled = true;
+            }
+            else if (butThis == settingLiveVideo)
+            {
+                cmdImageAcquisitionLiveOrOpenCommand.Text = "Live Video";
+                cmdImageAcquisitionNewImageCommand.Enabled = true;
+                optImageAcquisitionOptionFrameGrabber.Enabled = true;
+                optImageAcquisitionOptionImageFile.Enabled = true;
+            }
+        }
+        int static_AcqFifoTool_Ran_numacqs;
+        private void AcqFifoTool_Ran(object sender, System.EventArgs e)
+        {
+            cogRecordDisplay1.InteractiveGraphics.Clear();
+            cogRecordDisplay1.StaticGraphics.Clear();
+            //cogRecordDisplay1.Image = AcqFifoTool.OutputImage;
+
+            calbCheckerBoard = cogToolBlockEditV21.Subject.Tools["CogCalibCheckerboardTool1"] as CogCalibCheckerboardTool;
+            calbCheckerBoard.InputImage = AcqFifoTool.OutputImage;
+            calbCheckerBoard.Run();
+            //-----------
+
+            //16.02.14
+            CalibNPointTool = cogToolBlockEditV21.Subject.Tools["CogCalibNPointToNPointTool1"] as CogCalibNPointToNPointTool;
+            CalibNPointTool.InputImage = calbCheckerBoard.OutputImage;
+            CalibNPointTool.Run();
+            //----------
+            //cogPMAlignTool = cogToolBlockEditV21.Subject.Tools["CogPMAlignTool1"] as CogPMAlignTool;
+            cogRecordDisplay1.Image = cogPMAlignTool.InputImage;
+            cogPMAlignTool.InputImage = CalibNPointTool.OutputImage as CogImage8Grey;
+
+
+            PatMaxTool.InputImage = AcqFifoTool.OutputImage as CogImage8Grey;
+            PatMaxTool.InputImage = CalibNPointTool.OutputImage as CogImage8Grey;
+            ImageFileTool.InputImage = AcqFifoTool.OutputImage;
+            // Run the garbage collector to free unused images
+            static_AcqFifoTool_Ran_numacqs += 1;
+            if (static_AcqFifoTool_Ran_numacqs > 4)
+            {
+                GC.Collect();
+                static_AcqFifoTool_Ran_numacqs = 0;
+            }
+
+        }
+
+        //Handles ImageFileTool.Ran
+        private void ImageFileTool_Ran(object sender, System.EventArgs e)
+        {
+            cogRecordDisplay1.InteractiveGraphics.Clear();
+            cogRecordDisplay1.StaticGraphics.Clear();
+            cogRecordDisplay1.Image = ImageFileTool.OutputImage;
+            PatMaxTool.InputImage = ImageFileTool.OutputImage as CogImage8Grey;
+        }
+        //If PMAlign results have changed then update the Score & Region graphic.
+        //Handles PatMaxTool.Changed
+        private void PatMaxTool_Changed(object sender, Cognex.VisionPro.CogChangedEventArgs e)
+        {
+            //If FunctionalArea And cogFA_Tool_Results Then
+            if ((Cognex.VisionPro.Implementation.CogToolBase.SfCreateLastRunRecord
+           | Cognex.VisionPro.Implementation.CogToolBase.SfRunStatus) > 0)
+            {
+                cogRecordDisplay1.StaticGraphics.Clear();
+                //Note, Results will be nothing if Run failed.
+                if (PatMaxTool.Results == null)
+                {
+                    txtPatMaxScoreValue.Text = "N/A";
+                }
+                else if (PatMaxTool.Results.Count > 0)
+                {
+                    //Passing result does not imply Pattern is found, must check count.
+                    txtPatMaxScoreValue.Text = PatMaxTool.Results[0].Score.ToString("g3");
+                    txtPatMaxScoreValue.Refresh();
+                    CogCompositeShape resultGraphics = default(CogCompositeShape);
+                    resultGraphics = PatMaxTool.Results[0].CreateResultGraphics(CogPMAlignResultGraphicConstants.MatchRegion);
+                    cogRecordDisplay1.InteractiveGraphics.Add(resultGraphics, "test", false);
+                }
+                else
+                {
+                    txtPatMaxScoreValue.Text = "N/A";
+                }
+            }
+        }
+        private void brightnessUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            myFrameGrabbers = new CogFrameGrabbers();
+            myFrameGrabber = myFrameGrabbers[0];
+
+            myAcqFifo = AcqFifoTool.Operator;
+
+            myAcqFifo.OwnedBrightnessParams.Brightness = cogAcqFifoTool.Operator.OwnedBrightnessParams.Brightness;
+            brightnessParams = myAcqFifo.OwnedBrightnessParams;
+            if (brightnessParams != null)
+            {
+                brightnessParams.Brightness = Convert.ToDouble(brightnessUpDown.Value);
+                myAcqFifo.OwnedBrightnessParams.Brightness = brightnessParams.Brightness;
+                try
+                {
+                    cogAcqFifoTool.Operator.OwnedBrightnessParams.Brightness = Convert.ToDouble(brightnessUpDown.Value);  //brightnessParams.Brightness;
+                }
+                catch { }
+            }
+
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            PatMaxTool.RunParams.AcceptThreshold = Convert.ToDouble(numericUpDown1.Value);
+            cogPMAlignTool.RunParams.AcceptThreshold = Convert.ToDouble(numericUpDown1.Value);
+        }
+        private void contrastUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            myAcqFifo = AcqFifoTool.Operator;
+            contrastParams.Contrast = Convert.ToDouble(contrastUpDown.Value);
+            cogAcqFifoTool.Operator.OwnedContrastParams.Contrast = contrastParams.Contrast;
+        }
+        //17.03.14
+        List<TrayIndexData> UnfoundInsertList = new List<TrayIndexData>();
+        void Subject_Ran(object sender, EventArgs e)
+        {
+            //25.03.14
+            cogAcqFifoTool = cogToolBlockEditV21.Subject.Tools["CogAcqFifoTool1"] as CogAcqFifoTool;
+
+
+            calbCheckerBoard.InputImage = cogToolBlockEditV21.Subject.Inputs["Image"].Value as CogImage8Grey;
+            //17.02.14
+            calbCheckerBoard = cogToolBlockEditV21.Subject.Tools["CogCalibCheckerboardTool1"] as CogCalibCheckerboardTool;
+            calbCheckerBoard.Run();
+            ////-----------
+
+            ////16.02.14
+            CalibNPointTool = cogToolBlockEditV21.Subject.Tools["CogCalibNPointToNPointTool1"] as CogCalibNPointToNPointTool;
+            CalibNPointTool.InputImage = calbCheckerBoard.OutputImage;
+            //CalibNPointTool.Run();
+            ////----------
+            cogPMAlignTool = cogToolBlockEditV21.Subject.Tools["CogPMAlignTool1"] as CogPMAlignTool;
+            cogPMAlignTool.InputImage = CalibNPointTool.OutputImage as CogImage8Grey;
+            cogRecordDisplay1.Image = cogPMAlignTool.InputImage;
+            cogPMAlignTool.Run();
+            //cogRecordDisplay1.Record = cogPMAlignTool.CreateLastRunRecord();
+            //cogRecordDisplay1.Fit(true);
+
+            //cogCreateLinePerpendicularTool = cogToolBlockEditV21.Subject.Tools["CogCreateLinePerpendicularTool1"] as CogCreateLinePerpendicularTool;
+            ////cogCreateLinePerpendicularTool.InputImage = CalibNPointTool.OutputImage as CogImage8Grey;
+            //cogCreateLinePerpendicularTool.InputImage = CalibNPointTool.OutputImage as CogImage8Grey;
+
+            cogCreateSegmentAvgSegsTool = cogToolBlockEditV21.Subject.Tools["CogCreateSegmentAvgSegsTool1"] as CogCreateSegmentAvgSegsTool;
+            cogCreateSegmentAvgSegsTool.InputImage = CalibNPointTool.OutputImage as CogImage8Grey;
+
+            dataGridView1.Rows.Clear();
+            try
+            {
+                const int delta = 40;
+                double distance, rotation = 0;
+                double? angle1stHole = null, angle2ndHole = null, angle3rdHole = null, angle4thHole = null,
+                    angle5thHole = null, angle6thHole = null;
+                int? midleID = null;
+                double midlePointX = 0, midlePointY = 0;
+                bool IsCarrierSideOK;
+
+                for (int i = 0; i < cogPMAlignTool.Results.Count; i++)
+                {
+                    double x1 = cogPMAlignTool.Results[i].GetPose().TranslationX;
+                    double y1 = cogPMAlignTool.Results[i].GetPose().TranslationY;
+                    if (Math.Abs(cogPMAlignTool.Results[i].GetPose().TranslationX) < delta &&
+                    Math.Abs(cogPMAlignTool.Results[i].GetPose().TranslationY) < delta)
+                    {
+                        midlePointX = cogPMAlignTool.Results[i].GetPose().TranslationX;
+                        //cogCreateLinePerpendicularTool.Line.X = midlePointX;
+                        //cogCreateLinePerpendicularTool.X = midlePointX;
+                        midlePointY = cogPMAlignTool.Results[i].GetPose().TranslationY;
+                        //cogCreateLinePerpendicularTool.Line.Y = midlePointY;
+                        //cogCreateLinePerpendicularTool.Y = midlePointY;
+                        midleID = cogPMAlignTool.Results[i].ID;
+                        //cogCreateSegmentAvgSegsTool.SegmentA.StartX = midlePointX;
+                        //cogCreateSegmentAvgSegsTool.SegmentA.StartY = midlePointY;
+
+                        break;
+                    }
+                }
+                if (midleID == null)  //Ask ASAF if add error  - Add error msg
+                {
+                    midlePointX = 0;
+                    midlePointY = 0;
+                }
+
+                for (int i = 0; i < cogPMAlignTool.Results.Count; i++)
+                {
+                    dataGridView1.Rows.Add();
+                    dataGridView1[0, i].Value = cogPMAlignTool.Results[i].ID.ToString();
+                    dataGridView1[1, i].Value = cogPMAlignTool.Results[i].Score.ToString();
+                    dataGridView1[2, i].Value = cogPMAlignTool.Results[i].GetPose().Rotation;
+                    dataGridView1[3, i].Value = cogPMAlignTool.Results[i].GetPose().TranslationX;
+                    dataGridView1[4, i].Value = cogPMAlignTool.Results[i].GetPose().TranslationY;
+
+                    for (int jj = i + 1; jj < cogPMAlignTool.Results.Count; jj++)
+                    {
+                   
+                        distance = 10;
+                        if (calculations.ReturnDistance(ref distance,
+                            cogPMAlignTool.Results[i].GetPose().TranslationX,
+                            cogPMAlignTool.Results[i].GetPose().TranslationY,
+                            cogPMAlignTool.Results[jj].GetPose().TranslationX,
+                            cogPMAlignTool.Results[jj].GetPose().TranslationY))
+                        {
+                            angle1stHole = calculations.GetAngle(cogPMAlignTool.Results[i].GetPose().TranslationX,
+                                cogPMAlignTool.Results[i].GetPose().TranslationY, midlePointX, midlePointY);
+                            angle2ndHole = calculations.GetAngle(cogPMAlignTool.Results[jj].GetPose().TranslationX,
+                                cogPMAlignTool.Results[jj].GetPose().TranslationY, midlePointX, midlePointY);
+                            break;
+                        }
+
+                        distance = 20;
+                        if (calculations.ReturnDistance(ref distance,
+                            cogPMAlignTool.Results[i].GetPose().TranslationX,
+                            cogPMAlignTool.Results[i].GetPose().TranslationY,
+                            cogPMAlignTool.Results[jj].GetPose().TranslationX,
+                            cogPMAlignTool.Results[jj].GetPose().TranslationY))
+                        {
+                            angle3rdHole = calculations.GetAngle(cogPMAlignTool.Results[i].GetPose().TranslationX,
+                                cogPMAlignTool.Results[i].GetPose().TranslationY, midlePointX, midlePointY);
+                            angle4thHole = calculations.GetAngle(cogPMAlignTool.Results[jj].GetPose().TranslationX,
+                                cogPMAlignTool.Results[jj].GetPose().TranslationY, midlePointX, midlePointY);
+                            break;
+                        }
+                        distance = 30;
+                        if (calculations.ReturnDistance(ref distance,
+                            cogPMAlignTool.Results[i].GetPose().TranslationX,
+                            cogPMAlignTool.Results[i].GetPose().TranslationY,
+                            cogPMAlignTool.Results[jj].GetPose().TranslationX,
+                            cogPMAlignTool.Results[jj].GetPose().TranslationY))
+                        {
+                            angle5thHole = calculations.GetAngle(cogPMAlignTool.Results[i].GetPose().TranslationX,
+                                cogPMAlignTool.Results[i].GetPose().TranslationY, midlePointX, midlePointY);
+                            angle6thHole = calculations.GetAngle(cogPMAlignTool.Results[jj].GetPose().TranslationX,
+                                cogPMAlignTool.Results[jj].GetPose().TranslationY, midlePointX, midlePointY);
+                            break;
+                        }
+                    }
+                }
+                //if (cbxCarrier.Checked = true)
+                //{
+                IsCarrierSideOK = calculations.CheckCarrierSide(angle1stHole, angle2ndHole, angle3rdHole, angle4thHole,
+                angle5thHole, angle6thHole, ref rotation);
+                //}
+                //    cogCreateLinePerpendicularTool.Line.Rotation = rotation / 57.2957795;
+                ////cogCreateLinePerpendicularTool.InputImage = CalibNPointTool.OutputImage as CogImage8Grey;
+                //cogCreateLinePerpendicularTool.Run();
+                //cogRecordDisplay1.Record = cogCreateLinePerpendicularTool.CreateLastRunRecord();
+                //cogRecordDisplay1.Fit(true);
+                rotation = (rotation >= 0) ? rotation : rotation + 360;
+                cogCreateSegmentAvgSegsTool.SegmentA.SetStartLengthRotation(midlePointX, midlePointY, 130, rotation / 57.2957795);
+                cogCreateSegmentAvgSegsTool.SegmentB.SetStartLengthRotation(midlePointX, midlePointY, 130, 0);
+                cogCreateSegmentAvgSegsTool.Run();
+
+                if (cbxRotationResults.Checked)
+                    cogRecordDisplay1.Record = cogCreateSegmentAvgSegsTool.CreateLastRunRecord();
+                else
+                    cogRecordDisplay1.Record = cogPMAlignTool.CreateLastRunRecord();
+                cogRecordDisplay1.Fit(true);
+                //rotation = (rotation >= 0) ? rotation : rotation + 360;
+                tbxRotationAngle.Text = String.Format("{0:0.00}", rotation);
+                txtPatMaxScoreValue.Text = String.Format("{0:0.00}", cogPMAlignTool.Results.Count.ToString());
+
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("No Input Image available for setup.", "PatMax Setup Error");
+            }
+
+            try
+            {
+                //if (cogPMAlignTool.Results.Count == 0)
+                //{
+                //    UnfoundInsertList.Add(insertList[CurrIndex]);  //CurrIndex= 0 always in this form
+                //}
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("PatMax Setup Error");
+            }
+        }
+
+        void cogToolBlockEditV21_SubjectChanged(object sender, EventArgs e)
+        {
+            // The application is meant to be used with the TB.vpp so whenever the user changes the TB
+            // We disable the run once button
+            //btnRun.Enabled = false;
+        }
+        private void button1_Click(object sender, EventArgs e)//Teach
+        {
+            if (!SettingUp)
+            {
+                cogPMAlignTool.Pattern.TrainImage = CalibNPointTool.OutputImage as CogImage8Grey;
+                //While setting up PMAlign, disable other GUI controls.
+                SettingUp = true;
+                DisableAll(settingUpPatMax);
+                //Add TrainRegion to display's interactive graphics
+                //Add SearchRegion to display's static graphics for display only.
+                cogRecordDisplay1.InteractiveGraphics.Clear();
+                cogRecordDisplay1.StaticGraphics.Clear();
+
+
+
+                cogRecordDisplay1.InteractiveGraphics.Add(cogPMAlignTool.Pattern.TrainRegion as ICogGraphicInteractive, "test", false);
+
+                //Now
+                axes = new CogCoordinateAxes();
+                axes.Transform = cogPMAlignTool.Pattern.Origin;
+                axes.GraphicDOFEnable = CogCoordinateAxesDOFConstants.All &
+                    ~CogCoordinateAxesDOFConstants.Skew;
+                axes.Interactive = true;
+                // Add a standard VisionPro "manipulable" mouse cursor.
+                axes.MouseCursor = CogStandardCursorConstants.ManipulableGraphic;
+                axes.XAxisLabel.MouseCursor = CogStandardCursorConstants.ManipulableGraphic;
+                axes.YAxisLabel.MouseCursor = CogStandardCursorConstants.ManipulableGraphic;
+                cogRecordDisplay1.InteractiveGraphics.Add((ICogGraphicInteractive)axes, "test", false);
+
+
+
+
+
+                if ((cogPMAlignTool.SearchRegion != null))
+                {
+                    //cogPMAlignTool.SearchRegion.FitToImage(cogRecordDisplay1.Image, 0.99,999.6);
+                    cogRecordDisplay1.StaticGraphics.Add(cogPMAlignTool.SearchRegion as ICogGraphic, "test");
+                    cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+                }
+
+                //OK has been pressed, completing Setup.
+            }
+            else
+            {
+                SettingUp = false;
+                cogRecordDisplay1.InteractiveGraphics.Clear();
+                cogRecordDisplay1.StaticGraphics.Clear();
+                //Make sure we catch errors from Train, since they are likely.  For example,
+                //No InputImage, No Pattern Features, etc.
+                try
+                {
+                    //16.02.14
+                    CalibNPointTool = cogToolBlockEditV21.Subject.Tools["CogCalibNPointToNPointTool1"] as CogCalibNPointToNPointTool;
+                    CalibNPointTool.Run();
+                    //_______________
+                    cogPMAlignTool.Pattern.Train();
+                }
+                catch (CogException cogex)
+                {
+                    MessageBox.Show("Following Specific Cognex Error Occured:" + cogex.Message);
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "PatMax Setup Error");
+                }
+                EnableAll(settingUpPatMax);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //CogSerializer.SaveObjectToFile(toolBlock, "c:\\project\\shtali\\vision\\N17_02.vpp");
+            CogSerializer.SaveObjectToFile(toolBlock, @"C:\PROJECT\Stahli.Net\Bin\Debug\CognexStahli\Camera2.vpp"); //need to save with insernt name as given by asaf);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //CurrIndex++;
+            switch (countFrames)
+            {
+                case 0:
+                    //xMov += DeltaXFrameMov;
+                    xMov = DeltaXFrameMov;
+                    yMov = 0;
+                    countFrames = 1;
+                    break;
+                case 1:
+                    xMov = 0;
+                    yMov = DeltaYFrameMov;
+                    countFrames = 2;
+                    break;
+                case 2:
+                    xMov = DeltaXFrameMov;
+                    yMov = DeltaYFrameMov;
+                    countFrames = 3;
+                    break;
+                case 3:
+                    xMov = 0;
+                    yMov = 0;
+                    countFrames = 0;
+                    break;
+                default:
+                    break;
+            }
+            xMov += DeltaXFrameMov;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            xMov = 0;
+            yMov = 0;
+            countFrames = 0;
+            CurrIndex++;
+        }
+
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+        {
+            PatMaxTool.RunParams.ApproximateNumberToFind = Convert.ToInt32(numericUpDown2.Value);
+            cogPMAlignTool.RunParams.ApproximateNumberToFind = Convert.ToInt32(numericUpDown2.Value);
+        }
+
+        int indexRunAgain = 0;
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            //foreach (var item in UnfoundInsertList)
+            //{
+            if (indexRunAgain < UnfoundInsertList.Count)
+            {
+
+                if (indexRunAgain == 0)
+                {
+                    numericUpDown1.Value -= Convert.ToDecimal(0.05);
+                    PatMaxTool.RunParams.AcceptThreshold = Convert.ToDouble(numericUpDown1.Value);
+                    cogPMAlignTool.RunParams.AcceptThreshold = Convert.ToDouble(numericUpDown1.Value);
+
+                    dataGridView1.Rows.Clear();
+                    for (int i = 0; i < UnfoundInsertList.Count; i++)
+                    {
+                        dataGridView1.Rows.Add();
+                        dataGridView1[0, i].Value = UnfoundInsertList[i].Index.ToString();                       
+                        dataGridView1[3, i].Value = UnfoundInsertList[i].X_VisRes.ToString();
+                        dataGridView1[4, i].Value = UnfoundInsertList[i].Y_VisRes.ToString();
+                    }
+                }
+
+                ROIParams.SetROIXYWidthHeight(StartXIndx + Convert.ToInt32(UnfoundInsertList[indexRunAgain].X_VisRes * 6.5),//2.478),
+                    StartYIndx - 55 + Convert.ToInt32(UnfoundInsertList[indexRunAgain].Y_VisRes * 6.5), // 2.375),
+                    Convert.ToInt32(xSearchReg * 4 * 2), Convert.ToInt32(ySearchReg * 4 * 2));
+                PatMaxSearchRegion.SetCenterWidthHeight(UnfoundInsertList[indexRunAgain].X_VisRes - 4,
+                    UnfoundInsertList[indexRunAgain].Y_VisRes, xSearchReg * 1.2, ySearchReg * 1.2);           
+                cogPMAlignTool.SearchRegion = PatMaxSearchRegion;
+
+                AcqFifoTool.Run();
+
+                cogRecordDisplay1.Fit(true);
+                cogRecordDisplay1.Fit(true);
+                cogToolBlockEditV21.Subject.Inputs["Image"].Value = cogRecordDisplay1.Image;
+                indexRunAgain++;
+            }
+            else
+            {
+                MessageBox.Show("No more unfound inserts");
+                indexRunAgain = 0;
+                numericUpDown1.Value += Convert.ToDecimal(0.05);
+                PatMaxTool.RunParams.AcceptThreshold = Convert.ToDouble(numericUpDown1.Value);
+                cogPMAlignTool.RunParams.AcceptThreshold = Convert.ToDouble(numericUpDown1.Value);
+                dataGridView1.Rows.Clear();
+            }
+
+
+            //}
+        }
+
+        private void cbxHolesResult_CheckedChanged(object sender, EventArgs e)
+        {
+            grpbxRotationResults.Visible = false;
+            //tbxRotationAngle.Text = "N/A";
+            dataGridView1.Visible = true;
+            cogRecordDisplay1.Record = cogPMAlignTool.CreateLastRunRecord();
+            cogRecordDisplay1.Fit(true);
+        }
+
+        private void cbxRotationResults_CheckedChanged(object sender, EventArgs e)
+        {
+            dataGridView1.Visible = false;
+            grpbxRotationResults.Visible = true;
+            //tbxRotationAngle.Text = null;
+            cogRecordDisplay1.Record = cogCreateSegmentAvgSegsTool.CreateLastRunRecord();
+            cogRecordDisplay1.Fit(true);
+
+        }
+    }
+}

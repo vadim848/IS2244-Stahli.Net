@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OrderParams xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <InsertCode>CNSG 432-TF</InsertCode>
+  <InsertDescription>CNSG 432-TF</InsertDescription>
+  <ProductCode>CNSG 432-TF</ProductCode>
+  <InsertSymetry>3</InsertSymetry>
+  <InsertHeight>5</InsertHeight>
+  <InsertHoleDiameter>2.7</InsertHoleDiameter>
+  <GripperCode>1</GripperCode>
+  <ServiceTrayName>ta-285.txt</ServiceTrayName>
+  <CarrierName>C_S_WNMG_432.txt</CarrierName>
+  <Cam1_Brightness>0.51</Cam1_Brightness>
+  <Cam2_Brightness>0.52</Cam2_Brightness>
+  <Cam3_Brightness>0.53</Cam3_Brightness>
+  <Cam1_Contrast>0.61</Cam1_Contrast>
+  <Cam2_Contrast>0.62</Cam2_Contrast>
+  <Cam3_Contrast>0.63</Cam3_Contrast>
+  <Cam1_Trashhold>0.71</Cam1_Trashhold>
+  <Cam2_Trashhold>0.72</Cam2_Trashhold>
+  <Cam3_Trashhold>0.73</Cam3_Trashhold>
+  <Cam1_Score>0.81</Cam1_Score>
+  <Cam2_Score>0.82</Cam2_Score>
+  <Cam3_Score>0.83</Cam3_Score>
+</OrderParams>

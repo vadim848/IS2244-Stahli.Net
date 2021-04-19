@@ -1,0 +1,721 @@
+using System;
+using System.Drawing;
+using System.Collections;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Data;
+using System.IO.Ports;
+
+
+namespace Stahli2Robots
+{
+	public class MDImain : System.Windows.Forms.Form
+    {
+        #region veriables Defenation
+        private System.Windows.Forms.MainMenu mainMenu1;
+		int count=0;
+		private System.Windows.Forms.MenuItem menuItem5;
+		private System.Windows.Forms.MenuItem menuItemAcs;
+		private System.Windows.Forms.MenuItem menuItemHoriz;
+		private System.Windows.Forms.MenuItem menuItemVert;
+		private System.Windows.Forms.MenuItem menuItemAI;
+		private System.Windows.Forms.MenuItem menuItemFile;
+		private System.Windows.Forms.MenuItem menuItemNew;
+		private System.Windows.Forms.MenuItem menuItemClose;
+		private System.Windows.Forms.MenuItem menuItemWindow;
+		private System.Windows.Forms.MenuItem menuItemMax;
+        private System.Windows.Forms.MenuItem menuItemMin;
+        private System.Windows.Forms.MenuItem menuItem1;
+        private GroupBox grpService;
+        private CheckBox chkErrLog;
+        private CheckBox chkVisionON;
+        private CheckBox chkRobotsOn;
+        private CheckBox chkPlcON;
+        private ComboBox cmbWarnnings;
+        private Label lblTableMode;
+        public ToolStripButton _tbr_Main;
+        private ToolStripSeparator toolStripSeparator17;
+        public ToolStripButton _tbr_Conv;
+        private ToolStripSeparator toolStripSeparator16;
+        public ToolStripButton _tbr_Robot;
+        private ToolStripSeparator toolStripSeparator14;
+        public ToolStripButton _tbr_Camera;
+        private ToolStripSeparator toolStripSeparator4;
+        public ToolStripButton _tbr_Tray;
+        private ToolStripSeparator toolStripSeparator15;
+        public ToolStripButton _tbr_Carr;
+        private ToolStripSeparator toolStripSeparator13;
+        public ToolStripButton _tbr_Order;
+        private ToolStripSeparator toolStripSeparator19;
+        public ToolStripButton _tbr_PLC;
+        private ToolStripSeparator toolStripSeparator21;
+        public ToolStripButton _tbr_ES_Rel;
+        private ToolStripSeparator toolStripSeparator12;
+        public ToolStripButton _tbr_Exit;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripSeparator toolStripSeparator3;
+        public ToolStrip tbr;
+        private IContainer components;
+        #endregion
+
+        //constructor (for initial the class 'MDImain')
+        public MDImain()
+		{
+			InitializeComponent();
+      
+            //frmLoadCarrier = new FrmLoadCarrier();
+            //frmLoadCarrier.MdiParent = this;
+            //frmLoadTray = new FrmLoadTray();
+            //frmLoadTray.MdiParent = this;
+            //frmUnloadCarrier = new FrmUnloadCarrier();
+            //frmUnloadCarrier.MdiParent = this;
+
+            if (chkPlcON.Checked)
+            {
+                frmVisionMain = new FrmVisionMain();
+                frmVisionMain.MdiParent = this;
+            }
+            frmAssemblies = new FrmAssemblies();
+            frmAssemblies.MdiParent = this;
+            frmBeckhoff = new FrmBeckhoff();
+            frmBeckhoff.MdiParent = this;
+            frmOrderEditor = new FrmOrderEditor();
+            frmOrderEditor.MdiParent = this;
+            frmPLC = new FrmPLC();
+            frmPLC.MdiParent = this;
+            frmRobots = new FrmRobots();
+            frmRobots.MdiParent = this;
+            frmStahliIO = new FrmStahliIO();
+            frmStahliIO.MdiParent = this;
+            frmTitle = new FrmTitle();
+            frmTitle.MdiParent = this;
+
+		}
+
+        //methods
+		protected override void Dispose( bool disposing )
+		{
+			if( disposing )
+			{
+				if (components != null) 
+				{
+					components.Dispose();
+				}
+			}
+			base.Dispose( disposing );
+		}
+		#region Windows Form Designer generated code
+
+		private void InitializeComponent()
+		{
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MDImain));
+            this.mainMenu1 = new System.Windows.Forms.MainMenu(this.components);
+            this.menuItemFile = new System.Windows.Forms.MenuItem();
+            this.menuItemNew = new System.Windows.Forms.MenuItem();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.menuItemClose = new System.Windows.Forms.MenuItem();
+            this.menuItemWindow = new System.Windows.Forms.MenuItem();
+            this.menuItem5 = new System.Windows.Forms.MenuItem();
+            this.menuItemAI = new System.Windows.Forms.MenuItem();
+            this.menuItemAcs = new System.Windows.Forms.MenuItem();
+            this.menuItemHoriz = new System.Windows.Forms.MenuItem();
+            this.menuItemVert = new System.Windows.Forms.MenuItem();
+            this.menuItemMax = new System.Windows.Forms.MenuItem();
+            this.menuItemMin = new System.Windows.Forms.MenuItem();
+            this.grpService = new System.Windows.Forms.GroupBox();
+            this.chkErrLog = new System.Windows.Forms.CheckBox();
+            this.chkVisionON = new System.Windows.Forms.CheckBox();
+            this.chkRobotsOn = new System.Windows.Forms.CheckBox();
+            this.chkPlcON = new System.Windows.Forms.CheckBox();
+            this.cmbWarnnings = new System.Windows.Forms.ComboBox();
+            this.lblTableMode = new System.Windows.Forms.Label();
+            this._tbr_Main = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator17 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_Conv = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator16 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_Robot = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_Camera = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_Tray = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator15 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_Carr = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_Order = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator19 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_PLC = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator21 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_ES_Rel = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
+            this._tbr_Exit = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tbr = new System.Windows.Forms.ToolStrip();
+            this.grpService.SuspendLayout();
+            this.tbr.SuspendLayout();
+            this.SuspendLayout();
+            // 
+            // mainMenu1
+            // 
+            this.mainMenu1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItemFile,
+            this.menuItemWindow,
+            this.menuItem5});
+            // 
+            // menuItemFile
+            // 
+            this.menuItemFile.Index = 0;
+            this.menuItemFile.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItemNew,
+            this.menuItem1,
+            this.menuItemClose});
+            this.menuItemFile.MergeType = System.Windows.Forms.MenuMerge.MergeItems;
+            this.menuItemFile.Text = "&File";
+            // 
+            // menuItemNew
+            // 
+            this.menuItemNew.Index = 0;
+            this.menuItemNew.Text = "&New";
+            // 
+            // menuItem1
+            // 
+            this.menuItem1.Index = 1;
+            this.menuItem1.MergeOrder = 4;
+            this.menuItem1.Text = "Close All";
+            this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
+            // 
+            // menuItemClose
+            // 
+            this.menuItemClose.Index = 2;
+            this.menuItemClose.MergeOrder = 5;
+            this.menuItemClose.Text = "Cl&ose";
+            this.menuItemClose.Click += new System.EventHandler(this.menuItemClose_Click);
+            // 
+            // menuItemWindow
+            // 
+            this.menuItemWindow.Index = 1;
+            this.menuItemWindow.MdiList = true;
+            this.menuItemWindow.Text = "&Window";
+            // 
+            // menuItem5
+            // 
+            this.menuItem5.Index = 2;
+            this.menuItem5.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.menuItemAI,
+            this.menuItemAcs,
+            this.menuItemHoriz,
+            this.menuItemVert,
+            this.menuItemMax,
+            this.menuItemMin});
+            this.menuItem5.Text = "&Layout";
+            // 
+            // menuItemAI
+            // 
+            this.menuItemAI.Index = 0;
+            this.menuItemAI.Text = "Arrange&Icons";
+            this.menuItemAI.Click += new System.EventHandler(this.menuItemAI_Click);
+            // 
+            // menuItemAcs
+            // 
+            this.menuItemAcs.Index = 1;
+            this.menuItemAcs.Text = "&Cascade";
+            this.menuItemAcs.Click += new System.EventHandler(this.menuItemCas_Click);
+            // 
+            // menuItemHoriz
+            // 
+            this.menuItemHoriz.Index = 2;
+            this.menuItemHoriz.Text = "Arrange &Horizontal";
+            this.menuItemHoriz.Click += new System.EventHandler(this.menuItemHoriz_Click);
+            // 
+            // menuItemVert
+            // 
+            this.menuItemVert.Index = 3;
+            this.menuItemVert.Text = "Arrange &Vertical";
+            this.menuItemVert.Click += new System.EventHandler(this.menuItemVert_Click);
+            // 
+            // menuItemMax
+            // 
+            this.menuItemMax.Index = 4;
+            this.menuItemMax.Text = "Ma&ximize all";
+            this.menuItemMax.Click += new System.EventHandler(this.menuItemMax_Click);
+            // 
+            // menuItemMin
+            // 
+            this.menuItemMin.Index = 5;
+            this.menuItemMin.Text = "Mi&nimize all";
+            this.menuItemMin.Click += new System.EventHandler(this.menuItemMin_Click);
+            // 
+            // grpService
+            // 
+            this.grpService.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.grpService.Controls.Add(this.chkErrLog);
+            this.grpService.Controls.Add(this.chkVisionON);
+            this.grpService.Controls.Add(this.chkRobotsOn);
+            this.grpService.Controls.Add(this.chkPlcON);
+            this.grpService.Location = new System.Drawing.Point(0, 106);
+            this.grpService.Name = "grpService";
+            this.grpService.Size = new System.Drawing.Size(993, 45);
+            this.grpService.TabIndex = 12;
+            this.grpService.TabStop = false;
+            this.grpService.Text = "Service";
+            this.grpService.Visible = false;
+            // 
+            // chkErrLog
+            // 
+            this.chkErrLog.AutoSize = true;
+            this.chkErrLog.Location = new System.Drawing.Point(241, 19);
+            this.chkErrLog.Name = "chkErrLog";
+            this.chkErrLog.Size = new System.Drawing.Size(88, 17);
+            this.chkErrLog.TabIndex = 15;
+            this.chkErrLog.Text = "Error Log ON";
+            this.chkErrLog.UseVisualStyleBackColor = true;
+            // 
+            // chkVisionON
+            // 
+            this.chkVisionON.AutoSize = true;
+            this.chkVisionON.Checked = true;
+            this.chkVisionON.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkVisionON.Location = new System.Drawing.Point(162, 19);
+            this.chkVisionON.Name = "chkVisionON";
+            this.chkVisionON.Size = new System.Drawing.Size(73, 17);
+            this.chkVisionON.TabIndex = 14;
+            this.chkVisionON.Text = "Vision ON";
+            this.chkVisionON.UseVisualStyleBackColor = true;
+            // 
+            // chkRobotsOn
+            // 
+            this.chkRobotsOn.AutoSize = true;
+            this.chkRobotsOn.Checked = true;
+            this.chkRobotsOn.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRobotsOn.Location = new System.Drawing.Point(77, 19);
+            this.chkRobotsOn.Name = "chkRobotsOn";
+            this.chkRobotsOn.Size = new System.Drawing.Size(79, 17);
+            this.chkRobotsOn.TabIndex = 13;
+            this.chkRobotsOn.Text = "Robots ON";
+            this.chkRobotsOn.UseVisualStyleBackColor = true;
+            // 
+            // chkPlcON
+            // 
+            this.chkPlcON.AutoSize = true;
+            this.chkPlcON.Location = new System.Drawing.Point(6, 19);
+            this.chkPlcON.Name = "chkPlcON";
+            this.chkPlcON.Size = new System.Drawing.Size(65, 17);
+            this.chkPlcON.TabIndex = 12;
+            this.chkPlcON.Text = "PLC ON";
+            this.chkPlcON.UseVisualStyleBackColor = true;
+            // 
+            // cmbWarnnings
+            // 
+            this.cmbWarnnings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbWarnnings.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cmbWarnnings.ForeColor = System.Drawing.Color.Red;
+            this.cmbWarnnings.FormattingEnabled = true;
+            this.cmbWarnnings.Location = new System.Drawing.Point(178, 76);
+            this.cmbWarnnings.Name = "cmbWarnnings";
+            this.cmbWarnnings.Size = new System.Drawing.Size(815, 24);
+            this.cmbWarnnings.TabIndex = 13;
+            this.cmbWarnnings.Text = "CMB-Warnnings";
+            // 
+            // lblTableMode
+            // 
+            this.lblTableMode.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.lblTableMode.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lblTableMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTableMode.Location = new System.Drawing.Point(0, 76);
+            this.lblTableMode.Name = "lblTableMode";
+            this.lblTableMode.Size = new System.Drawing.Size(172, 24);
+            this.lblTableMode.TabIndex = 15;
+            this.lblTableMode.Text = "Table mode:";
+            // 
+            // _tbr_Main
+            // 
+            this._tbr_Main.AutoSize = false;
+            this._tbr_Main.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Main.Image")));
+            this._tbr_Main.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Main.Name = "_tbr_Main";
+            this._tbr_Main.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Main.Text = "Main";
+            this._tbr_Main.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Main.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator17
+            // 
+            this.toolStripSeparator17.Name = "toolStripSeparator17";
+            this.toolStripSeparator17.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_Conv
+            // 
+            this._tbr_Conv.AutoSize = false;
+            this._tbr_Conv.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Conv.Image")));
+            this._tbr_Conv.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Conv.Name = "_tbr_Conv";
+            this._tbr_Conv.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Conv.Text = "Conveyors";
+            this._tbr_Conv.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Conv.ToolTipText = "Conveyors and Index table";
+            this._tbr_Conv.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator16
+            // 
+            this.toolStripSeparator16.Name = "toolStripSeparator16";
+            this.toolStripSeparator16.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_Robot
+            // 
+            this._tbr_Robot.AutoSize = false;
+            this._tbr_Robot.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Robot.Image")));
+            this._tbr_Robot.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Robot.Name = "_tbr_Robot";
+            this._tbr_Robot.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Robot.Text = "Robot";
+            this._tbr_Robot.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Robot.ToolTipText = "Robots";
+            this._tbr_Robot.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator14
+            // 
+            this.toolStripSeparator14.Name = "toolStripSeparator14";
+            this.toolStripSeparator14.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_Camera
+            // 
+            this._tbr_Camera.AutoSize = false;
+            this._tbr_Camera.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Camera.Image")));
+            this._tbr_Camera.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Camera.Name = "_tbr_Camera";
+            this._tbr_Camera.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Camera.Text = "Camera";
+            this._tbr_Camera.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this._tbr_Camera.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Camera.ToolTipText = "Cameras";
+            this._tbr_Camera.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_Tray
+            // 
+            this._tbr_Tray.AutoSize = false;
+            this._tbr_Tray.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Tray.Image")));
+            this._tbr_Tray.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Tray.Name = "_tbr_Tray";
+            this._tbr_Tray.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Tray.Text = "Trays";
+            this._tbr_Tray.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this._tbr_Tray.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Tray.ToolTipText = "Servise Trays";
+            this._tbr_Tray.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator15
+            // 
+            this.toolStripSeparator15.Name = "toolStripSeparator15";
+            this.toolStripSeparator15.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_Carr
+            // 
+            this._tbr_Carr.AutoSize = false;
+            this._tbr_Carr.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Carr.Image")));
+            this._tbr_Carr.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Carr.Name = "_tbr_Carr";
+            this._tbr_Carr.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Carr.Text = "Carrier";
+            this._tbr_Carr.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Carr.ToolTipText = "Carrier";
+            this._tbr_Carr.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator13
+            // 
+            this.toolStripSeparator13.Name = "toolStripSeparator13";
+            this.toolStripSeparator13.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_Order
+            // 
+            this._tbr_Order.AutoSize = false;
+            this._tbr_Order.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Order.Image")));
+            this._tbr_Order.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Order.Name = "_tbr_Order";
+            this._tbr_Order.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Order.Text = "Order";
+            this._tbr_Order.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Order.ToolTipText = "Edit Order";
+            this._tbr_Order.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator19
+            // 
+            this.toolStripSeparator19.Name = "toolStripSeparator19";
+            this.toolStripSeparator19.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_PLC
+            // 
+            this._tbr_PLC.AutoSize = false;
+            this._tbr_PLC.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_PLC.Image")));
+            this._tbr_PLC.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_PLC.Name = "_tbr_PLC";
+            this._tbr_PLC.Size = new System.Drawing.Size(70, 70);
+            this._tbr_PLC.Text = "PLC";
+            this._tbr_PLC.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_PLC.ToolTipText = "PLC";
+            this._tbr_PLC.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator21
+            // 
+            this.toolStripSeparator21.Name = "toolStripSeparator21";
+            this.toolStripSeparator21.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_ES_Rel
+            // 
+            this._tbr_ES_Rel.AutoSize = false;
+            this._tbr_ES_Rel.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_ES_Rel.Image")));
+            this._tbr_ES_Rel.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_ES_Rel.Name = "_tbr_ES_Rel";
+            this._tbr_ES_Rel.Size = new System.Drawing.Size(70, 70);
+            this._tbr_ES_Rel.Text = "E.S Release";
+            this._tbr_ES_Rel.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_ES_Rel.ToolTipText = "E.S Release";
+            this._tbr_ES_Rel.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator12
+            // 
+            this.toolStripSeparator12.Name = "toolStripSeparator12";
+            this.toolStripSeparator12.Size = new System.Drawing.Size(6, 73);
+            // 
+            // _tbr_Exit
+            // 
+            this._tbr_Exit.AutoSize = false;
+            this._tbr_Exit.Image = ((System.Drawing.Image)(resources.GetObject("_tbr_Exit.Image")));
+            this._tbr_Exit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+            this._tbr_Exit.Name = "_tbr_Exit";
+            this._tbr_Exit.Size = new System.Drawing.Size(70, 70);
+            this._tbr_Exit.Text = "Exit";
+            this._tbr_Exit.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this._tbr_Exit.ToolTipText = "Exit";
+            this._tbr_Exit.Click += new System.EventHandler(this._tbr_button_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 73);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 73);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 73);
+            // 
+            // tbr
+            // 
+            this.tbr.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._tbr_Main,
+            this.toolStripSeparator17,
+            this._tbr_Conv,
+            this.toolStripSeparator16,
+            this._tbr_Robot,
+            this.toolStripSeparator14,
+            this._tbr_Camera,
+            this.toolStripSeparator4,
+            this._tbr_Tray,
+            this.toolStripSeparator15,
+            this._tbr_Carr,
+            this.toolStripSeparator13,
+            this._tbr_Order,
+            this.toolStripSeparator19,
+            this._tbr_PLC,
+            this.toolStripSeparator21,
+            this._tbr_ES_Rel,
+            this.toolStripSeparator12,
+            this._tbr_Exit,
+            this.toolStripSeparator2,
+            this.toolStripSeparator1,
+            this.toolStripSeparator3});
+            this.tbr.Location = new System.Drawing.Point(0, 0);
+            this.tbr.Name = "tbr";
+            this.tbr.Size = new System.Drawing.Size(993, 73);
+            this.tbr.TabIndex = 1;
+            this.tbr.Text = "gjjg";
+            // 
+            // MDImain
+            // 
+            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.ClientSize = new System.Drawing.Size(993, 680);
+            this.Controls.Add(this.grpService);
+            this.Controls.Add(this.lblTableMode);
+            this.Controls.Add(this.cmbWarnnings);
+            this.Controls.Add(this.tbr);
+            this.IsMdiContainer = true;
+            this.Menu = this.mainMenu1;
+            this.Name = "MDImain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Stahli";
+            this.Load += new System.EventHandler(this.Form_Load);
+            this.grpService.ResumeLayout(false);
+            this.grpService.PerformLayout();
+            this.tbr.ResumeLayout(false);
+            this.tbr.PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+		}
+		#endregion
+		[STAThread]
+		static void Main() 
+		{
+            Application.Run(new MDImain());         
+		}
+		private void menuItemClose_Click(object sender, System.EventArgs e)
+		{
+			//Gets the currently active MDI child window.
+			Form a = this.ActiveMdiChild;
+			//Close the MDI child window
+			a.Close();
+		}		
+		private void menuItemAI_Click(object sender, System.EventArgs e)
+		{
+			//Arrange MDI child icons within the client region of the MDI parent form.
+			this.LayoutMdi(System.Windows.Forms.MdiLayout.ArrangeIcons);
+		}
+		private void menuItemCas_Click(object sender, System.EventArgs e)
+		{
+			//Cascade all child forms.
+			this.LayoutMdi(System.Windows.Forms.MdiLayout.Cascade);
+		}
+		private void menuItemHoriz_Click(object sender, System.EventArgs e)
+		{
+			//Tile all child forms horizontally.
+			this.LayoutMdi(System.Windows.Forms.MdiLayout.TileHorizontal);
+		}
+		private void menuItemVert_Click(object sender, System.EventArgs e)
+		{			
+			//Tile all child forms vertically.
+			this.LayoutMdi(System.Windows.Forms.MdiLayout.TileVertical);
+		}
+		private void menuItemMax_Click(object sender, System.EventArgs e)
+		{
+			//Gets forms that represent the MDI child forms 
+			//that are parented to this form in an array
+			Form [] charr= this.MdiChildren;
+
+			//for each child form set the window state to Maximized
+			foreach (Form chform in charr)
+				chform.WindowState=FormWindowState.Maximized;
+		}
+		private void menuItemMin_Click(object sender, System.EventArgs e)
+		{
+			//Gets forms that represent the MDI child forms 
+			//that are parented to this form in an array
+			Form [] charr= this.MdiChildren;
+
+			//for each child form set the window state to Minimized
+			foreach (Form chform in charr)
+				chform.WindowState=FormWindowState.Minimized;
+		}
+		private void menuItem1_Click(object sender, System.EventArgs e)
+		{
+			//Gets forms that represent the MDI child forms 
+			//that are parented to this form in an array
+			Form [] charr= this.MdiChildren;
+
+			//for each child form set the window state to Minimized
+			foreach (Form chform in charr)
+				chform.Close();
+		}        
+        private void _tbr_button_Click(object sender, EventArgs e)
+        {
+            ToolStripButton toolStripButton = sender as ToolStripButton; 
+
+             switch (toolStripButton.Name)
+            {
+                case "_tbr_Main":
+                    break;
+                case "_tbr_Conv":                    
+                    frmAssemblies.Show();
+                    break;
+                case "_tbr_Robot":
+                    frmRobots.Show();
+                    break;
+                case "_tbr_Camera":
+                    if (chkPlcON.Checked)
+                    {
+                        frmVisionMain.Show();
+                    }
+                    break;
+                case "_tbr_Tray":
+                    break;
+                case "_tbr_Carr":
+                    break;
+                case "_tbr_Order":
+                    frmOrderEditor.Show();
+                    break;
+                case "_tbr_PLC":
+                    frmBeckhoff.Show();
+                    break;
+                case "_tbr_ES_Rel":
+                    break;
+                case "_tbr_Exit":
+                    this.Close();
+                    break;
+                default:
+                    break;
+            }
+        }
+     
+        // members (משתנים מקומיים)
+       
+
+        // properties (משתנים שניגשים אליהם מבחוץ)
+        public FrmAssemblies frmAssemblies;
+        public FrmBeckhoff frmBeckhoff;
+        public FrmOrderEditor frmOrderEditor;
+        public FrmPLC frmPLC;
+        public FrmRobots frmRobots;
+        public FrmStahliIO frmStahliIO;
+        public FrmTitle frmTitle;
+        
+        public FrmVisionMain frmVisionMain;
+        //public FrmLoadCarrier frmLoadCarrier;
+        //public FrmLoadTray frmLoadTray;
+        //public FrmUnloadCarrier frmUnloadCarrier;
+        
+
+        //form Events
+        private void Form_Load(object sender, EventArgs e)
+        {
+            AppGen.Inst.MDImain = this;
+            WindowState = FormWindowState.Maximized;
+            frmTitle.Show();
+
+
+            // initial ALL:
+            //init Robot Port:
+            if (chkRobotsOn.Checked)
+            {
+                // AppGen.Inst.RobotConnection.OpenRobotPorts();   -Remarked 02.04.2014
+            }
+            //init PLC:
+            if (chkPlcON.Checked)
+            {
+
+            }
+            //init Vision:
+            if (chkVisionON.Checked)
+            {
+
+            }
+            //init Log File:
+            if (chkErrLog.Checked)
+            {
+
+            }
+
+        }
+    }
+}

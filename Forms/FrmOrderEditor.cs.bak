@@ -1,0 +1,348 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using System.IO;
+using System.Collections;
+
+namespace Stahli2Robots
+{
+    public partial class FrmOrderEditor : Form
+    {
+        public FrmOrderEditor()
+        {
+            InitializeComponent();
+            // delegats:           
+            insertCodeDelegate = new InsertCodeDelegate(InsertCodeDelegateFunc);
+            insertDescDelegate = new InsertDescDelegate(InsertDescDelegateFunc);
+            insertSymetryDelegate = new InsertSymetryDelegate(InsertSymetryDelegateFunc);
+            insertHeightDelegate = new InsertHeightDelegate(InsertHeightDelegateFunc);
+            insertHoleDiaDelegate = new InsertHoleDiaDelegate(InsertHoleDiaDelegateFunc);
+            insertGrCodeDelegate = new InsertGrCodeDelegate(InsertGrCodeDelegateFunc);
+            serviceTrayDelegate = new ServiceTrayDelegate(ServiceTrayDelegateFunc);
+            carrierDelegate = new CarrierDelegate(CarrierDelegateFunc);
+            camBright1Delegate = new CamBright1Delegate(CamBright1DelegateFunc);
+            camBright2Delegate = new CamBright2Delegate(CamBright2DelegateFunc);
+            camBright3Delegate = new CamBright3Delegate(CamBright3DelegateFunc);
+            cam1ScoreDelegate = new Cam1ScoreDelegate(Cam1ScoreDelegateFunc);
+            cam2ScoreDelegate = new Cam2ScoreDelegate(Cam2ScoreDelegateFunc);
+            cam3ScoreDelegate = new Cam3ScoreDelegate(Cam3ScoreDelegateFunc);
+
+        }
+        private void UserCloseForm(object sender, FormClosingEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+        }
+
+        private void button1_Click(object sender, EventArgs e)  //Reading from AppSetting.XML
+        {
+            AppGen.Inst.AppSettings.DeSerialize();
+
+            AppGen.Inst.MDImain.frmOrderEditor.InserCodeText(AppGen.Inst.AppSettings.InsertCode);
+            AppGen.Inst.MDImain.frmOrderEditor.InserDescriptionText(AppGen.Inst.AppSettings.InsertDescription);
+            AppGen.Inst.MDImain.frmOrderEditor.InsertSymetryText(AppGen.Inst.AppSettings.InsertSymetry);
+            AppGen.Inst.MDImain.frmOrderEditor.InsertHeightText(AppGen.Inst.AppSettings.InsertHeight);
+            AppGen.Inst.MDImain.frmOrderEditor.InsertHoleDiaText(AppGen.Inst.AppSettings.InsertHoleDiameter);
+            AppGen.Inst.MDImain.frmOrderEditor.InsertGrCodeText(AppGen.Inst.AppSettings.GripperCode);
+            AppGen.Inst.MDImain.frmOrderEditor.ServiceTrayText(AppGen.Inst.AppSettings.ServiceTrayName);
+            AppGen.Inst.MDImain.frmOrderEditor.CarrierText(AppGen.Inst.AppSettings.CarrierName);
+            AppGen.Inst.MDImain.frmOrderEditor.CamBright1Text(AppGen.Inst.AppSettings.Cam1_Brightness);
+            AppGen.Inst.MDImain.frmOrderEditor.CamBright2Text(AppGen.Inst.AppSettings.Cam2_Brightness);
+            AppGen.Inst.MDImain.frmOrderEditor.CamBright3Text(AppGen.Inst.AppSettings.Cam3_Brightness);
+            AppGen.Inst.MDImain.frmOrderEditor.Cam1ScoreText(AppGen.Inst.AppSettings.Cam1_Score);
+            AppGen.Inst.MDImain.frmOrderEditor.Cam2ScoreText(AppGen.Inst.AppSettings.Cam2_Score);
+            AppGen.Inst.MDImain.frmOrderEditor.Cam3ScoreText(AppGen.Inst.AppSettings.Cam3_Score);
+
+            AppGen.Inst.MDImain.frmTitle.TextChange(AppGen.Inst.AppSettings.InsertCode);
+            AppGen.Inst.MDImain.frmTitle.TextDescription(AppGen.Inst.AppSettings.InsertDescription);
+            AppGen.Inst.MDImain.frmTitle.TextInsHeight(AppGen.Inst.AppSettings.InsertHeight);
+            AppGen.Inst.MDImain.frmTitle.TextHoleDia(AppGen.Inst.AppSettings.InsertHoleDiameter);           
+            AppGen.Inst.MDImain.frmTitle.TextTray(AppGen.Inst.AppSettings.ServiceTrayName);
+            AppGen.Inst.MDImain.frmTitle.TextCarrier(AppGen.Inst.AppSettings.CarrierName);
+
+
+
+            //contrastParams.Contrast
+            //AppGen.Inst.MDImain.frmUnloadCarrier.  //brightnessParams.Brightness
+            //AppGen.Inst.FrmVisionMain.frm
+        }
+        private void button4_Click(object sender, EventArgs e)  //Savinging to AppSetting.XML
+        {
+            AppGen.Inst.AppSettings.Serialize(); 
+        }
+
+        private delegate void InsertCodeDelegate(string str);
+        private InsertCodeDelegate insertCodeDelegate;
+        private void InsertCodeDelegateFunc(string str)
+        {
+            try
+            {
+                lblInsertCode.Text = str;
+            }
+            catch { }
+        }
+        public void InserCodeText(string str)
+        {
+            try
+            {
+                this.Invoke(insertCodeDelegate, str);
+            }
+            catch { }
+        }
+        
+        
+        
+        private delegate void InsertDescDelegate(string str);
+        private InsertDescDelegate insertDescDelegate;
+        private void InsertDescDelegateFunc(string str)
+        {
+            try
+            {
+                lblDescription.Text = str;
+            }
+            catch { }
+        }
+        public void InserDescriptionText(string str)
+        {
+            try
+            {
+                this.Invoke(insertDescDelegate, str);
+            }
+            catch { }
+        }
+
+        private delegate void InsertSymetryDelegate(int SymNum);
+        private InsertSymetryDelegate insertSymetryDelegate;
+        private void InsertSymetryDelegateFunc(int SymNum)
+        {
+            try
+            {
+                lblSymetry.Text = Convert.ToString(SymNum);
+            }
+            catch { }
+        }
+        public void InsertSymetryText(int SymNum)
+        {
+            try
+            {
+                this.Invoke(insertSymetryDelegate, SymNum);
+            }
+            catch { }
+        }
+
+        private delegate void InsertHeightDelegate(double InsHieght);
+        private InsertHeightDelegate insertHeightDelegate;
+        private void InsertHeightDelegateFunc(double InsHieght)
+        {
+            try
+            {
+                lblInsertHeight.Text = Convert.ToString(InsHieght);
+            }
+            catch { }
+        }
+        public void InsertHeightText(double InsHieght)
+        {
+            try
+            {
+                this.Invoke(insertHeightDelegate, InsHieght);
+            }
+            catch { }
+        }
+
+        private delegate void InsertHoleDiaDelegate(double HoleDia);
+        private InsertHoleDiaDelegate insertHoleDiaDelegate;
+        private void InsertHoleDiaDelegateFunc(double HoleDia)
+        {
+            try
+            {
+                lblHoleDiameter.Text = Convert.ToString(HoleDia);
+            }
+            catch { }
+        }
+        public void InsertHoleDiaText(double HoleDia)
+        {
+            try
+            {
+                this.Invoke(insertHoleDiaDelegate, HoleDia);
+            }
+            catch { }
+        }
+
+        private delegate void InsertGrCodeDelegate(int GrCode);
+        private InsertGrCodeDelegate insertGrCodeDelegate;
+        private void InsertGrCodeDelegateFunc(int GrCode)
+        {
+            try
+            {
+                lblGripperCode.Text = Convert.ToString(GrCode);
+            }
+            catch { }
+        }
+        public void InsertGrCodeText(int GrCode)
+        {
+            try
+            {
+                this.Invoke(insertGrCodeDelegate, GrCode);
+            }
+            catch { }
+        }
+
+        private delegate void ServiceTrayDelegate(string str);
+        private ServiceTrayDelegate serviceTrayDelegate;
+        private void ServiceTrayDelegateFunc(string str)
+        {
+            try
+            {
+                lblTray.Text = str;
+            }
+            catch { }
+        }
+        public void ServiceTrayText(string str)
+        {
+            try
+            {
+                this.Invoke(serviceTrayDelegate, str);
+            }
+            catch { }
+        }
+
+        private delegate void CarrierDelegate(string str);
+        private CarrierDelegate carrierDelegate;
+        private void CarrierDelegateFunc(string str)
+        {
+            try
+            {
+                lblCarrier.Text = str;
+            }
+            catch { }
+        }
+        public void CarrierText(string str)
+        {
+            try
+            {
+                this.Invoke(carrierDelegate, str);
+            }
+            catch { }
+        }
+
+        private delegate void CamBright1Delegate(double CamBright1);
+        private CamBright1Delegate camBright1Delegate;
+        private void CamBright1DelegateFunc(double CamBright1)
+        {
+            try
+            {
+                lblCam1Brightness.Text = Convert.ToString(CamBright1);
+            }
+            catch { }
+        }
+        public void CamBright1Text(double CamBright1)
+        {
+            try
+            {
+                this.Invoke(camBright1Delegate, CamBright1);
+            }
+            catch { }
+        }
+
+        private delegate void CamBright2Delegate(double CamBright2);
+        private CamBright2Delegate camBright2Delegate;
+        private void CamBright2DelegateFunc(double CamBright2)
+        {
+            try
+            {
+                lblCam2Brightness.Text = Convert.ToString(CamBright2);
+            }
+            catch { }
+        }
+        public void CamBright2Text(double CamBright2)
+        {
+            try
+            {
+                this.Invoke(camBright2Delegate, CamBright2);
+            }
+            catch { }
+        }
+        
+        private delegate void CamBright3Delegate(double CamBright3);
+        private CamBright3Delegate camBright3Delegate;
+        private void CamBright3DelegateFunc(double CamBright3)
+        {
+            try
+            {
+                lblCam3Brightness.Text = Convert.ToString(CamBright3);
+            }
+            catch { }
+        }
+        public void CamBright3Text(double CamBright3)
+        {
+            try
+            {
+                this.Invoke(camBright3Delegate, CamBright3);
+            }
+            catch { }
+        }
+        
+        private delegate void Cam1ScoreDelegate(double CamScore1);
+        private Cam1ScoreDelegate cam1ScoreDelegate;
+        private void Cam1ScoreDelegateFunc(double CamScore1)
+        {
+            try
+            {
+                lblCam1Score.Text = Convert.ToString(CamScore1);
+            }
+            catch { }
+        }
+        public void Cam1ScoreText(double CamScore1)
+        {
+            try
+            {
+                this.Invoke(cam1ScoreDelegate, CamScore1);
+            }
+            catch { }
+        }
+
+        private delegate void Cam2ScoreDelegate(double CamScore2);
+        private Cam2ScoreDelegate cam2ScoreDelegate;
+        private void Cam2ScoreDelegateFunc(double CamScore2)
+        {
+            try
+            {
+                lblCam2Score.Text = Convert.ToString(CamScore2);
+            }
+            catch { }
+        }
+        public void Cam2ScoreText(double CamScore2)
+        {
+            try
+            {
+                this.Invoke(cam2ScoreDelegate, CamScore2);
+            }
+            catch { }
+        }
+       
+        private delegate void Cam3ScoreDelegate(double CamScore3);
+        private Cam3ScoreDelegate cam3ScoreDelegate;
+        private void Cam3ScoreDelegateFunc(double CamScore3)
+        {
+            try
+            {
+                lblCam3Score.Text = Convert.ToString(CamScore3);
+            }
+            catch { }
+        }
+        public void Cam3ScoreText(double CamScore3)
+        {
+            try
+            {
+                this.Invoke(cam3ScoreDelegate, CamScore3);
+            }
+            catch { }
+        }
+        
+    }
+}

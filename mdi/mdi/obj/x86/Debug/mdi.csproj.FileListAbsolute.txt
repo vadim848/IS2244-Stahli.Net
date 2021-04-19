@@ -1,0 +1,26 @@
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\obj\x86\Debug\mdi.Properties.Resources.resources
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\bin\Debug\mdi.exe
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\bin\Debug\mdi.pdb
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\obj\x86\Debug\mdi.exe
+C:\Users\zivb\AppData\Local\Temporary Projects\mdi\obj\x86\Debug\mdi.pdb
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Debug\mdi.exe
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Debug\mdi.pdb
+C:\Ziv\C#mdi\mdi\mdi\bin\Debug\mdi.exe
+C:\Ziv\C#mdi\mdi\mdi\bin\Debug\mdi.pdb
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Debug\mdi.Properties.Resources.resources
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Ziv\C#mdi\mdi\mdi\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\mdi.exe
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\mdi.pdb
+C:\Ziv\MDIwithC#\mdi\mdi\bin\Debug\mdi.exe
+C:\Ziv\MDIwithC#\mdi\mdi\bin\Debug\mdi.pdb
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\mdisample.Form2.resources
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\mdi.MDIParent1.resources
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\mdi.Properties.Resources.resources
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Ziv\MDIwithC#\mdi\mdi\obj\x86\Debug\GenerateResource.write.1.tlog
