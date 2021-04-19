@@ -2879,7 +2879,7 @@
             // label18
             // 
             this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label18.Location = new System.Drawing.Point(382, 24);
+            this.label18.Location = new System.Drawing.Point(381, 24);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(36, 14);
             this.label18.TabIndex = 100;
@@ -2920,31 +2920,31 @@
             // txtCorrLow2
             // 
             this.txtCorrLow2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtCorrLow2.Location = new System.Drawing.Point(322, 132);
+            this.txtCorrLow2.Location = new System.Drawing.Point(322, 115);
             this.txtCorrLow2.Name = "txtCorrLow2";
             this.txtCorrLow2.Size = new System.Drawing.Size(59, 20);
             this.txtCorrLow2.TabIndex = 99;
-            this.txtCorrLow2.Text = "0.08";
+            this.txtCorrLow2.Text = "0.05";
             this.txtCorrLow2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txtCorrLow1
             // 
             this.txtCorrLow1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtCorrLow1.Location = new System.Drawing.Point(322, 114);
+            this.txtCorrLow1.Location = new System.Drawing.Point(322, 97);
             this.txtCorrLow1.Name = "txtCorrLow1";
             this.txtCorrLow1.Size = new System.Drawing.Size(59, 20);
             this.txtCorrLow1.TabIndex = 98;
-            this.txtCorrLow1.Text = "0.05";
+            this.txtCorrLow1.Text = "0.01";
             this.txtCorrLow1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txtTolLow
             // 
             this.txtTolLow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtTolLow.Location = new System.Drawing.Point(322, 96);
+            this.txtTolLow.Location = new System.Drawing.Point(322, 135);
             this.txtTolLow.Name = "txtTolLow";
             this.txtTolLow.Size = new System.Drawing.Size(59, 20);
             this.txtTolLow.TabIndex = 97;
-            this.txtTolLow.Text = "0.01";
+            this.txtTolLow.Text = "0.08";
             this.txtTolLow.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txtNominal
@@ -2960,31 +2960,31 @@
             // txtTolHigh
             // 
             this.txtTolHigh.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtTolHigh.Location = new System.Drawing.Point(322, 59);
+            this.txtTolHigh.Location = new System.Drawing.Point(322, 20);
             this.txtTolHigh.Name = "txtTolHigh";
             this.txtTolHigh.Size = new System.Drawing.Size(59, 20);
             this.txtTolHigh.TabIndex = 95;
-            this.txtTolHigh.Text = "0.01";
+            this.txtTolHigh.Text = "0.08";
             this.txtTolHigh.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txtCorrHigh1
             // 
             this.txtCorrHigh1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtCorrHigh1.Location = new System.Drawing.Point(322, 39);
+            this.txtCorrHigh1.Location = new System.Drawing.Point(322, 57);
             this.txtCorrHigh1.Name = "txtCorrHigh1";
             this.txtCorrHigh1.Size = new System.Drawing.Size(59, 20);
             this.txtCorrHigh1.TabIndex = 94;
-            this.txtCorrHigh1.Text = "0.05";
+            this.txtCorrHigh1.Text = "0.01";
             this.txtCorrHigh1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txtCorrHigh2
             // 
             this.txtCorrHigh2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtCorrHigh2.Location = new System.Drawing.Point(322, 21);
+            this.txtCorrHigh2.Location = new System.Drawing.Point(322, 40);
             this.txtCorrHigh2.Name = "txtCorrHigh2";
             this.txtCorrHigh2.Size = new System.Drawing.Size(59, 20);
             this.txtCorrHigh2.TabIndex = 93;
-            this.txtCorrHigh2.Text = "0.08";
+            this.txtCorrHigh2.Text = "0.05";
             this.txtCorrHigh2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label17

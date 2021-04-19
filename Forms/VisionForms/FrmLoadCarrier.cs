@@ -133,7 +133,7 @@ namespace Stahli2Robots
             toolBlock = cogToolBlockEditV21.Subject;
             try
             {
-                //toolBlock = CogSerializer.LoadObjectFromFile(@"C:\PROJECTS\Stahli.Net\Bin\Debug\CognexStahli\Camera2.vpp") as CogToolBlock;
+               // toolBlock = CogSerializer.LoadObjectFromFile(@"C:\PROJECT\IS2244- Stahli\Stahli.Net 30.07.15\bin\Debug\CognexStahli\Camera2.vpp") as CogToolBlock;
                 toolBlock = CogSerializer.LoadObjectFromFile(System.IO.Directory.GetCurrentDirectory() + "\\CognexStahli\\Camera2.vpp") as CogToolBlock;
                 //if it is new insert, upload a defult
             }
