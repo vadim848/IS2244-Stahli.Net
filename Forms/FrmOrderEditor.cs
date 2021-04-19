@@ -149,7 +149,7 @@ namespace Stahli2Robots
             LoadOrderData();
             AppGen.Inst.OrderParams.Serialize(OrderName);
             editModeFl = false;
-            this.Width = 464;
+            this.Width = 455;
         }
         private void cmdEditMode_Click(object sender, EventArgs e)
         {

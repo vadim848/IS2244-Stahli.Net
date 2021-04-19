@@ -98,7 +98,7 @@
       <A>0</A>
     </PointCoord>
   </AppSetUnloadCarrierCalibPt>
-  <CurrentInsertCode>W0804_CC</CurrentInsertCode>
+  <CurrentInsertCode>Ziv_test_2</CurrentInsertCode>
   <AppSetLangFl>Eng</AppSetLangFl>
   <AppSetLoadCarrAddedX>0</AppSetLoadCarrAddedX>
   <AppSetLoadCarrAddedY>0</AppSetLoadCarrAddedY>
@@ -108,12 +108,12 @@
   <AppSetOriginYOffset>-2</AppSetOriginYOffset>
   <AppSetUnloadedInsCounter>38750</AppSetUnloadedInsCounter>
   <AppSetLoadedInsCounter>38890</AppSetLoadedInsCounter>
-  <AppSetCounterPerOrder>13526</AppSetCounterPerOrder>
+  <AppSetCounterPerOrder>0</AppSetCounterPerOrder>
   <AppSetInsQnt>0</AppSetInsQnt>
   <AppSetTotalUnloadMissedCount>0</AppSetTotalUnloadMissedCount>
   <AppSetMissPocketTotalCount>0</AppSetMissPocketTotalCount>
   <AppSetUnloadCarrierSliceNo>1</AppSetUnloadCarrierSliceNo>
-  <AppSetLoadTrayCurrIndex>42</AppSetLoadTrayCurrIndex>
-  <AppSetUnLoadTrayCurrIndex>69</AppSetUnLoadTrayCurrIndex>
+  <AppSetLoadTrayCurrIndex>0</AppSetLoadTrayCurrIndex>
+  <AppSetUnLoadTrayCurrIndex>0</AppSetUnLoadTrayCurrIndex>
   <AppSetLoadCarrierCurrIndex>0</AppSetLoadCarrierCurrIndex>
 </AppSettings>

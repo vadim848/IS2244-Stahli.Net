@@ -666,7 +666,7 @@ namespace Stahli2Robots
             cbxHolesResult.Enabled = true;
 
             //17.6
-            AcqFifoTool.Run(); //17.6Roey
+             AcqFifoTool.Run(); //17.6Roey
             //25.03.14
             cogAcqFifoTool = cogToolBlockEditV21.Subject.Tools["CogAcqFifoTool1"] as CogAcqFifoTool;
             //17.02.14p
@@ -932,22 +932,12 @@ namespace Stahli2Robots
                 //17.6Roey---------------------------------------------------
                 //cogRecordDisplay1.Record = cogPMAlignTool.InputImage;
                 //Roey----------------------------------------------------------
+
                 cogRecordDisplay1.InteractiveGraphics.Add(cogPMAlignTool.Pattern.TrainRegion as ICogGraphicInteractive, "test", false);
                 cogRecordDisplay1.InteractiveGraphics.Add(cogPMAlignToolCenter.Pattern.TrainRegion as ICogGraphicInteractive, "testCenter", false);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+              
                 //Now
                 axes = new CogCoordinateAxes();
                 axes.Transform = cogPMAlignTool.Pattern.Origin;
@@ -1424,7 +1414,7 @@ namespace Stahli2Robots
 
                     //SavePatternToFile();
                     //save the teach pattern according to order name (ziv)
-                    AppGen.Inst.MDImain.frmVisionMain.savePattern("Camera2", AppGen.Inst.OrderParams.InsertCode, cogPMAlignTool.Pattern); 
+                    AppGen.Inst.MDImain.frmVisionMain.savePattern("Camera2", AppGen.Inst.OrderParams.InsertCode, cogPMAlignToolFindOneInsert.Pattern); 
                   
 
                 }
@@ -1625,7 +1615,8 @@ namespace Stahli2Robots
         void LoadPatternFromFile()
         {
             // Ziv 14.07.15
-            cogPMAlignTool.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera2", AppGen.Inst.OrderParams.InsertCode);   //13.07.15 (Ziv)
+            cogPMAlignToolFindOneInsert.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera2", AppGen.Inst.OrderParams.InsertCode); 
+           // cogPMAlignTool.Pattern = AppGen.Inst.MDImain.frmVisionMain.loadPattern("Camera2", AppGen.Inst.OrderParams.InsertCode);   //13.07.15 (Ziv)
             if (cogPMAlignTool.Pattern == null)
             {
                 cogPMAlignTool.Pattern = new CogPMAlignPattern();

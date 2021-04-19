@@ -518,6 +518,7 @@ namespace Stahli2Robots
                                 AppGen.Inst.MainCycle.SetupDelays = 0;
 	                        }
 
+                            if (!checkGripperCode()) return false;
                             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + ","
                                                                                                         + AppGen.Inst.MainCycle.PickSensor.ToString() + ","
                                                                                                         + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
@@ -589,6 +590,7 @@ namespace Stahli2Robots
                                 AppGen.Inst.MainCycle.SetupDelays = 0;
                             }
 
+                            if (!checkGripperCode()) return false;
                             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
                                                                                                        + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
                                                                                                        + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
@@ -2155,6 +2157,7 @@ namespace Stahli2Robots
         }
         private void cmdDebugLoadingCycle_Click(object sender, EventArgs e)
         {
+            if (!checkGripperCode()) return;
             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_LOAD_ROBOT, "70," + AppGen.Inst.MainCycle.PlaceZero.ToString() + ","
                                                                                     + AppGen.Inst.MainCycle.PickSensor.ToString() + ","
                                                                                     + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
@@ -2203,6 +2206,7 @@ namespace Stahli2Robots
         }
         private void cmdDebugUnloadingCycle_Click(object sender, EventArgs e)
         {
+            if (!checkGripperCode()) return;
             AppGen.Inst.RobotConnection.SendData(ROBOT_INDEXES.ENUM_UNLOAD_ROBOT, "70," + AppGen.Inst.MainCycle.SetupDelays.ToString() + ","
                                                                                                        + AppGen.Inst.OrderParams.InsertHeight.ToString() + ","     //Ziv 15-07-15
                                                                                                        + AppGen.Inst.OrderParams.InsertSymetry.ToString() + ","    //Ziv 15-07-15
@@ -2332,6 +2336,15 @@ namespace Stahli2Robots
             chrtInsertMaesures.Invalidate();
         }
 
+        public bool checkGripperCode()
+        {
+            if (AppGen.Inst.OrderParams.GripperCode == 0)
+            {
+                MessageBox.Show("No gripper was selected in order !","Gripper Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            else return true;
+        }
         //members:
         public System.Windows.Forms.DataVisualization.Charting.Series series1;
         public StripLine stCorrHigh2;

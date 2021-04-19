@@ -374,8 +374,6 @@ namespace Stahli2Robots
             // chkRobotsOn
             // 
             this.chkRobotsOn.AutoSize = true;
-            this.chkRobotsOn.Checked = true;
-            this.chkRobotsOn.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkRobotsOn.Location = new System.Drawing.Point(77, 19);
             this.chkRobotsOn.Name = "chkRobotsOn";
             this.chkRobotsOn.Size = new System.Drawing.Size(79, 17);
@@ -386,8 +384,6 @@ namespace Stahli2Robots
             // chkPlcON
             // 
             this.chkPlcON.AutoSize = true;
-            this.chkPlcON.Checked = true;
-            this.chkPlcON.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkPlcON.Location = new System.Drawing.Point(6, 19);
             this.chkPlcON.Name = "chkPlcON";
             this.chkPlcON.Size = new System.Drawing.Size(65, 17);
